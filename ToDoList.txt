@@ -1,0 +1,7 @@
+The TO DO List for all u gamers, its gamer time!
+
+- create vision code and make it see and relay data about the reflective tape (Ryan)
+- get navx working with I2C port (Justin?)
+- play Skyrim (Brenden & Justin)
+- Show up (Chester)
+- Make cargo class (Everyone)
