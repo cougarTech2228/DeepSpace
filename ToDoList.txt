@@ -4,4 +4,4 @@ The TO DO List for all u gamers, its gamer time!
 - get navx working with I2C port (Justin?)
 - play Skyrim (Brenden & Justin)
 - Show up (Chester)
-- Make balls class (Everyone)
+- Make cargo class (Everyone)
