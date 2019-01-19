@@ -23,6 +23,7 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private static DriveBase base = new DriveBase();
   private DriverIF controller = new DriverIF();
+  private Navx navx = new Navx(Navx.port.I2C);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -69,11 +70,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     base.TeleopMove(controller);
+    System.out.println(navx.getYaw());
   }
-
-  /**
-   * This function is called periodically during test mode.
-   */
   @Override
   public void testPeriodic() {
   }

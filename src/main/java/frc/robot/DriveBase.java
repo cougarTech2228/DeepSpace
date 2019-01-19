@@ -13,10 +13,10 @@ public class DriveBase {
 	public double TurnSpeedPercentage = 0.5;
 	
 	public DriveBase() {
-		RightFront = new Motor(4);
-		RightBack = new Motor(3);
-		LeftFront = new Motor(2);
-		LeftBack = new Motor(1);
+		RightFront = new Motor(1);
+		RightBack = new Motor(2);
+		LeftFront = new Motor(3);
+		LeftBack = new Motor(4);
 		
 		LeftFront.Invert(true);
 		LeftBack.Invert(true);
@@ -25,15 +25,18 @@ public class DriveBase {
 		RightBack.SetBrakeMode(true);
 		LeftFront.SetBrakeMode(true);
 		LeftBack.SetBrakeMode(true);
+
 	}
 	private double ZeroLimit(double input) {
-		if(Math.abs(input) < 0.2)
+		if(Math.abs(input) < 0.3)
 			return 0;
 		return input;
 	}
 	public void TeleopInit() {
-		RightFront.TeleopInit();
-		LeftFront.TeleopInit();
+		//RightFront.TeleopInit();
+		//LeftFront.TeleopInit();
+		//RightBack.TeleopInit();
+		//LeftBack.TeleopInit();
 	}
 	public void AutoInit() {
 		RightFront.AutoInit();
@@ -58,8 +61,6 @@ public class DriveBase {
 
 		Turn *= TurnSpeedPercentage;
 		
-		System.out.println(Controller.Throttle());
-		
 		RightF = Limit(Forward + Strafe - Turn);
 		LeftF = Limit(Forward - Strafe + Turn);
 		RightB = Limit(Forward - Strafe - Turn);
@@ -83,11 +84,11 @@ public class DriveBase {
 			//LeftMotorComplete  =  LeftFront.MagicMoveTo(NavAngle, angle, speed);
 		} while (!RightMotorComplete || !LeftMotorComplete);
 	}
-	public void MoveTo(int encoders, double speed) {
+	/*public void MoveTo(int encoders, double speed) {
 		Motor.MoveMotors(encoders, speed, RightFront, LeftFront);
 	}
 	public void ResetEncoders() {
-		RightFront.SetEncoderToZero();
-		LeftFront.SetEncoderToZero();
-	}
+		//RightFront.SetEncoderToZero();
+		//LeftFront.SetEncoderToZero();
+	}*/
 }

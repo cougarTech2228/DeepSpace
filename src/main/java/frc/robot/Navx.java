@@ -4,14 +4,11 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.PIDOutput;
-import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.SerialPort;
 
 public class Navx implements PIDOutput {
 	private AHRS ahrs;
-//	private PIDController _PIDController;
 	static final double AngleSP = 0.0;
 	static double rate = 0;
 	static double kP = 0.0003;
@@ -19,21 +16,16 @@ public class Navx implements PIDOutput {
 	static final double kD = 0.00;
 	
 	static final double kF = 0.00;
-	private PIDSource pidSource;
-	private PIDOutput pidOutput;
-	// how close the navX will get to the value
 	static final double kToleranceDegrees = 2.0f;
-	private boolean rotateToAngle = false;
     public enum port {
         USB, I2C
     }
 
-	public Navx(int port) {
+	public Navx(Navx.port _port) {
 		try {
-            switch (port) {
-                case 0: ahrs = new AHRS(SerialPort.Port.kUSB);
-            }
-			ahrs = new AHRS(I2C.Port.kOnboard);  // Mu
+				 if(_port == port.I2C) ahrs = new AHRS(I2C.Port.kOnboard);
+			else if(_port == port.USB) ahrs = new AHRS(SerialPort.Port.kUSB);
+
 		} catch (RuntimeException ex) {
 			System.out.println("Error starting the navx");
 		}

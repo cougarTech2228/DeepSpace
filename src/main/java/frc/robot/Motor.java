@@ -106,7 +106,7 @@ public class Motor {
 	public void TeleopInit() {
 		CloseLoopEnabled = false;
 		Motor.selectProfileSlot(SLOT_IDx, PID_IDx);
-		Motor.configAllowableClosedloopError(PID_IDx, /*SRXDriveBaseCfg.kClosedLoopErr*/3, Timeout);
+		Motor.configAllowableClosedloopError(PID_IDx, 0, Timeout);
 		Motor.config_kF(PID_IDx, FeedForwardGain, Timeout);
 		
 		Motor.config_kP(PID_IDx, 0, Timeout);
@@ -147,7 +147,7 @@ public class Motor {
 		Motor.set(mode, value);
 	}
 	public void SetSpeed(double speed) {
-		Motor.set(ControlMode.Velocity, /*SRXDriveBaseCfg.MaxVel_VelNativeUnits*/6 * speed);
+		Motor.set(ControlMode.Velocity, 563.69 * speed);
 	}
 	public void Stop() {
 		Motor.stopMotor();
