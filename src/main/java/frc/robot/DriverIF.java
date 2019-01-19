@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID.Hand;
 
 public class DriverIF {
-	XboxIF xboxIF;
+	public XboxIF xboxIF;
 	XboxIF xboxIF2;
 	Toggler toggler;
 	Toggler squeeze;

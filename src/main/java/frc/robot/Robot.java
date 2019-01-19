@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     base.TeleopMove(controller);
-    System.out.println(navx.getYaw());
+    // System.out.println(navx.getYaw());
   }
   @Override
   public void testPeriodic() {

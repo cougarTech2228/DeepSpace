@@ -28,15 +28,15 @@ public class DriveBase {
 
 	}
 	private double ZeroLimit(double input) {
-		if(Math.abs(input) < 0.3)
+		if(Math.abs(input) < 0.1)
 			return 0;
 		return input;
 	}
 	public void TeleopInit() {
-		//RightFront.TeleopInit();
-		//LeftFront.TeleopInit();
-		//RightBack.TeleopInit();
-		//LeftBack.TeleopInit();
+		RightFront.TeleopInit();
+		LeftFront.TeleopInit();
+		RightBack.TeleopInit();
+		LeftBack.TeleopInit();
 	}
 	public void AutoInit() {
 		RightFront.AutoInit();
@@ -57,6 +57,7 @@ public class DriveBase {
 		double RightF, LeftF, RightB, LeftB;
 		
 		Forward = ZeroLimit(Forward);
+		Strafe = ZeroLimit(Strafe);
 		Turn = ZeroLimit(Turn);
 
 		Turn *= TurnSpeedPercentage;
@@ -70,11 +71,28 @@ public class DriveBase {
 		
 		//Right *= DriveSpeedPercentage;
 		//Left  *= DriveSpeedPercentage;
-		
+		if(Controller.xboxIF.X_BUTTON())
+			LeftFront.Set(0.5);
+			else LeftFront.Stop();
+		if(Controller.xboxIF.Y_BUTTON())
+			RightFront.Set(0.5);
+			else RightFront.Stop();
+		if(Controller.xboxIF.A_BUTTON())
+			LeftBack.Set(0.5);
+			else LeftBack.Stop();
+		if(Controller.xboxIF.B_BUTTON())
+			RightBack.Set(0.5);
+			else RightBack.Stop();
+		/*
 		RightFront.Set(ControlMode.Velocity, RightF * 563.69);
 		LeftFront.Set(ControlMode.Velocity, LeftF * 563.69);
 		RightBack.Set(ControlMode.Velocity, RightB * 563.69);
 		LeftBack.Set(ControlMode.Velocity, LeftB * 563.69);
+		*/
+		System.out.println("RF Speed: " + RightFront.GetSensorPosition());
+		System.out.println("LF Speed: " + LeftFront.GetSensorPosition());
+		System.out.println("RB Speed: " + RightBack.GetSensorPosition());
+		System.out.println("LB Speed: " + LeftBack.GetSensorPosition());
 	}
 	public void SpinTo(double angle, double speed) {
 		boolean RightMotorComplete = false, LeftMotorComplete = false;
