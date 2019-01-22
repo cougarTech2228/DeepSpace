@@ -11,6 +11,7 @@ public class DriveBase {
 	public Motor LeftFront;
 	public Motor LeftBack;
 	public double DriveSpeedPercentage = 1;
+	public double StrafeSpeedPercentage = 1;
 	public double TurnSpeedPercentage = 0.5;
 	
 	public DriveBase(XboxIF controls, Navx navx) {
@@ -64,22 +65,19 @@ public class DriveBase {
 		Strafe = ZeroLimit(Strafe);
 		Turn = ZeroLimit(Turn);
 
+		Forward *= DriveSpeedPercentage;
+		Strafe *= StrafeSpeedPercentage;
 		Turn *= TurnSpeedPercentage;
-		
+
 		RightF = Limit(Forward + Strafe + Turn);
 		LeftF = Limit(Forward - Strafe - Turn);
 		RightB = Limit(Forward - Strafe + Turn);
 		LeftB = Limit(Forward + Strafe - Turn);
 
-		RightFront.Set(RightF);
-		LeftFront.Set(LeftF);
-		RightBack.Set(RightB);
-		LeftBack.Set(LeftB);
-		//RightFront.Set(ControlMode.Velocity, RightF * 563.69);
-		//LeftFront.Set(ControlMode.Velocity, LeftF * 563.69);
-		//RightBack.Set(ControlMode.Velocity, RightB * 563.69);
-		//LeftBack.Set(ControlMode.Velocity, LeftB * 563.69);
-		
+		RightFront.SetSpeed(RightF);
+		LeftFront.SetSpeed(LeftF);
+		RightBack.SetSpeed(RightB);
+		LeftBack.SetSpeed(LeftB);		
 	}
 	public void TestEncoders() {
 		if(controls.X_BUTTON()) {
@@ -111,19 +109,4 @@ public class DriveBase {
 			RightBack.SetEncoderToZero();
 		}
 	}
-	public void SpinTo(double angle, double speed) {
-		boolean RightMotorComplete = false, LeftMotorComplete = false;
-		double NavAngle;
-		do {
-			//RightMotorComplete = RightFront.MagicMoveTo(NavAngle, angle, speed);
-			//LeftMotorComplete  =  LeftFront.MagicMoveTo(NavAngle, angle, speed);
-		} while (!RightMotorComplete || !LeftMotorComplete);
-	}
-	/*public void MoveTo(int encoders, double speed) {
-		Motor.MoveMotors(encoders, speed, RightFront, LeftFront);
-	}
-	public void ResetEncoders() {
-		//RightFront.SetEncoderToZero();
-		//LeftFront.SetEncoderToZero();
-	}*/
 }
