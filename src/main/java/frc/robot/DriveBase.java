@@ -4,22 +4,26 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 public class DriveBase {
 	
-	public Navx Navx;
+	public Navx navx;
+	public XboxIF controls;
 	public Motor RightFront;
 	public Motor RightBack;
 	public Motor LeftFront;
 	public Motor LeftBack;
-	public double DriveSpeedPercentage = 0.8;
+	public double DriveSpeedPercentage = 1;
 	public double TurnSpeedPercentage = 0.5;
 	
-	public DriveBase() {
+	public DriveBase(XboxIF controls, Navx navx) {
+		this.controls = controls;
+		this.navx = navx;
+
 		RightFront = new Motor(1);
 		RightBack = new Motor(2);
 		LeftFront = new Motor(3);
 		LeftBack = new Motor(4);
 		
-		LeftFront.Invert(true);
-		LeftBack.Invert(true);
+		RightFront.Invert(true);
+		RightBack.Invert(true);
 		
 		RightFront.SetBrakeMode(true);
 		RightBack.SetBrakeMode(true);
@@ -50,10 +54,10 @@ public class DriveBase {
 		return input;
 	}
 	
-	public void TeleopMove(DriverIF Controller) {
-		double Forward = Controller.Throttle();
-		double Strafe = Controller.Strafe();
-		double Turn = Controller.Turn();
+	public void TeleopMove() {
+		double Forward = controls.Throttle;
+		double Strafe = controls.Strafe;
+		double Turn = controls.Turn;
 		double RightF, LeftF, RightB, LeftB;
 		
 		Forward = ZeroLimit(Forward);
@@ -62,37 +66,50 @@ public class DriveBase {
 
 		Turn *= TurnSpeedPercentage;
 		
-		RightF = Limit(Forward + Strafe - Turn);
-		LeftF = Limit(Forward - Strafe + Turn);
-		RightB = Limit(Forward - Strafe - Turn);
-		LeftB = Limit(Forward + Strafe + Turn);
+		RightF = Limit(Forward + Strafe + Turn);
+		LeftF = Limit(Forward - Strafe - Turn);
+		RightB = Limit(Forward - Strafe + Turn);
+		LeftB = Limit(Forward + Strafe - Turn);
 
-
+		RightFront.Set(RightF);
+		LeftFront.Set(LeftF);
+		RightBack.Set(RightB);
+		LeftBack.Set(LeftB);
+		//RightFront.Set(ControlMode.Velocity, RightF * 563.69);
+		//LeftFront.Set(ControlMode.Velocity, LeftF * 563.69);
+		//RightBack.Set(ControlMode.Velocity, RightB * 563.69);
+		//LeftBack.Set(ControlMode.Velocity, LeftB * 563.69);
 		
-		//Right *= DriveSpeedPercentage;
-		//Left  *= DriveSpeedPercentage;
-		if(Controller.xboxIF.X_BUTTON())
+	}
+	public void TestEncoders() {
+		if(controls.X_BUTTON()) {
 			LeftFront.Set(0.5);
-			else LeftFront.Stop();
-		if(Controller.xboxIF.Y_BUTTON())
+			System.out.println(LeftFront.GetSensorPosition());
+		} else {
+			LeftFront.Stop();
+			LeftFront.SetEncoderToZero();
+		}
+		if(controls.Y_BUTTON()) {
 			RightFront.Set(0.5);
-			else RightFront.Stop();
-		if(Controller.xboxIF.A_BUTTON())
+			System.out.println(RightFront.GetSensorPosition());
+		} else {
+			RightFront.Stop();
+			RightFront.SetEncoderToZero();
+		}
+		if(controls.A_BUTTON()) {
 			LeftBack.Set(0.5);
-			else LeftBack.Stop();
-		if(Controller.xboxIF.B_BUTTON())
+			System.out.println(LeftBack.GetSensorPosition());
+		} else {
+			LeftBack.Stop();
+			LeftBack.SetEncoderToZero();
+		}
+		if(controls.B_BUTTON()) {
 			RightBack.Set(0.5);
-			else RightBack.Stop();
-		/*
-		RightFront.Set(ControlMode.Velocity, RightF * 563.69);
-		LeftFront.Set(ControlMode.Velocity, LeftF * 563.69);
-		RightBack.Set(ControlMode.Velocity, RightB * 563.69);
-		LeftBack.Set(ControlMode.Velocity, LeftB * 563.69);
-		*/
-		System.out.println("RF Speed: " + RightFront.GetSensorPosition());
-		System.out.println("LF Speed: " + LeftFront.GetSensorPosition());
-		System.out.println("RB Speed: " + RightBack.GetSensorPosition());
-		System.out.println("LB Speed: " + LeftBack.GetSensorPosition());
+			System.out.println(RightBack.GetSensorPosition());
+		} else {
+			RightBack.Stop();
+			RightBack.SetEncoderToZero();
+		}
 	}
 	public void SpinTo(double angle, double speed) {
 		boolean RightMotorComplete = false, LeftMotorComplete = false;
