@@ -19,12 +19,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
+  private static int pigeonPort = RobotMap.PIGEONIMU;
+  public static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  
-  private XboxIF controller = new XboxIF(1);
-  private Navx navx = new Navx(Navx.port.I2C);
-  private DriveBase base = new DriveBase(controller, navx);
+  private static Navx navx = new Navx(Navx.port.I2C);
+  private static XboxIF xbox = new XboxIF(1);
+  private static DriveBase base = new DriveBase(xbox, navx);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -67,11 +68,13 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     base.TeleopInit();
+    pigeon.resetYaw();
   }
   @Override
   public void teleopPeriodic() {
     base.TeleopMove();
-    //System.out.println(navx.getYaw());
+    pigeon.PigeonCheck();
+    System.out.println(navx.getYaw());
   }
   @Override
   public void testPeriodic() {
