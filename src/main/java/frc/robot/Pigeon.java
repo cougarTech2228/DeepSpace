@@ -17,11 +17,11 @@ public class Pigeon{
         Pigeon.setYaw(0);
     }
 
-    public void Calibrate(){
+    public void calibrate(){
         Pigeon.enterCalibrationMode(CalibrationMode.BootTareGyroAccel);
     }
 
-    public void PigeonCheck(){
+    public void pigeonCheck(){
         System.out.println("Yaw: " +  getYaw() + "  Pitch: " + getPitch() + "  Roll: " + getRoll());
     }
 
