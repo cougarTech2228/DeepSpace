@@ -8,10 +8,9 @@ public class XboxIF {
 	private XboxController xbox;
 
 	//assignment declarations
-	public double Throttle = LEFT_JOYSTICK_Y();
-	public double Strafe = LEFT_JOYSTICK_X();
-	public double Turn = RIGHT_JOYSTICK_X();
-
+	public double Throttle() {return LEFT_JOYSTICK_Y(); };
+	public double Strafe() {return LEFT_JOYSTICK_X(); };
+	public double Turn() {return RIGHT_JOYSTICK_X(); };
 
 	public XboxIF(int _port) {
 		xbox = new XboxController(_port);

@@ -17,14 +17,14 @@ public class Navx implements PIDOutput {
 	
 	static final double kF = 0.00;
 	static final double kToleranceDegrees = 2.0f;
-    public enum port {
+    public enum Port {
         USB, I2C
     }
 
-	public Navx(Navx.port _port) {
+	public Navx(Navx.Port _port) {
 		try {
-				 if(_port == port.I2C) ahrs = new AHRS(I2C.Port.kOnboard);
-			else if(_port == port.USB) ahrs = new AHRS(SerialPort.Port.kUSB);
+				 if(_port == Port.I2C) ahrs = new AHRS(I2C.Port.kOnboard);
+			else if(_port == Port.USB) ahrs = new AHRS(SerialPort.Port.kUSB);
 
 		} catch (RuntimeException ex) {
 			System.out.println("Error starting the navx");

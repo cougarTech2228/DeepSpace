@@ -1,35 +1,51 @@
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
+import edu.wpi.first.wpilibj.command.Command;
+import jdk.jfr.Percentage;
 
 public class DriveBase {
 	
-	public Navx navx;
-	public XboxIF controls;
-	public Motor RightFront;
-	public Motor RightBack;
-	public Motor LeftFront;
-	public Motor LeftBack;
-	public double DriveSpeedPercentage = 1;
-	public double StrafeSpeedPercentage = 1;
-	public double TurnSpeedPercentage = 0.5;
+	private Navx navx;
+	private XboxIF controls;
+	private Motor rightFront;
+	private Motor rightBack;
+	private Motor leftFront;
+	private Motor leftBack;
+	private double driveSpeedPercentage = 1;
+	private double strafeSpeedPercentage = 1;
+	private double turnSpeedPercentage = 0.5;
 	
-	public DriveBase(XboxIF controls, Navx navx) {
+	private DriveType mode;
+	public enum DriveType {
+		Mecanum, Tank
+	}
+
+	public DriveBase(XboxIF controls, Navx navx, DriveType mode) {
 		this.controls = controls;
 		this.navx = navx;
+		this.mode = mode;
 
-		RightFront = new Motor(1);
-		RightBack = new Motor(2);
-		LeftFront = new Motor(3);
-		LeftBack = new Motor(4);
+		rightFront = new Motor(1);
+		leftFront = new Motor(3);
 		
-		RightFront.Invert(true);
-		RightBack.Invert(true);
+		//Mecanum
+		if(mode == DriveType.Mecanum) {
+			rightBack = new Motor(2);
+			leftBack = new Motor(4);
+		}
+		//Tank
+		else if(mode == DriveType.Tank) {
+			rightBack = new Motor(2, rightFront);
+			leftBack = new Motor(4, leftFront);
+		}
 		
-		RightFront.SetBrakeMode(true);
-		RightBack.SetBrakeMode(true);
-		LeftFront.SetBrakeMode(true);
-		LeftBack.SetBrakeMode(true);
+		rightFront.Invert(true);
+		rightBack.Invert(true);
+		
+		rightFront.SetBrakeMode(true);
+		rightBack.SetBrakeMode(true);
+		leftFront.SetBrakeMode(true);
+		leftBack.SetBrakeMode(true);
 
 	}
 	private double ZeroLimit(double input) {
@@ -38,14 +54,18 @@ public class DriveBase {
 		return input;
 	}
 	public void TeleopInit() {
-		RightFront.TeleopInit();
-		LeftFront.TeleopInit();
-		RightBack.TeleopInit();
-		LeftBack.TeleopInit();
+		rightFront.TeleopInit();
+		leftFront.TeleopInit();
+
+		//init back motors for mecanum
+		if(mode == DriveType.Mecanum) {
+			rightBack.TeleopInit();
+			leftBack.TeleopInit();
+		}
 	}
 	public void AutoInit() {
-		RightFront.AutoInit();
-		LeftFront.AutoInit();
+		rightFront.AutoInit();
+		leftFront.AutoInit();
 	}
 	private double Limit(double input) {
 		if(input > 1)
@@ -56,57 +76,147 @@ public class DriveBase {
 	}
 	
 	public void TeleopMove() {
-		double Forward = controls.Throttle;
-		double Strafe = controls.Strafe;
-		double Turn = controls.Turn;
+		double Forward = controls.Throttle();
+		double Turn = controls.Turn();
 		double RightF, LeftF, RightB, LeftB;
 		
 		Forward = ZeroLimit(Forward);
-		Strafe = ZeroLimit(Strafe);
 		Turn = ZeroLimit(Turn);
 
-		Forward *= DriveSpeedPercentage;
-		Strafe *= StrafeSpeedPercentage;
-		Turn *= TurnSpeedPercentage;
+		Forward *= driveSpeedPercentage;
+		Turn *= turnSpeedPercentage;
 
-		RightF = Limit(Forward + Strafe + Turn);
-		LeftF = Limit(Forward - Strafe - Turn);
-		RightB = Limit(Forward - Strafe + Turn);
-		LeftB = Limit(Forward + Strafe - Turn);
+		if(mode == DriveType.Tank) {
 
-		RightFront.SetSpeed(RightF);
-		LeftFront.SetSpeed(LeftF);
-		RightBack.SetSpeed(RightB);
-		LeftBack.SetSpeed(LeftB);		
+			RightF = Limit(Forward + Turn);
+			LeftF = Limit(Forward - Turn);
+			
+			rightFront.SetSpeed(RightF);
+			leftFront.SetSpeed(LeftF);	
+		}
+		else if(mode == DriveType.Mecanum) {
+
+			double Strafe = controls.Strafe();
+			Strafe = ZeroLimit(Strafe); 
+			Strafe *= strafeSpeedPercentage;
+
+			RightF = Limit(Forward + Strafe + Turn);
+			LeftF = Limit(Forward - Strafe - Turn);
+			RightB = Limit(Forward - Strafe + Turn);
+			LeftB = Limit(Forward + Strafe - Turn);
+	
+			System.out.println(RightF);
+			rightFront.SetSpeed(RightF);
+			leftFront.SetSpeed(LeftF);
+			rightBack.SetSpeed(RightB);
+			leftBack.SetSpeed(LeftB);		
+		}	
 	}
+	//auto
+	public TurnToAngle TurnToAngle(Navx navx, double targetAngle, double speed) {
+		return new TurnToAngle(navx, targetAngle, speed);
+	}
+	public class TurnToAngle extends Command {
+		boolean running;
+		double targetAngle;
+		double percentComplete;
+		double maxSpeed;
+		double speed;
+		Navx navx;
+		
+		public TurnToAngle(Navx navx, double targetAngle, double speed) {
+			this.targetAngle = targetAngle;
+			this.navx = navx;
+			this.maxSpeed = speed;
+			running = true;
+			percentComplete = 0;
+			this.speed = speed;
+		}
+		protected void initialize() {
+			navx.zeroYaw();
+		}
+		public void execute() {
+			double minimumSpeed = 0.15;
+
+			//calculates percent of turn complete
+			percentComplete = navx.getAngle() / targetAngle;
+			double speedMultiplier = 1;
+
+			//if there is 45 degs or less to go, do this:
+			if(navx.getAngle() >= targetAngle - 45) {
+
+				//percentRampComplete is the percent of 45 degs left to go
+				double percentRampComplete = (targetAngle - navx.getAngle()) / 45;
+
+				//sets speed multiplier to ramped down value,
+				//with the lowest value possible being minimumSpeed
+				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
+			}
+			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
+			speed = maxSpeed * speedMultiplier;
+			
+			//move
+			if(mode == DriveType.Tank) {
+				rightFront.SetSpeed(speed);
+				leftFront.SetSpeed(-speed);
+			}
+			else if(mode == DriveType.Mecanum) {
+				rightFront.SetSpeed(speed);
+				rightBack.SetSpeed(speed);
+				leftFront.SetSpeed(-speed);
+				leftBack.SetSpeed(-speed);
+			}
+		}
+		@Override
+		protected boolean isFinished() {
+			if(Math.abs(1 - percentComplete) < 0.015) {
+				return true;
+			}
+			else return false;
+		}
+		@Override
+		protected void end() {
+			if(mode == DriveType.Tank) {
+				rightFront.Stop();
+				leftFront.Stop();
+			}
+			else if(mode == DriveType.Mecanum) {
+				rightFront.Stop();
+				rightBack.Stop();
+				leftFront.Stop();
+				leftBack.Stop();
+			}
+		}
+	}
+	//test
 	public void TestEncoders() {
 		if(controls.X_BUTTON()) {
-			LeftFront.Set(0.5);
-			System.out.println(LeftFront.GetSensorPosition());
+			leftFront.Set(0.5);
+			System.out.println(leftFront.GetSensorPosition());
 		} else {
-			LeftFront.Stop();
-			LeftFront.SetEncoderToZero();
+			leftFront.Stop();
+			leftFront.SetEncoderToZero();
 		}
 		if(controls.Y_BUTTON()) {
-			RightFront.Set(0.5);
-			System.out.println(RightFront.GetSensorPosition());
+			rightFront.Set(0.5);
+			System.out.println(rightFront.GetSensorPosition());
 		} else {
-			RightFront.Stop();
-			RightFront.SetEncoderToZero();
+			rightFront.Stop();
+			rightFront.SetEncoderToZero();
 		}
 		if(controls.A_BUTTON()) {
-			LeftBack.Set(0.5);
-			System.out.println(LeftBack.GetSensorPosition());
+			leftBack.Set(0.5);
+			System.out.println(leftBack.GetSensorPosition());
 		} else {
-			LeftBack.Stop();
-			LeftBack.SetEncoderToZero();
+			leftBack.Stop();
+			leftBack.SetEncoderToZero();
 		}
 		if(controls.B_BUTTON()) {
-			RightBack.Set(0.5);
-			System.out.println(RightBack.GetSensorPosition());
+			rightBack.Set(0.5);
+			System.out.println(rightBack.GetSensorPosition());
 		} else {
-			RightBack.Stop();
-			RightBack.SetEncoderToZero();
+			rightBack.Stop();
+			rightBack.SetEncoderToZero();
 		}
 	}
 }

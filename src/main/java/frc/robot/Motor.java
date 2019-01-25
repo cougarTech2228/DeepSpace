@@ -10,72 +10,70 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class Motor {
 	public static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
-	private WPI_TalonSRX Motor;
-	public int Timeout = 10;
-	public boolean InvertMotor = false;
-	public boolean InvertEncoder = false;
-	public boolean CloseLoopEnabled = true;
-	public int StallAmpsMax = 100;
-	public int StallAmpsAim = 10;
-	public int MaxStallTime = 6000;
-	public int VelocitySampleTime = 64;
+	private WPI_TalonSRX motor;
+	public int timeout = 10;
+	public boolean invertMotor = false;
+	public boolean invertEncoder = false;
+	public boolean closeLoopEnabled = true;
+	public int stallAmpsMax = 100;
+	public int stallAmpsAim = 10;
+	public int maxStallTime = 6000;
+	public int velocitySampleTime = 64;
 	public int PID_IDx = 0;
 	public int SLOT_IDx = 0;
-	public int IntegralZone = 0;
-	public int ClosedLoopError = 0;
+	public int integralZone = 0;
+	public int closedLoopError = 0;
 	
-	public double FeedForwardGain = 1.5;
-	public double ProportionalGain = 2;
-	public double IntegralGain = 0;
-	public double DerivativeGain = 10;
-    
-	public static boolean MotorsFinished = false;
+	public double feedForwardGain = 1.5;
+	public double proportionalGain = 2;
+	public double integralGain = 0;
+	public double derivativeGain = 10;
 	
 	/**
 	 * Sets up a master motor
 	 * @param CanID the CanID of the motor
 	 */
 	public Motor(int CanID) {
-		Motor = new WPI_TalonSRX(CanID);
+		motor = new WPI_TalonSRX(CanID);
 		
 		
-		Motor.configNominalOutputForward(0.0, Timeout);
-		Motor.configNominalOutputReverse(0.0, Timeout);
-		Motor.configPeakOutputForward(1, Timeout);
-		Motor.configPeakOutputReverse(-1, Timeout);
+		motor.configNominalOutputForward(0.0, timeout);
+		motor.configNominalOutputReverse(0.0, timeout);
+		motor.configPeakOutputForward(1, timeout);
+		motor.configPeakOutputReverse(-1, timeout);
 		
 		// Reverse TalonSRX if necessary
-		Motor.setInverted(InvertMotor);
+		motor.setInverted(invertMotor);
 		
 		// Configure voltage compensation mode and set max voltage to 11 volts
-		Motor.configVoltageCompSaturation(11.0, Timeout);
+		motor.configVoltageCompSaturation(11.0, timeout);
 		// tweak the voltage bus measurement filter, default is 32 cells in rolling average (1ms per sample)
-		Motor.configVoltageMeasurementFilter(32, Timeout);
-		Motor.enableVoltageCompensation(true);
+		motor.configVoltageMeasurementFilter(32, timeout);
+		motor.enableVoltageCompensation(true);
 		
 		// set output zero (neutral) deadband at 4%
-		Motor.configNeutralDeadband(0.04, Timeout);
+		motor.configNeutralDeadband(0.04, timeout);
 
 		// Set up stall conditions in SRX for the drive train
-		Motor.configPeakCurrentLimit(StallAmpsMax, Timeout);
-		Motor.configPeakCurrentDuration(MaxStallTime, Timeout);
-		Motor.configContinuousCurrentLimit(StallAmpsAim, Timeout);
-		Motor.enableCurrentLimit(true);
+		motor.configPeakCurrentLimit(stallAmpsMax, timeout);
+		motor.configPeakCurrentDuration(maxStallTime, timeout);
+		motor.configContinuousCurrentLimit(stallAmpsAim, timeout);
+		motor.enableCurrentLimit(true);
 		
 		// Configure the velocity measurement period and sample window rolling average
 		// Sample period in ms from supported sample periods-default 100ms period/64 sample window
-		Motor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, Timeout);
-		Motor.configVelocityMeasurementWindow(VelocitySampleTime, Timeout);
+		motor.configVelocityMeasurementPeriod(VelocityMeasPeriod.Period_100Ms, timeout);
+		motor.configVelocityMeasurementWindow(velocitySampleTime, timeout);
 		
 		// Set up encoder input
-		Motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PID_IDx, Timeout);
-		Motor.setSensorPhase(InvertEncoder);
+		motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder, PID_IDx, timeout);
+		motor.setSensorPhase(invertEncoder);
 		
 		// Clear quadrature position
-		Motor.clearStickyFaults(Timeout);
-		Motor.getSensorCollection().setQuadraturePosition(0, Timeout);
+		motor.clearStickyFaults(timeout);
+		motor.getSensorCollection().setQuadraturePosition(0, timeout);
 		
-		Motor.stopMotor();
+		motor.stopMotor();
 		AllMotors.add(this);
 	}
 	/**
@@ -84,76 +82,76 @@ public class Motor {
 	 * @param Following the Motor to follow
 	 */
 	public void Invert(boolean invert) {
-		Motor.setInverted(invert);
+		motor.setInverted(invert);
 	}
 	public Motor(int CanID, Motor Following) {
-		Motor = new WPI_TalonSRX(CanID);
-		Motor.setInverted(InvertMotor);
-		Motor.clearStickyFaults(Timeout);
-		Motor.set(ControlMode.Follower, Following.Motor.getDeviceID());
+		motor = new WPI_TalonSRX(CanID);
+		motor.setInverted(invertMotor);
+		motor.clearStickyFaults(timeout);
+		motor.set(ControlMode.Follower, Following.motor.getDeviceID());
 	}
 	public void AutoInit() {
-		CloseLoopEnabled = true;
-		Motor.selectProfileSlot(SLOT_IDx, PID_IDx);
-		Motor.configAllowableClosedloopError(PID_IDx, ClosedLoopError, Timeout);
-		Motor.config_kF(PID_IDx, FeedForwardGain, Timeout);
+		closeLoopEnabled = true;
+		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
+		motor.configAllowableClosedloopError(PID_IDx, closedLoopError, timeout);
+		motor.config_kF(PID_IDx, feedForwardGain, timeout);
 		
-		Motor.config_kP(PID_IDx, ProportionalGain, Timeout);
-		Motor.config_kI(PID_IDx, IntegralGain, Timeout); 
-		Motor.config_kD(PID_IDx, DerivativeGain, Timeout);
-		Motor.config_IntegralZone(PID_IDx, IntegralZone, Timeout);
+		motor.config_kP(PID_IDx, proportionalGain, timeout);
+		motor.config_kI(PID_IDx, integralGain, timeout); 
+		motor.config_kD(PID_IDx, derivativeGain, timeout);
+		motor.config_IntegralZone(PID_IDx, integralZone, timeout);
 	}
 	public void TeleopInit() {
-		CloseLoopEnabled = false;
-		Motor.selectProfileSlot(SLOT_IDx, PID_IDx);
-		Motor.configAllowableClosedloopError(PID_IDx, 0, Timeout);
-		Motor.config_kF(PID_IDx, FeedForwardGain, Timeout);
+		closeLoopEnabled = false;
+		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
+		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
+		motor.config_kF(PID_IDx, feedForwardGain, timeout);
 		
-		Motor.config_kP(PID_IDx, 0, Timeout);
-		Motor.config_kI(PID_IDx, 0, Timeout); 
-		Motor.config_kD(PID_IDx, 0, Timeout);
+		motor.config_kP(PID_IDx, 0, timeout);
+		motor.config_kI(PID_IDx, 0, timeout); 
+		motor.config_kD(PID_IDx, 0, timeout);
 	}
 	public double GetSensorPosition() {
-		int polarity = InvertEncoder ? -1 : 1;
-		return polarity * Motor.getSelectedSensorPosition(PID_IDx);
+		int polarity = invertEncoder ? -1 : 1;
+		return polarity * motor.getSelectedSensorPosition(PID_IDx);
 	}
 	public double GetSensorVelocity() {
-		return Motor.getSelectedSensorVelocity(PID_IDx);
+		return motor.getSelectedSensorVelocity(PID_IDx);
 	}
 	public double GetMotorCurrent() {
-		return Motor.getOutputCurrent();
+		return motor.getOutputCurrent();
 	}
 	public double GetClosedLoopErr() {
-		return Motor.getClosedLoopError(PID_IDx);
+		return motor.getClosedLoopError(PID_IDx);
 	}
 	public double GetBusVoltage() {
-		return Motor.getBusVoltage();
+		return motor.getBusVoltage();
 	}
 	public void SetEncoderPosition(int position) {
-		Motor.getSensorCollection().setQuadraturePosition(position, 25);
+		motor.getSensorCollection().setQuadraturePosition(position, 25);
 	}
 	public void SetEncoderToZero() {
-		Motor.getSensorCollection().setQuadraturePosition(0, 25);
+		motor.getSensorCollection().setQuadraturePosition(0, 25);
 	}
 	public void SetRamp(double milliseconds) {
-		if(CloseLoopEnabled)
-			Motor.configClosedloopRamp(milliseconds, Timeout); 
-		else Motor.configOpenloopRamp(milliseconds, Timeout);
+		if(closeLoopEnabled)
+			motor.configClosedloopRamp(milliseconds, timeout);
+		else motor.configOpenloopRamp(milliseconds, timeout);
 	}
 	public void Set(double speed) {
-		Motor.set(speed);
+		motor.set(speed);
 	}
 	public void Set(ControlMode mode, double value) {
-		Motor.set(mode, value);
+		motor.set(mode, value);
 	}
 	public void SetSpeed(double speed) {
-		Motor.set(ControlMode.Velocity, 563.69 * speed);
+		motor.set(ControlMode.Velocity, 563.69 * speed);
 	}
 	public void Stop() {
-		Motor.stopMotor();
+		motor.stopMotor();
 	}
 	public void SetBrakeMode(boolean on) {
-		Motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
+		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 	public boolean MagicMoveTo(double variable, double max, double speed) {
 		double BaseSpeed = 0.2;
