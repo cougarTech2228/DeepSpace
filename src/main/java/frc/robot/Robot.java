@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import java.nio.ByteBuffer;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,14 +20,17 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
+
 public class Robot extends TimedRobot {
+  public static ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
   private static int pigeonPort = RobotMap.PIGEONIMU;
-  public static Pigeon pigeon = new Pigeon(pigeonPort);
+  private static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   private static Navx navx = new Navx(Navx.port.I2C);
   private static XboxIF xbox = new XboxIF(1);
   private static DriveBase base = new DriveBase(xbox, navx);
+  public Hatches hatch = new Hatches(xbox);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -73,8 +78,10 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     base.TeleopMove();
-    pigeon.pigeonCheck();
-    System.out.println(navx.getYaw());
+    hatch.place();
+    System.out.println(distance.status());
+    // pigeon.pigeonCheck();
+    // System.out.println(navx.getYaw());
   }
   @Override
   public void testPeriodic() {

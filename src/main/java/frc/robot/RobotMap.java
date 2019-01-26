@@ -61,4 +61,9 @@ public class RobotMap {
     public static int PIGEONIMU = 61;
     public static int CANIFIER = 62;
 
+    //Solenoids for the hatch placer
+    public static int COMPRESSOR = 2;
+    public static int SOL1 = 0;
+    public static int SOL2 = 1;
+
 }
