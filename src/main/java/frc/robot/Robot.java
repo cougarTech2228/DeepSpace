@@ -24,17 +24,11 @@ public class Robot extends TimedRobot {
   public static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-<<<<<<< HEAD
   
   private XboxIF controller = new XboxIF(1);
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Mecanum);
   private AutoMaster auto = new AutoMaster(base, navx);
-=======
-  private static Navx navx = new Navx(Navx.port.I2C);
-  private static XboxIF xbox = new XboxIF(1);
-  private static DriveBase base = new DriveBase(xbox, navx);
->>>>>>> b2323d08bbc470701eec918bcd6335510d78ced2
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();

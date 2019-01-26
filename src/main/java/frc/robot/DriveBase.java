@@ -25,7 +25,6 @@ public class DriveBase {
 		this.navx = navx;
 		this.mode = mode;
 
-<<<<<<< HEAD
 		rightFront = new Motor(1);
 		leftFront = new Motor(3);
 		
@@ -39,12 +38,6 @@ public class DriveBase {
 			rightBack = new Motor(2, rightFront);
 			leftBack = new Motor(4, leftFront);
 		}
-=======
-		RightFront = new Motor(RobotMap.RIGHT_FRONT);
-		RightBack = new Motor(RobotMap.RIGHT_BACK);
-		LeftFront = new Motor(RobotMap.LEFT_FRONT);
-		LeftBack = new Motor(RobotMap.LEFT_BACK);
->>>>>>> b2323d08bbc470701eec918bcd6335510d78ced2
 		
 		rightFront.Invert(true);
 		rightBack.Invert(true);
@@ -84,10 +77,6 @@ public class DriveBase {
 	
 	public void TeleopMove() {
 		double Forward = controls.Throttle();
-<<<<<<< HEAD
-=======
-		double Strafe = controls.Strafe();
->>>>>>> b2323d08bbc470701eec918bcd6335510d78ced2
 		double Turn = controls.Turn();
 		double RightF, LeftF, RightB, LeftB;
 		
