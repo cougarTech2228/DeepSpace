@@ -82,6 +82,7 @@ public class Robot extends TimedRobot {
 
     //PixyData p = new PixyData();
     System.out.println(pixy.read());
+    hatch.teleop();
     /*
     try {
       p = pixy.readPacket(1);
@@ -91,6 +92,7 @@ public class Robot extends TimedRobot {
       e.printStackTrace();
     }
     System.out.println("X: " + p.X + "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);*/
+    
   }
   @Override
   public void testPeriodic() {

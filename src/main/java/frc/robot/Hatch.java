@@ -30,12 +30,15 @@ public class Hatch{
     }
 
     public void teleop(){
+        compressor.setClosedLoopControl(true);
         if(controls.A_BUTTON()){
             // extend();
             left.set(true);
+            System.out.println("Extend left");
         }
         else if(controls.X_BUTTON()){
             right.set(true);
+            System.out.println("Extend right");
         }
         else if(controls.Y_BUTTON()){
             right.set(true);
