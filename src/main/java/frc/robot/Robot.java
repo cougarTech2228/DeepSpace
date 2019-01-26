@@ -34,6 +34,7 @@ public class Robot extends TimedRobot {
   private DriveBase base = new DriveBase(controller, navx, DriveType.Mecanum);
   private AutoMaster auto = new AutoMaster(base, navx);
   private Hatch hatch = new Hatch(controller);
+  private Pixy pixy = new Pixy();
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -71,13 +72,25 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     base.teleopInit();
     pigeon.resetYaw();
+    
   }
   @Override
   public void teleopPeriodic() {
     base.TeleopMove();
-    pigeon.pigeonCheck();
-    hatch.teleop();
-    System.out.println(navx.getYaw());
+    //pigeon.pigeonCheck();
+    //System.out.println(navx.getYaw());
+
+    //PixyData p = new PixyData();
+    System.out.println(pixy.read());
+    /*
+    try {
+      p = pixy.readPacket(1);
+      if(p == null)
+      p = new PixyData();
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    System.out.println("X: " + p.X + "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);*/
   }
   @Override
   public void testPeriodic() {
