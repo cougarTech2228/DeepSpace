@@ -29,6 +29,7 @@ public class Robot extends TimedRobot {
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Mecanum);
   private AutoMaster auto = new AutoMaster(base, navx);
+  private Hatch hatch = new Hatch(controller);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -71,7 +72,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     base.TeleopMove();
     pigeon.pigeonCheck();
+    hatch.teleop();
     System.out.println(navx.getYaw());
+
   }
   @Override
   public void testPeriodic() {
