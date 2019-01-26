@@ -104,8 +104,7 @@ public class DriveBase {
 			LeftF = Limit(Forward - Strafe - Turn);
 			RightB = Limit(Forward - Strafe + Turn);
 			LeftB = Limit(Forward + Strafe - Turn);
-	
-			System.out.println(RightF);
+			
 			rightFront.setSpeed(RightF);
 			leftFront.setSpeed(LeftF);
 			rightBack.setSpeed(RightB);
