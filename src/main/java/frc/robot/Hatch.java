@@ -31,10 +31,20 @@ public class Hatch{
 
     public void teleop(){
         if(controls.A_BUTTON()){
-            extend();
+            // extend();
+            left.set(true);
+        }
+        else if(controls.X_BUTTON()){
+            right.set(true);
+        }
+        else if(controls.Y_BUTTON()){
+            right.set(true);
+            left.set(true);
         }
         else if(controls.B_BUTTON()){
-            retract();
+            // retract();
+            left.set(false);
+            right.set(true);
         }
     }
 
