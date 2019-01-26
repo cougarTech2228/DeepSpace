@@ -9,25 +9,25 @@ import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 public class Motor {
-	public static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
+	private static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
 	private WPI_TalonSRX motor;
-	public int timeout = 10;
-	public boolean invertMotor = false;
-	public boolean invertEncoder = false;
-	public boolean closeLoopEnabled = true;
-	public int stallAmpsMax = 100;
-	public int stallAmpsAim = 10;
-	public int maxStallTime = 6000;
-	public int velocitySampleTime = 64;
-	public int PID_IDx = 0;
-	public int SLOT_IDx = 0;
-	public int integralZone = 0;
-	public int closedLoopError = 0;
+	private int timeout = 10;
+	private boolean invertMotor = false;
+	private boolean invertEncoder = false;
+	private boolean closeLoopEnabled = true;
+	private int stallAmpsMax = 100;
+	private int stallAmpsAim = 10;
+	private int maxStallTime = 6000;
+	private int velocitySampleTime = 64;
+	private int PID_IDx = 0;
+	private int SLOT_IDx = 0;
+	private int integralZone = 0;
+	private int closedLoopError = 0;
 	
-	public double feedForwardGain = 1.5;
-	public double proportionalGain = 2;
-	public double integralGain = 0;
-	public double derivativeGain = 10;
+	private double feedForwardGain = 1.5;
+	private double proportionalGain = 2;
+	private double integralGain = 0;
+	private double derivativeGain = 10;
 	
 	/**
 	 * Sets up a master motor
@@ -81,7 +81,7 @@ public class Motor {
 	 * @param CanID     the CanID of the Motor
 	 * @param Following the Motor to follow
 	 */
-	public void Invert(boolean invert) {
+	public void invert(boolean invert) {
 		motor.setInverted(invert);
 	}
 	public Motor(int CanID, Motor Following) {
@@ -90,7 +90,7 @@ public class Motor {
 		motor.clearStickyFaults(timeout);
 		motor.set(ControlMode.Follower, Following.motor.getDeviceID());
 	}
-	public void AutoInit() {
+	public void autoInit() {
 		closeLoopEnabled = true;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, closedLoopError, timeout);
@@ -101,7 +101,7 @@ public class Motor {
 		motor.config_kD(PID_IDx, derivativeGain, timeout);
 		motor.config_IntegralZone(PID_IDx, integralZone, timeout);
 	}
-	public void TeleopInit() {
+	public void teleopInit() {
 		closeLoopEnabled = false;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
@@ -111,75 +111,75 @@ public class Motor {
 		motor.config_kI(PID_IDx, 0, timeout); 
 		motor.config_kD(PID_IDx, 0, timeout);
 	}
-	public double GetSensorPosition() {
+	public double getSensorPosition() {
 		int polarity = invertEncoder ? -1 : 1;
 		return polarity * motor.getSelectedSensorPosition(PID_IDx);
 	}
-	public double GetSensorVelocity() {
+	public double getSensorVelocity() {
 		return motor.getSelectedSensorVelocity(PID_IDx);
 	}
-	public double GetMotorCurrent() {
+	public double getMotorCurrent() {
 		return motor.getOutputCurrent();
 	}
-	public double GetClosedLoopErr() {
+	public double getClosedLoopErr() {
 		return motor.getClosedLoopError(PID_IDx);
 	}
-	public double GetBusVoltage() {
+	public double getBusVoltage() {
 		return motor.getBusVoltage();
 	}
-	public void SetEncoderPosition(int position) {
+	public void setEncoderPosition(int position) {
 		motor.getSensorCollection().setQuadraturePosition(position, 25);
 	}
-	public void SetEncoderToZero() {
+	public void setEncoderToZero() {
 		motor.getSensorCollection().setQuadraturePosition(0, 25);
 	}
-	public void SetRamp(double milliseconds) {
+	public void setRamp(double milliseconds) {
 		if(closeLoopEnabled)
 			motor.configClosedloopRamp(milliseconds, timeout);
 		else motor.configOpenloopRamp(milliseconds, timeout);
 	}
-	public void Set(double speed) {
+	public void set(double speed) {
 		motor.set(speed);
 	}
-	public void Set(ControlMode mode, double value) {
+	public void set(ControlMode mode, double value) {
 		motor.set(mode, value);
 	}
-	public void SetSpeed(double speed) {
+	public void setSpeed(double speed) {
 		motor.set(ControlMode.Velocity, 563.69 * speed);
 	}
-	public void Stop() {
+	public void stop() {
 		motor.stopMotor();
 	}
-	public void SetBrakeMode(boolean on) {
+	public void setBrakeMode(boolean on) {
 		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
-	public boolean MagicMoveTo(double variable, double max, double speed) {
+	public boolean magicMoveTo(double variable, double max, double speed) {
 		double BaseSpeed = 0.2;
 		double PercentComplete = Math.abs(variable) / max;
 		
 		if(PercentComplete < 0.3333333333333) {
 			double PercentRamp = PercentComplete * 3;
 			
-			SetSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
+			setSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
 		}
 		else if(PercentComplete > 0.6666666666667) {
 			double PercentRamp = (PercentComplete - 0.6666666666667) * 3;
 			
-			SetSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
+			setSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
 		}
-		else SetSpeed(speed);
+		else setSpeed(speed);
 		
 		System.out.println("Percent Complete: " + PercentComplete);
 		
 		return (PercentComplete >= 1);
 	}
 	public boolean MoveTo(int encoderCount, double speed) {
-		if(Math.abs(GetSensorPosition()) >= Math.abs(encoderCount)) {
+		if(Math.abs(getSensorPosition()) >= Math.abs(encoderCount)) {
 			//Set(ControlMode.Velocity, SRXDriveBaseCfg.kCountsPerRevolution);
-			Stop();
+			stop();
 			return true;
 		}
-		Set(speed);
+		set(speed);
 		return false;
 	}
 	public static void MoveMotors(int encoderCount, double speed, Motor... Motors) {
@@ -189,7 +189,7 @@ public class Motor {
 				System.out.println("Running!");
 				boolean motorState = m.MoveTo(encoderCount, speed);
 				if(motorState) {
-					System.out.println("Done!" + m.GetSensorPosition());
+					System.out.println("Done!" + m.getSensorPosition());
 					moving = false;
 					break;
 				}
@@ -197,6 +197,6 @@ public class Motor {
 		}
 		System.out.println("Stopping!");
 		for(Motor m : Motors)
-			m.Stop();
+			m.stop();
 	}
 }
