@@ -39,33 +39,33 @@ public class DriveBase {
 			leftBack = new Motor(4, leftFront);
 		}
 		
-		rightFront.Invert(true);
-		rightBack.Invert(true);
+		rightFront.invert(true);
+		rightBack.invert(true);
 		
-		rightFront.SetBrakeMode(true);
-		rightBack.SetBrakeMode(true);
-		leftFront.SetBrakeMode(true);
-		leftBack.SetBrakeMode(true);
+		rightFront.setBrakeMode(true);
+		rightBack.setBrakeMode(true);
+		leftFront.setBrakeMode(true);
+		leftBack.setBrakeMode(true);
 
 	}
-	private double ZeroLimit(double input) {
+	private double zeroLimit(double input) {
 		if(Math.abs(input) < 0.1)
 			return 0;
 		return input;
 	}
-	public void TeleopInit() {
-		rightFront.TeleopInit();
-		leftFront.TeleopInit();
+	public void teleopInit() {
+		rightFront.teleopInit();
+		leftFront.teleopInit();
 
 		//init back motors for mecanum
 		if(mode == DriveType.Mecanum) {
-			rightBack.TeleopInit();
-			leftBack.TeleopInit();
+			rightBack.teleopInit();
+			leftBack.teleopInit();
 		}
 	}
-	public void AutoInit() {
-		rightFront.AutoInit();
-		leftFront.AutoInit();
+	public void autoInit() {
+		rightFront.autoInit();
+		leftFront.autoInit();
 	}
 	private double Limit(double input) {
 		if(input > 1)
@@ -80,8 +80,8 @@ public class DriveBase {
 		double Turn = controls.Turn();
 		double RightF, LeftF, RightB, LeftB;
 		
-		Forward = ZeroLimit(Forward);
-		Turn = ZeroLimit(Turn);
+		Forward = zeroLimit(Forward);
+		Turn = zeroLimit(Turn);
 
 		Forward *= driveSpeedPercentage;
 		Turn *= turnSpeedPercentage;
@@ -91,13 +91,13 @@ public class DriveBase {
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
 			
-			rightFront.SetSpeed(RightF);
-			leftFront.SetSpeed(LeftF);	
+			rightFront.setSpeed(RightF);
+			leftFront.setSpeed(LeftF);	
 		}
 		else if(mode == DriveType.Mecanum) {
 
 			double Strafe = controls.Strafe();
-			Strafe = ZeroLimit(Strafe); 
+			Strafe = zeroLimit(Strafe); 
 			Strafe *= strafeSpeedPercentage;
 
 			RightF = Limit(Forward + Strafe + Turn);
@@ -106,10 +106,10 @@ public class DriveBase {
 			LeftB = Limit(Forward + Strafe - Turn);
 	
 			System.out.println(RightF);
-			rightFront.SetSpeed(RightF);
-			leftFront.SetSpeed(LeftF);
-			rightBack.SetSpeed(RightB);
-			leftBack.SetSpeed(LeftB);		
+			rightFront.setSpeed(RightF);
+			leftFront.setSpeed(LeftF);
+			rightBack.setSpeed(RightB);
+			leftBack.setSpeed(LeftB);		
 		}	
 	}
 	//auto
@@ -157,14 +157,14 @@ public class DriveBase {
 			
 			//move
 			if(mode == DriveType.Tank) {
-				rightFront.SetSpeed(speed);
-				leftFront.SetSpeed(-speed);
+				rightFront.setSpeed(speed);
+				leftFront.setSpeed(-speed);
 			}
 			else if(mode == DriveType.Mecanum) {
-				rightFront.SetSpeed(speed);
-				rightBack.SetSpeed(speed);
-				leftFront.SetSpeed(-speed);
-				leftBack.SetSpeed(-speed);
+				rightFront.setSpeed(speed);
+				rightBack.setSpeed(speed);
+				leftFront.setSpeed(-speed);
+				leftBack.setSpeed(-speed);
 			}
 		}
 		@Override
@@ -177,46 +177,46 @@ public class DriveBase {
 		@Override
 		protected void end() {
 			if(mode == DriveType.Tank) {
-				rightFront.Stop();
-				leftFront.Stop();
+				rightFront.stop();
+				leftFront.stop();
 			}
 			else if(mode == DriveType.Mecanum) {
-				rightFront.Stop();
-				rightBack.Stop();
-				leftFront.Stop();
-				leftBack.Stop();
+				rightFront.stop();
+				rightBack.stop();
+				leftFront.stop();
+				leftBack.stop();
 			}
 		}
 	}
 	//test
 	public void TestEncoders() {
 		if(controls.X_BUTTON()) {
-			leftFront.Set(0.5);
-			System.out.println(leftFront.GetSensorPosition());
+			leftFront.set(0.5);
+			System.out.println(leftFront.getSensorPosition());
 		} else {
-			leftFront.Stop();
-			leftFront.SetEncoderToZero();
+			leftFront.stop();
+			leftFront.setEncoderToZero();
 		}
 		if(controls.Y_BUTTON()) {
-			rightFront.Set(0.5);
-			System.out.println(rightFront.GetSensorPosition());
+			rightFront.set(0.5);
+			System.out.println(rightFront.getSensorPosition());
 		} else {
-			rightFront.Stop();
-			rightFront.SetEncoderToZero();
+			rightFront.stop();
+			rightFront.setEncoderToZero();
 		}
 		if(controls.A_BUTTON()) {
-			leftBack.Set(0.5);
-			System.out.println(leftBack.GetSensorPosition());
+			leftBack.set(0.5);
+			System.out.println(leftBack.getSensorPosition());
 		} else {
-			leftBack.Stop();
-			leftBack.SetEncoderToZero();
+			leftBack.stop();
+			leftBack.setEncoderToZero();
 		}
 		if(controls.B_BUTTON()) {
-			rightBack.Set(0.5);
-			System.out.println(rightBack.GetSensorPosition());
+			rightBack.set(0.5);
+			System.out.println(rightBack.getSensorPosition());
 		} else {
-			rightBack.Stop();
-			rightBack.SetEncoderToZero();
+			rightBack.stop();
+			rightBack.setEncoderToZero();
 		}
 	}
 }
