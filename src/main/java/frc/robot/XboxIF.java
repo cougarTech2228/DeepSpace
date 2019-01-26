@@ -7,6 +7,11 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 public class XboxIF {
 	private XboxController xbox;
 
+	//assignment declarations
+	public double Throttle() { return LEFT_JOYSTICK_Y(); };
+	public double Strafe() { return LEFT_JOYSTICK_X(); };
+	public double Turn() { return RIGHT_JOYSTICK_X(); };
+
 	public XboxIF(int _port) {
 		xbox = new XboxController(_port);
 	}
@@ -35,19 +40,19 @@ public class XboxIF {
 		return xbox.getBackButton();
 	};
 
-	public boolean RB_BUTTON() {
+	public boolean RIGHT_BUMPER() {
 		return xbox.getBumper(Hand.kRight);
 	};
 
-	public boolean LB_BUTTON() {
+	public boolean LEFT_BUMPER() {
 		return xbox.getBumper(Hand.kLeft);
 	};
 
-	public boolean LS_BUTTON() {
+	public boolean LEFT_JOYSTICK_PRESS() {
 		return xbox.getStickButton(Hand.kLeft);
 	};
 
-	public boolean RS_BUTTON() {
+	public boolean RIGHT_JOYSTICK_PRESS() {
 		return xbox.getStickButton(Hand.kRight);
 	};
 
@@ -75,37 +80,40 @@ public class XboxIF {
 		return xbox.getY(Hand.kLeft);
 	};
 
-	public boolean POV_UP() {
-		if (xbox.getPOV(0) == 0) {
-			return true;
-		} else {
-			return false;
-		}
+	public boolean DPAD_UP() {
+		int i = xbox.getPOV(0);
+		return (i >= 0 && i <= 45) || (i >= 315 && i <= 360);
 	}
-	public boolean POV_RIGHT() {
-		if (xbox.getPOV(0) == 90) {
-			return true;
-		} else {
-			return false;
-		}
+
+	public boolean DPAD_RIGHT() {
+		int i = xbox.getPOV(0);
+		return (i >= 45 && i <= 135);
 	}
-	public boolean POV_DOWN() {
-		if (xbox.getPOV(0) == 180) {
-			return true;
-		} else {
-			return false;
-		}
-		
+
+	public boolean DPAD_DOWN() {
+		int i = xbox.getPOV(0);
+		return (i >= 135 && i <= 225);
 	}
-	public boolean POV_LEFT() {
-		if (xbox.getPOV(0) == 270) {
-			return true;
-		} else {
-			return false;
-		}
+
+	public boolean DPAD_LEFT() {
+		int i = xbox.getPOV(0);
+		return (i >= 225 && i <= 315);
 	}
+
 	public void RUMBLE(double rumbleSpeed) {
 		xbox.setRumble(RumbleType.kLeftRumble, rumbleSpeed);
 		xbox.setRumble(RumbleType.kRightRumble, rumbleSpeed);
+	}
+
+	public void RUMBLE_LEFT(double rumbleSpeed) {
+		xbox.setRumble(RumbleType.kLeftRumble, rumbleSpeed);
+	}
+
+	public void RUMBLE_RIGHT(double rumbleSpeed) {
+		xbox.setRumble(RumbleType.kRightRumble, rumbleSpeed);
+	}
+
+	public void RUMBLE_STOP() {
+		RUMBLE(0);
 	}
 }

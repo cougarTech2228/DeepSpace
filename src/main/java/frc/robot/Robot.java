@@ -10,6 +10,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.DriveBase.DriveType;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,10 +20,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
+  private static int pigeonPort = RobotMap.PIGEONIMU;
+  public static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  private static DriveBase base = new DriveBase();
-  private DriverIF controller = new DriverIF();
+  
+  private XboxIF controller = new XboxIF(1);
+  private Navx navx = new Navx(Navx.Port.I2C);
+  private DriveBase base = new DriveBase(controller, navx, DriveType.Mecanum);
+  private AutoMaster auto = new AutoMaster(base, navx);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -44,19 +50,13 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+    base.teleopInit();
+    auto.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+    auto.run();
   }
 
   /**
@@ -64,17 +64,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    base.TeleopInit();
+    base.teleopInit();
+    pigeon.resetYaw();
   }
   @Override
   public void teleopPeriodic() {
-    base.TeleopMove(controller);
+    base.TeleopMove();
+    pigeon.pigeonCheck();
+    System.out.println(navx.getYaw());
   }
-
-  /**
-   * This function is called periodically during test mode.
-   */
   @Override
   public void testPeriodic() {
+    base.TestEncoders();
   }
 }
