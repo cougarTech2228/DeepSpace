@@ -39,7 +39,9 @@ public class Hatch{
     }
 
     public void hatchStrafe(){
-
+        if(controls.DPAD_LEFT()){
+            
+        }
     }
 
 
