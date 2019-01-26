@@ -34,6 +34,7 @@ public class Hatch{
         if(controls.A_BUTTON()){
             // extend();
             left.set(true);
+
             System.out.println("Extend left");
         }
         else if(controls.X_BUTTON()){
@@ -47,7 +48,7 @@ public class Hatch{
         else if(controls.B_BUTTON()){
             // retract();
             left.set(false);
-            right.set(true);
+            right.set(false);
         }
     }
 
