@@ -1,16 +1,21 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Hatch{
     private Solenoid left;
     private Solenoid right;
     private XboxIF controls;
+    private Motor strafe;
+    private Compressor compressor;
 
 
     public Hatch(XboxIF controls){
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
+        strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
+        compressor = new Compressor(RobotMap.PCM);
         this.controls = controls;
     }
     
@@ -18,6 +23,7 @@ public class Hatch{
         left.set(true);
         right.set(true);
     }
+
     public void retract(){
         left.set(false);
         right.set(false);
@@ -30,6 +36,10 @@ public class Hatch{
         else if(controls.B_BUTTON()){
             retract();
         }
+    }
+
+    public void hatchStrafe(){
+
     }
 
 

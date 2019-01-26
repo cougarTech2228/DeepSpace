@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import java.nio.ByteBuffer;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -19,9 +21,11 @@ import frc.robot.DriveBase.DriveType;
  * creating this project, you must also update the build.gradle file in the
  * project.
  */
+
 public class Robot extends TimedRobot {
+  public static ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
   private static int pigeonPort = RobotMap.PIGEONIMU;
-  public static Pigeon pigeon = new Pigeon(pigeonPort);
+  private static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
