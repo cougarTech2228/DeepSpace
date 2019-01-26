@@ -57,6 +57,17 @@ public class RobotMap {
     public static int DISPLAY_DEVICE_8 = 58;
     public static int DISPLAY_DEVICE_9 = 59;
 
+    //PCM ID's
+    
+	public final static int PCM_PORT_0 = 0;
+	public final static int PCM_PORT_1 = 1;
+	public final static int PCM_PORT_2 = 2;
+	public final static int PCM_PORT_3 = 3;
+	public final static int PCM_PORT_4 = 4;
+	public final static int PCM_PORT_5 = 5;
+	public final static int PCM_PORT_6 = 6;
+    public final static int PCM_PORT_7 = 7;
+
     //Misc devices
     public static int PIGEONIMU = 61;
     public static int CANIFIER = 62;

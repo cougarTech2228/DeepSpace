@@ -74,7 +74,6 @@ public class Robot extends TimedRobot {
     pigeon.pigeonCheck();
     hatch.teleop();
     System.out.println(navx.getYaw());
-
   }
   @Override
   public void testPeriodic() {
