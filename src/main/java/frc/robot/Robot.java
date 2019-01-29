@@ -31,7 +31,7 @@ public class Robot extends TimedRobot {
   
   private XboxIF controller = new XboxIF(1);
   private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, DriveType.Mecanum);
+  private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   private AutoMaster auto = new AutoMaster(base, navx);
   private Hatch hatch = new Hatch(controller);
   private Pixy pixy = new Pixy();
@@ -76,7 +76,7 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopPeriodic() {
-    //base.TeleopMove();
+    base.TeleopMove();
     //pigeon.pigeonCheck();
     //System.out.println(navx.getYaw());
 

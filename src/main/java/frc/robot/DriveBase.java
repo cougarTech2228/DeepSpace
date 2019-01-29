@@ -25,22 +25,22 @@ public class DriveBase {
 		this.navx = navx;
 		this.mode = mode;
 
-		rightFront = new Motor(1);
-		leftFront = new Motor(3);
+		rightFront = new Motor(RobotMap.RIGHT_FRONT);
+		leftFront = new Motor(RobotMap.LEFT_FRONT);
 		
 		//Mecanum
 		if(mode == DriveType.Mecanum) {
-			rightBack = new Motor(2);
-			leftBack = new Motor(4);
+			rightBack = new Motor(RobotMap.RIGHT_BACK);
+			leftBack = new Motor(RobotMap.LEFT_BACK);
+			
+			rightFront.invert(true);
+			rightBack.invert(true);
 		}
 		//Tank
 		else if(mode == DriveType.Tank) {
-			rightBack = new Motor(2, rightFront);
-			leftBack = new Motor(4, leftFront);
+			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
+			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
 		}
-		
-		rightFront.invert(true);
-		rightBack.invert(true);
 		
 		rightFront.setBrakeMode(true);
 		rightBack.setBrakeMode(true);

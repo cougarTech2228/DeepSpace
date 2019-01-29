@@ -9,6 +9,8 @@ public class Hatch{
     private XboxIF controls;
     private Motor strafe;
     private Compressor compressor;
+    private double strafeSpeed = .5;
+    private boolean movingLeft, movingRight;
 
 
     public Hatch(XboxIF controls){
@@ -34,7 +36,6 @@ public class Hatch{
         if(controls.A_BUTTON()){
             // extend();
             left.set(true);
-
             System.out.println("Extend left");
         }
         else if(controls.X_BUTTON()){
@@ -50,12 +51,31 @@ public class Hatch{
             left.set(false);
             right.set(false);
         }
+        hatchStrafe();
     }
 
     public void hatchStrafe(){
         if(controls.DPAD_LEFT()){
-            
+            strafe.set(-strafeSpeed);
+            System.out.println("Moving Left");
+            movingRight = false;
+            movingLeft = true;
         }
+        else if(!controls.DPAD_LEFT() && movingLeft){
+            movingLeft = false;
+            strafe.set(0);
+        }
+        if(controls.DPAD_RIGHT()){
+            strafe.set(strafeSpeed);
+            System.out.println("Moving Right");
+            movingRight = true;
+            movingLeft = false;
+        }
+        else if (!controls.DPAD_RIGHT() && movingRight){
+            movingRight = false;
+            strafe.set(0);
+        }
+        System.out.println(strafe.getSensorPosition());
     }
 
 
