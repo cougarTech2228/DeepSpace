@@ -68,6 +68,11 @@ public class RobotMap {
 	public final static int PCM_PORT_6 = 6;
     public final static int PCM_PORT_7 = 7;
 
+
+    public final static int DIGITAL_INPUT_0 = 0;
+    public final static int DIGITAL_INPUT_1 = 1;
+    public final static int DIGITAL_INPUT_2 = 2;
+    public final static int DIGITAL_INPUT_3 = 3;
     //Misc devices
     public static int PIGEONIMU = 61;
     public static int CANIFIER = 62;

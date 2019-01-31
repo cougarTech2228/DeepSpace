@@ -1,23 +1,28 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Solenoid;
 
 public class Hatch{
     private Solenoid left;
     private Solenoid right;
     private XboxIF controls;
+    private DigitalInput leftSwitch;
+    private DigitalInput rightSwitch;
     private Motor strafe;
     private Compressor compressor;
     private double strafeSpeed = .5;
-    private boolean movingLeft, movingRight;
 
 
     public Hatch(XboxIF controls){
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
+        strafe.setBrakeMode(true);
         compressor = new Compressor(RobotMap.PCM);
+        leftSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_0);
+        rightSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_1);
         this.controls = controls;
     }
     
@@ -55,24 +60,18 @@ public class Hatch{
     }
 
     public void hatchStrafe(){
-        if(controls.DPAD_LEFT()){
+        if(!rightSwitch.get()){
+            strafe.setEncoderPosition(0);;
+        }
+        if(controls.LEFT_TRIGGER() > 0 && leftSwitch.get()){
             strafe.set(-strafeSpeed);
             System.out.println("Moving Left");
-            movingRight = false;
-            movingLeft = true;
         }
-        else if(!controls.DPAD_LEFT() && movingLeft){
-            movingLeft = false;
-            strafe.set(0);
-        }
-        if(controls.DPAD_RIGHT()){
+        else if(controls.RIGHT_TRIGGER() > 0 && rightSwitch.get()){
             strafe.set(strafeSpeed);
             System.out.println("Moving Right");
-            movingRight = true;
-            movingLeft = false;
         }
-        else if (!controls.DPAD_RIGHT() && movingRight){
-            movingRight = false;
+        else {
             strafe.set(0);
         }
         System.out.println(strafe.getSensorPosition());

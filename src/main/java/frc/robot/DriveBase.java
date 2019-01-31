@@ -40,6 +40,9 @@ public class DriveBase {
 		else if(mode == DriveType.Tank) {
 			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
 			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
+
+			leftFront.invert(true);
+			leftBack.invert(true);
 		}
 		
 		rightFront.setBrakeMode(true);
