@@ -10,13 +10,12 @@ public class Pixy {
 
 	public Pixy() {
 		device = new I2C(I2C.Port.kOnboard, 0x54);
+		
 	}
-	public int read() {
-		byte[] returned = new byte[8];
-		device.transaction(requestPacket, requestPacket.length, returned, returned.length);
-		int i = 0;
-		for(byte b : returned)
-			i += (int)b;
-		return i;
+	public void read() {
+		byte[] returned = new byte[5];
+		device.read(0x51, 5, returned);
+		int i = Byte.toUnsignedInt(returned[1]);
+		System.out.println(i);
 	}
 }
