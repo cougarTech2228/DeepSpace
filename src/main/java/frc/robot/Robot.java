@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
-  private XboxIF controller = new XboxIF(1);
+  private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   private AutoMaster auto = new AutoMaster(base, navx);

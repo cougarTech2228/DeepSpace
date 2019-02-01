@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Solenoid;
 public class Hatch{
     private Solenoid left;
     private Solenoid right;
-    private XboxIF controls;
+    private DriverIF controls;
     private DigitalInput leftSwitch;
     private DigitalInput rightSwitch;
     private Motor strafe;
@@ -15,7 +15,7 @@ public class Hatch{
     private double strafeSpeed = .5;
 
 
-    public Hatch(XboxIF controls){
+    public Hatch(DriverIF controls){
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
@@ -38,23 +38,11 @@ public class Hatch{
 
     public void teleop(){
         compressor.setClosedLoopControl(true);
-        if(controls.A_BUTTON()){
-            // extend();
-            left.set(true);
-            System.out.println("Extend left");
+        if(controls.hatchExtend()){
+            extend();
         }
-        else if(controls.X_BUTTON()){
-            right.set(true);
-            System.out.println("Extend right");
-        }
-        else if(controls.Y_BUTTON()){
-            right.set(true);
-            left.set(true);
-        }
-        else if(controls.B_BUTTON()){
-            // retract();
-            left.set(false);
-            right.set(false);
+        else if(controls.hatchRetract()){
+            retract();
         }
         hatchStrafe();
     }
@@ -63,13 +51,11 @@ public class Hatch{
         if(!rightSwitch.get()){
             strafe.setEncoderPosition(0);;
         }
-        if(controls.LEFT_TRIGGER() > 0 && leftSwitch.get()){
+        if(controls.hatchStrafeLeft() && leftSwitch.get()){
             strafe.set(-strafeSpeed);
-            System.out.println("Moving Left");
         }
-        else if(controls.RIGHT_TRIGGER() > 0 && rightSwitch.get()){
+        else if(controls.hatchStrafeRight() && rightSwitch.get()){
             strafe.set(strafeSpeed);
-            System.out.println("Moving Right");
         }
         else {
             strafe.set(0);

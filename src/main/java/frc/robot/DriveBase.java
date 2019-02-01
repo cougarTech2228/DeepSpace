@@ -6,7 +6,7 @@ import jdk.jfr.Percentage;
 public class DriveBase {
 	
 	private Navx navx;
-	private XboxIF controls;
+	private DriverIF controls;
 	private Motor rightFront;
 	private Motor rightBack;
 	private Motor leftFront;
@@ -20,7 +20,7 @@ public class DriveBase {
 		Mecanum, Tank
 	}
 
-	public DriveBase(XboxIF controls, Navx navx, DriveType mode) {
+	public DriveBase(DriverIF controls, Navx navx, DriveType mode) {
 		this.controls = controls;
 		this.navx = navx;
 		this.mode = mode;
@@ -79,8 +79,8 @@ public class DriveBase {
 	}
 	
 	public void TeleopMove() {
-		double Forward = controls.Throttle();
-		double Turn = controls.Turn();
+		double Forward = controls.throttle();
+		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
 		
 		Forward = zeroLimit(Forward);
@@ -99,7 +99,7 @@ public class DriveBase {
 		}
 		else if(mode == DriveType.Mecanum) {
 
-			double Strafe = controls.Strafe();
+			double Strafe = controls.strafe();
 			Strafe = zeroLimit(Strafe); 
 			Strafe *= strafeSpeedPercentage;
 
@@ -192,28 +192,28 @@ public class DriveBase {
 	}
 	//test
 	public void TestEncoders() {
-		if(controls.X_BUTTON()) {
+		if(controls.encoderTestLeftFront() {
 			leftFront.set(0.5);
 			System.out.println(leftFront.getSensorPosition());
 		} else {
 			leftFront.stop();
 			leftFront.setEncoderToZero();
 		}
-		if(controls.Y_BUTTON()) {
+		if(controls.encoderTestRightFront()) {
 			rightFront.set(0.5);
 			System.out.println(rightFront.getSensorPosition());
 		} else {
 			rightFront.stop();
 			rightFront.setEncoderToZero();
 		}
-		if(controls.A_BUTTON()) {
+		if(controls.encoderTestLeftBack() {
 			leftBack.set(0.5);
 			System.out.println(leftBack.getSensorPosition());
 		} else {
 			leftBack.stop();
 			leftBack.setEncoderToZero();
 		}
-		if(controls.B_BUTTON()) {
+		if(controls.encoderTestRightBack()) {
 			rightBack.set(0.5);
 			System.out.println(rightBack.getSensorPosition());
 		} else {
