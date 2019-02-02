@@ -32,6 +32,9 @@ public class DriverIF {
         }
         return false;
     }
+    public boolean elevatorUp(){
+        return xbox.START_BUTTON();
+    }
     public boolean encoderTestLeftFront(){
         return xbox.X_BUTTON();
     }
