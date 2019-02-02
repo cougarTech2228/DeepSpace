@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   private AutoMaster auto = new AutoMaster(base, navx);
-  private Hatch hatch = new Hatch(controller);
+  private Hatch hatch = new Hatch(controller, base);
   private Pixy pixy = new Pixy();
 
   private String m_autoSelected; 

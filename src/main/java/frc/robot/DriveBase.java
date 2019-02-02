@@ -221,4 +221,13 @@ public class DriveBase {
 			rightBack.setEncoderToZero();
 		}
 	}
+	public class driveToDistIn extends Command{
+		public void moveToDistIn(){
+			
+		}
+		@Override
+		protected boolean isFinished() {
+			return false;
+		}
+	}
 }
