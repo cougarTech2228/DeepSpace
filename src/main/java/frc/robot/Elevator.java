@@ -22,8 +22,6 @@ public Elevator(){
 
 public void TeleopRaise(){
     if(controls.elevatorUp()){
-        Motor.MoveMotors(encoderCount, speed, front);
-        Motor.MoveMotors(encoderCount, speed, back);
         }
     }
 }
