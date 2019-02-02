@@ -222,8 +222,9 @@ public class DriveBase {
 		}
 	}
 	public class driveToDistIn extends Command{
-		public void moveToDistIn(){
-			
+		public void moveToDistEnc(int encoderCounts, double speed){
+			leftFront.moveTo(encoderCounts, speed);
+			rightFront.moveTo(encoderCounts, speed);
 		}
 		@Override
 		protected boolean isFinished() {

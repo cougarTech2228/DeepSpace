@@ -173,7 +173,7 @@ public class Motor {
 		
 		return (PercentComplete >= 1);
 	}
-	public boolean MoveTo(int encoderCount, double speed) {
+	public boolean moveTo(int encoderCount, double speed) {
 		if(Math.abs(getSensorPosition()) >= Math.abs(encoderCount)) {
 			//Set(ControlMode.Velocity, SRXDriveBaseCfg.kCountsPerRevolution);
 			stop();
@@ -182,12 +182,12 @@ public class Motor {
 		set(speed);
 		return false;
 	}
-	public static void MoveMotors(int encoderCount, double speed, Motor... Motors) {
+	public static void moveMotors(int encoderCount, double speed, Motor... Motors) {
 		boolean moving = true;
 		while(moving) {
 			for(Motor m : Motors) {
 				System.out.println("Running!");
-				boolean motorState = m.MoveTo(encoderCount, speed);
+				boolean motorState = m.moveTo(encoderCount, speed);
 				if(motorState) {
 					System.out.println("Done!" + m.getSensorPosition());
 					moving = false;
