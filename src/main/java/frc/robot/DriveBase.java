@@ -192,7 +192,7 @@ public class DriveBase {
 	}
 	//test
 	public void TestEncoders() {
-		if(controls.encoderTestLeftFront() {
+		if(controls.encoderTestLeftFront()) {
 			leftFront.set(0.5);
 			System.out.println(leftFront.getSensorPosition());
 		} else {
@@ -206,7 +206,7 @@ public class DriveBase {
 			rightFront.stop();
 			rightFront.setEncoderToZero();
 		}
-		if(controls.encoderTestLeftBack() {
+		if(controls.encoderTestLeftBack()) {
 			leftBack.set(0.5);
 			System.out.println(leftBack.getSensorPosition());
 		} else {

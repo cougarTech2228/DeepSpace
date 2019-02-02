@@ -7,7 +7,6 @@
 
 package frc.robot;
 
-import java.nio.ByteBuffer;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,7 +35,7 @@ public class Robot extends TimedRobot {
   private Hatch hatch = new Hatch(controller);
   private Pixy pixy = new Pixy();
 
-  private String m_autoSelected;
+  private String m_autoSelected; 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   @Override
