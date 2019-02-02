@@ -11,6 +11,7 @@ public class Hatch{
     private Solenoid left;
     private Solenoid right;
     private DriverIF controls;
+    private DriveBase dBase;
     private DigitalInput leftSwitch;
     private DigitalInput rightSwitch;
     private Motor strafe;
@@ -30,10 +31,11 @@ public class Hatch{
     private NetworkTableEntry horzOffToIn;
     private boolean movingHatchMechanism = false;
     private double previousPosition = 0;
+    private double movedInches = 0;
 
 
 
-    public Hatch(DriverIF controls){
+    public Hatch(DriverIF controls, DriveBase dBase){
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
@@ -42,6 +44,7 @@ public class Hatch{
         leftSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_0);
         rightSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_1);
         this.controls = controls;
+        this.dBase = dBase;
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
         targState = visionDataTable.getEntry("targState");
@@ -70,14 +73,31 @@ public class Hatch{
         }
         hatchStrafe();
     }
-    public boolean moveHatchMechanismToIn(double inchesToMove){
+    public boolean moveHatchMechanismToIn(double inchesAwayFromCenter){
         if(!movingHatchMechanism){
             movingHatchMechanism = true;
             this.previousPosition = strafe.getSensorPosition();
+            if(inchesAwayFromCenter > 0){
+                strafe.set(-strafeSpeed);
+            }
+            else if(inchesAwayFromCenter < 0){
+                strafe.set(strafeSpeed);
+            }
         }
-        if(strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN - previousPosition < inchesToMove){
-            
+        this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
+        if(inchesAwayFromCenter - movedInches > -.1 && inchesAwayFromCenter - movedInches < .1){
+            strafe.set(0);
+            this.movedInches = 0;
+            movingHatchMechanism = false;
+            return true;
         }
+        else if(this.movedInches > inchesAwayFromCenter){
+            strafe.set(strafeSpeed);
+        }
+        else if(this.movedInches < inchesAwayFromCenter){
+            strafe.set(-strafeSpeed);
+        }
+        return false;
     }
 
     public void hatchStrafe(){
@@ -99,10 +119,21 @@ public class Hatch{
      * Freakin' cool method to automatically align the hatch to the station with vision. Welcome to the future.
      */
     public void autoDeploy(){
-        if(distTargIn.getDouble(-1) > 17 && distTargIn.getDouble(-1) < 19){
+        if(distTargIn.getDouble(-1) < 24){
             if(targState.getDouble(0) == 2.0){
-
+                if(moveHatchMechanismToIn(horzOffToIn.getDouble(-4))){
+                    extend();
+                }
+                else{
+                    moveHatchMechanismToIn(horzOffToIn.getDouble(-4));
+                }
             }
+            else{
+                System.out.println("Not locked on");
+            }
+        }
+        else{
+            System.out.println("Too far");
         }
     }
 

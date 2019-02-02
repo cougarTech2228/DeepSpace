@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   private AutoMaster auto = new AutoMaster(base, navx);
-  private Hatch hatch = new Hatch(controller);
+  private Hatch hatch = new Hatch(controller, base);
   private Pixy pixy = new Pixy();
 
   private String m_autoSelected; 
@@ -80,7 +80,6 @@ public class Robot extends TimedRobot {
     //System.out.println(navx.getYaw());
 
     //PixyData p = new PixyData();
-    System.out.println(pixy.read());
     hatch.teleop();
     /*
     try {
@@ -92,6 +91,7 @@ public class Robot extends TimedRobot {
     }
     System.out.println("X: " + p.X + "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);*/
     
+    pixy.read();
   }
   @Override
   public void testPeriodic() {
