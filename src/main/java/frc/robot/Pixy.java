@@ -16,6 +16,6 @@ public class Pixy {
 		byte[] returned = new byte[5];
 		device.read(0x51, 5, returned);
 		int i = Byte.toUnsignedInt(returned[1]);
-		System.out.println(i);
+		// System.out.println(i);
 	}
 }

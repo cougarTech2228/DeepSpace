@@ -16,7 +16,7 @@ public class Hatch{
     private DigitalInput rightSwitch;
     private Motor strafe;
     private Compressor compressor;
-    private double strafeSpeed = .5;
+    private final double STRAFE_SPEED = .5;
     private final int ENCODER_COUNTS_TO_IN = 54666;
     private final int ENCODER_COUNT_CENTER = 164000;
 
@@ -30,6 +30,8 @@ public class Hatch{
     //horizontal distance from center of target, positive being to the right
     private NetworkTableEntry horzOffToIn;
     private boolean movingHatchMechanism = false;
+    private boolean homing = false;
+    private boolean zeroed = false;
     private double previousPosition = 0;
     private double movedInches = 0;
 
@@ -48,7 +50,7 @@ public class Hatch{
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
         targState = visionDataTable.getEntry("targState");
-        distTargIn = visionDataTable.getEntry("distTargIn");
+        distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
 
     }
@@ -71,17 +73,28 @@ public class Hatch{
         else if(controls.hatchRetract()){
             retract();
         }
+        if(controls.autoAlign()){
+            autoDeploy();
+        }
         hatchStrafe();
     }
     public boolean moveHatchMechanismToIn(double inchesAwayFromCenter){
         if(!movingHatchMechanism){
             movingHatchMechanism = true;
             this.previousPosition = strafe.getSensorPosition();
+            System.out.println("Starting auto alignment");
+            System.out.println(distTargIn.getDouble(99));
+            System.out.println("Inches away from center: " + inchesAwayFromCenter);
             if(inchesAwayFromCenter > 0){
-                strafe.set(-strafeSpeed);
+                strafe.set(-STRAFE_SPEED);
+                System.out.println("moving left");
             }
             else if(inchesAwayFromCenter < 0){
-                strafe.set(strafeSpeed);
+                strafe.set(STRAFE_SPEED);
+                System.out.println("Moving right");
+            }
+            else{
+                System.out.println("wut");
             }
         }
         this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
@@ -89,15 +102,35 @@ public class Hatch{
             strafe.set(0);
             this.movedInches = 0;
             movingHatchMechanism = false;
+            System.out.println("GOT EM");
             return true;
         }
         else if(this.movedInches > inchesAwayFromCenter){
-            strafe.set(strafeSpeed);
+            strafe.set(STRAFE_SPEED);
+            System.out.println("moving to the right");
         }
         else if(this.movedInches < inchesAwayFromCenter){
-            strafe.set(-strafeSpeed);
+            strafe.set(-STRAFE_SPEED);
+            System.out.println("moving to the left");
         }
         return false;
+    }
+
+    public void home(){
+        if(!homing){
+            strafe.set(STRAFE_SPEED);
+            homing = true;    
+        }
+        if(rightSwitch.get() && !zeroed){
+            strafe.setEncoderPosition(0);
+            zeroed = true;
+        }
+        strafe.set(-STRAFE_SPEED);
+        if(strafe.getSensorPosition() - ENCODER_COUNT_CENTER > -100 && strafe.getSensorPosition() - ENCODER_COUNT_CENTER < 100 ){
+            strafe.set(0);
+            homing = false;
+            zeroed = false;
+        }
     }
 
     public void hatchStrafe(){
@@ -105,28 +138,27 @@ public class Hatch{
             strafe.setEncoderPosition(0);;
         }
         if(controls.hatchStrafeLeft() && leftSwitch.get()){
-            strafe.set(-strafeSpeed);
+            strafe.set(-STRAFE_SPEED);
         }
         else if(controls.hatchStrafeRight() && rightSwitch.get()){
-            strafe.set(strafeSpeed);
+            strafe.set(STRAFE_SPEED);
         }
         else {
             strafe.set(0);
         }
-        System.out.println(strafe.getSensorPosition());
+        // System.out.println(strafe.getSensorPosition());
     }
     /**
      * Freakin' cool method to automatically align the hatch to the station with vision. Welcome to the future.
      */
     public void autoDeploy(){
-        if(distTargIn.getDouble(-1) < 24){
+        if(distTargIn.getDouble(99) < 24){
             if(targState.getDouble(0) == 2.0){
                 if(moveHatchMechanismToIn(horzOffToIn.getDouble(-4))){
+
                     extend();
                 }
-                else{
-                    moveHatchMechanismToIn(horzOffToIn.getDouble(-4));
-                }
+                
             }
             else{
                 System.out.println("Not locked on");

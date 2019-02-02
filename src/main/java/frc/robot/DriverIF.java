@@ -44,4 +44,7 @@ public class DriverIF {
     public boolean encoderTestRightBack(){
         return xbox.B_BUTTON();
     }
+    public boolean autoAlign(){
+        return xbox.A_BUTTON();
+    }
 }
