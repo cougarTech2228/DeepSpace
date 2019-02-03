@@ -9,6 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DriveBase.DriveType;
@@ -48,6 +49,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    Scheduler.getInstance().run();
   }
 
   @Override
@@ -74,11 +76,11 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopPeriodic() {
-    // base.TeleopMove();
+    base.TeleopMove();
     // pixy.read();
-    // hatch.teleop();
-
-    arduino.test();
+    hatch.teleop();
+    //Scheduler.getInstance().run();
+    //arduino.test();
     //pigeon.pigeonCheck();
     //System.out.println(navx.getYaw());
 

@@ -2,11 +2,10 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import edu.wpi.first.wpilibj.command.Scheduler;
-import jdk.jfr.Percentage;
 
 public class DriveBase {
 	
+	private static double countsPerInch = 35.899;
 	private Navx navx;
 	private DriverIF controls;
 	private Motor rightFront;
@@ -191,31 +190,18 @@ public class DriveBase {
 		}
 	}
 
-	public DriveToEncoder driveToEncoder(int targetEncoderCount, double speed) {
-		return new DriveToEncoder(targetEncoderCount, speed);
+	public DriveToEncoder driveToEncoder(double targetInches, double speed) {
+		return new DriveToEncoder(targetInches, speed);
 	}
-	public class DriveToEncoder extends Command {
-		int targetEncoderCount;
-		double speed;
-		public DriveToEncoder(int targetEncoderCount, double speed) {
-			this.targetEncoderCount = targetEncoderCount;
-			this.speed = speed;
+	public class DriveToEncoder extends CommandGroup {
+		public DriveToEncoder(double targetInches, double speed) {
 			if(mode == DriveType.Mecanum) {
-				AutoMaster.autoSequence.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed, rightBack));
-				AutoMaster.autoSequence.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed, leftBack));
+				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed, rightBack));
+				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed, leftBack));
 			} else if(mode == DriveType.Tank) {
-				AutoMaster.autoSequence.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed));
-				AutoMaster.autoSequence.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed));
+				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
 			}
-		}
-		protected void initialize() {}
-		public void execute() {}
-		@Override
-		protected boolean isFinished() {
-			return true;
-		}
-		@Override
-		protected void end() {
 		}
 	}
 	//test

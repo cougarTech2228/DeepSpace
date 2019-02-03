@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.command.Scheduler;
 
 public class Hatch {
     private Solenoid left;
@@ -32,6 +34,8 @@ public class Hatch {
     private NetworkTableEntry horzOffToIn;
     private boolean homing = false;
     private boolean zeroed = false;
+    private Toggler autoToggle;
+    private int autotestingtemp = 0;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -49,6 +53,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
 
+        autoToggle = new Toggler(3, true);
     }
 
     public void extend() {
@@ -69,7 +74,15 @@ public class Hatch {
             retract();
         }
         if (controls.autoAlign()) {
-            autoDeploy();
+            autotestingtemp++;
+        } else autotestingtemp = 0;
+        if(autotestingtemp == 1) {
+            autotestingtemp = 2;
+            System.out.println(autoToggle.state);
+            Scheduler.getInstance().removeAll();
+            CommandGroup jim = new CommandGroup();
+            jim.addSequential(new autoDeploy());
+            jim.start();
         }
         hatchStrafe();
     }
@@ -112,19 +125,34 @@ public class Hatch {
      * Freakin' cool method to automatically align the hatch to the station with
      * vision. Welcome to the future.
      */
-    public void autoDeploy() {
-        if (distTargIn.getDouble(99) < 24) {
-            if (targState.getDouble(0) == 2.0) {
-                new hatchMove(horzOffToIn.getDouble(99));
-                extend();
+    public class autoDeploy extends CommandGroup {
+
+        public autoDeploy() {
+            if (distTargIn.getDouble(99) < 24) {
+                if (targState.getDouble(0) == 2.0) {
+
+                    if(Math.abs(horzOffToIn.getDouble(99)) <= 3)
+                        this.addSequential(new hatchMove(horzOffToIn.getDouble(0)));
+                    this.addSequential(dBase.driveToEncoder(distTargIn.getDouble(0), 0.4));
+
+                } else {
+                    System.out.println("Not locked on: " + targState.getDouble(0));
+                }
             } else {
-                System.out.println("Not locked on");
+                System.out.println("Too far: " + distTargIn.getDouble(99));
             }
-        } else {
-            System.out.println("Too far");
+        }
+        @Override
+        protected void interrupted() {
+            Scheduler.getInstance().removeAll();
+        }
+        @Override
+        public void end() {
+            autoToggle.state = 0;
+            extend();
+            super.end();
         }
     }
-
     public class hatchMove extends Command {
         private double inchesToMove;
         private boolean movingHatchMechanism = false;

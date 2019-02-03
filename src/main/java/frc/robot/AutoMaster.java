@@ -9,12 +9,14 @@ public class AutoMaster {
     private DriveBase base;
     public AutoMaster(DriveBase base, Navx navx) {
         this.base = base;
+        autoSequence = new CommandGroup();
     }
     public void start() {
         Scheduler.getInstance().removeAll();
-        autoSequence.addSequential(base.driveToEncoder(100000, 0.3));
+
+        //autoSequence.addSequential(base.driveToEncoder(100000, 0.3));
         autoSequence.start();
-        autoSequence.close();
+        //autoSequence.close();
     }
     public void run() {
         Scheduler.getInstance().run();

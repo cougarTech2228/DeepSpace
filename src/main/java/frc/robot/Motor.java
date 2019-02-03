@@ -185,11 +185,11 @@ public class Motor {
 			percentComplete = getSensorPosition() / targetEncoderCount;
 			double speedMultiplier = 1;
 
-			//if there is 10000 counts or less to go, do this:
-			if(getSensorPosition() >= targetEncoderCount - 10000) {
+			//if there is 500 counts or less to go, do this:
+			if(getSensorPosition() >= targetEncoderCount - 500) {
 
-				//percentRampComplete is the percent of the 10000 counts left to go
-				double percentRampComplete = (targetEncoderCount - getSensorPosition()) / 10000;
+				//percentRampComplete is the percent of the 500 counts left to go
+				double percentRampComplete = (targetEncoderCount - getSensorPosition()) / 500;
 
 				//sets speed multiplier to ramped down value,
 				//with the lowest value possible being minimumSpeed
