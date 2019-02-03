@@ -27,6 +27,7 @@ public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
+  private Arduino arduino = new Arduino();
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
@@ -73,12 +74,15 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void teleopPeriodic() {
-    base.TeleopMove();
+    // base.TeleopMove();
+    // pixy.read();
+    // hatch.teleop();
+
+    arduino.test();
     //pigeon.pigeonCheck();
     //System.out.println(navx.getYaw());
 
     //PixyData p = new PixyData();
-    hatch.teleop();
     /*
     try {
       p = pixy.readPacket(1);
