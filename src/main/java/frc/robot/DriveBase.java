@@ -1,6 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import jdk.jfr.Percentage;
 
 public class DriveBase {
@@ -115,8 +117,8 @@ public class DriveBase {
 		}	
 	}
 	//auto
-	public TurnToAngle TurnToAngle(Navx navx, double targetAngle, double speed) {
-		return new TurnToAngle(navx, targetAngle, speed);
+	public TurnToAngle TurnToAngle(double targetAngle, double speed) {
+		return new TurnToAngle(targetAngle, speed);
 	}
 	public class TurnToAngle extends Command {
 		boolean running;
@@ -124,11 +126,9 @@ public class DriveBase {
 		double percentComplete;
 		double maxSpeed;
 		double speed;
-		Navx navx;
 		
-		public TurnToAngle(Navx navx, double targetAngle, double speed) {
+		public TurnToAngle(double targetAngle, double speed) {
 			this.targetAngle = targetAngle;
-			this.navx = navx;
 			this.maxSpeed = speed;
 			running = true;
 			percentComplete = 0;
@@ -190,6 +190,41 @@ public class DriveBase {
 			}
 		}
 	}
+
+	public DriveToEncoder driveToEncoder(int targetEncoderCount, double speed) {
+		return new DriveToEncoder(targetEncoderCount, speed);
+	}
+	public class DriveToEncoder extends Command {
+		int targetEncoderCount;
+		double speed;
+		CommandGroup commands;
+		public DriveToEncoder(int targetEncoderCount, double speed) {
+			this.targetEncoderCount = targetEncoderCount;
+			this.speed = speed;
+			if(mode == DriveType.Mecanum) {
+				commands.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed, rightBack));
+				commands.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed, leftBack));
+			} else if(mode == DriveType.Tank) {
+				commands.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed));
+				commands.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed));
+			}
+		}
+		protected void initialize() {
+			commands = new CommandGroup();
+			commands.start();
+		}
+		public void execute() {
+			
+		}
+		@Override
+		protected boolean isFinished() {
+			return commands.isCompleted();
+		}
+		@Override
+		protected void end() {
+			commands.close();
+		}
+	}
 	//test
 	public void TestEncoders() {
 		if(controls.encoderTestLeftFront()) {
@@ -219,16 +254,6 @@ public class DriveBase {
 		} else {
 			rightBack.stop();
 			rightBack.setEncoderToZero();
-		}
-	}
-	public class driveToDistIn extends Command{
-		public void moveToDistEnc(int encoderCounts, double speed){
-			leftFront.moveTo(encoderCounts, speed);
-			rightFront.moveTo(encoderCounts, speed);
-		}
-		@Override
-		protected boolean isFinished() {
-			return false;
 		}
 	}
 }

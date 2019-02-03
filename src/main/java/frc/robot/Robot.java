@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
     }
     System.out.println("X: " + p.X + "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);*/
     
-    pixy.read();
+    //pixy.read();
   }
   @Override
   public void testPeriodic() {
