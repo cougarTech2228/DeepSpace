@@ -22,9 +22,8 @@ import frc.robot.DriveBase.DriveType;
  */
 
 public class Robot extends TimedRobot {
-  public static ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
-  private static int pigeonPort = RobotMap.PIGEONIMU;
-  private static Pigeon pigeon = new Pigeon(pigeonPort);
+  public ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
+  private Pigeon pigeon = new Pigeon(RobotMap.PIGEONIMU);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
@@ -33,7 +32,6 @@ public class Robot extends TimedRobot {
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   private AutoMaster auto = new AutoMaster(base, navx);
   private Hatch hatch = new Hatch(controller, base);
-  private Pixy pixy = new Pixy();
 
   private String m_autoSelected; 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -44,6 +42,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    auto.start();
   }
 
   @Override
@@ -56,7 +55,6 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
     base.teleopInit();
-    auto.start();
   }
 
   @Override

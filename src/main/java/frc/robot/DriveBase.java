@@ -197,32 +197,25 @@ public class DriveBase {
 	public class DriveToEncoder extends Command {
 		int targetEncoderCount;
 		double speed;
-		CommandGroup commands;
 		public DriveToEncoder(int targetEncoderCount, double speed) {
 			this.targetEncoderCount = targetEncoderCount;
 			this.speed = speed;
 			if(mode == DriveType.Mecanum) {
-				commands.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed, rightBack));
-				commands.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed, leftBack));
+				AutoMaster.autoSequence.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed, rightBack));
+				AutoMaster.autoSequence.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed, leftBack));
 			} else if(mode == DriveType.Tank) {
-				commands.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed));
-				commands.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed));
+				AutoMaster.autoSequence.addParallel(rightFront.moveToEncoder(targetEncoderCount, speed));
+				AutoMaster.autoSequence.addParallel(leftFront.moveToEncoder(targetEncoderCount, speed));
 			}
 		}
-		protected void initialize() {
-			commands = new CommandGroup();
-			commands.start();
-		}
-		public void execute() {
-			
-		}
+		protected void initialize() {}
+		public void execute() {}
 		@Override
 		protected boolean isFinished() {
-			return commands.isCompleted();
+			return true;
 		}
 		@Override
 		protected void end() {
-			commands.close();
 		}
 	}
 	//test
