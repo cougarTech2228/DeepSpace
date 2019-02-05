@@ -8,7 +8,7 @@ public class DriveBase {
 	private static double countsPerInch = 35.899;
 	private Navx navx;
 	private DriverIF controls;
-	private Motor rightFront;
+	public Motor rightFront;
 	private Motor rightBack;
 	private Motor leftFront;
 	private Motor leftBack;
@@ -190,17 +190,17 @@ public class DriveBase {
 		}
 	}
 
-	public DriveToEncoder driveToEncoder(double targetInches, double speed) {
-		return new DriveToEncoder(targetInches, speed);
+	public DriveToInch driveToInch(double targetInches, double speed) {
+		return new DriveToInch(targetInches, speed);
 	}
-	public class DriveToEncoder extends CommandGroup {
-		public DriveToEncoder(double targetInches, double speed) {
+	public class DriveToInch extends CommandGroup {
+		public DriveToInch(double targetInches, double speed) {
 			if(mode == DriveType.Mecanum) {
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed, rightBack));
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed, leftBack));
 			} else if(mode == DriveType.Tank) {
-				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
-				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addSequential(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addSequential(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
 			}
 		}
 	}
