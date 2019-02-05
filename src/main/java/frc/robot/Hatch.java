@@ -97,6 +97,8 @@ public class Hatch {
                 System.out.println("Too far: " + distTargIn.getDouble(DEFAULT_VALUE));
             }
         }
+        // System.out.println("distTargIn" + distTargIn.getDouble(99));
+        // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
         hatchStrafe();
     }
 
