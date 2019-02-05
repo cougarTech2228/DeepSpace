@@ -10,15 +10,13 @@ public class Arduino {
         port.reset();
     }
 
-    public void test() {
+    public int test() {
         // int bytes = port.getBytesReceived();
         port.setReadBufferSize(2);
         byte[] byteArray = port.read(2);
-        System.out.println("Arduino: ");
         byte a = byteArray[0], b = byteArray[1];
         int fin = (int)(Byte.toUnsignedInt(a));
         fin = fin | (int)(Byte.toUnsignedInt(b) << 8);
-        System.out.println(fin);
-
+        return fin;
     }
 }

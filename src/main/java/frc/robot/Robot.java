@@ -23,12 +23,14 @@ import frc.robot.DriveBase.DriveType;
  */
 
 public class Robot extends TimedRobot {
-  public ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
-  private Pigeon pigeon = new Pigeon(RobotMap.PIGEONIMU);
+
+  private static int pigeonPort = RobotMap.PIGEONIMU;
+  private static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
   private Arduino arduino = new Arduino();
+  public ProximitySensor distance = new ProximitySensor(arduino);
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
@@ -78,9 +80,9 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     base.TeleopMove();
     // pixy.read();
-    hatch.teleop();
-    //Scheduler.getInstance().run();
-    //arduino.test();
+    // hatch.teleop();
+        System.out.println(distance.distanceInches());
+    
     //pigeon.pigeonCheck();
     //System.out.println(navx.getYaw());
 
