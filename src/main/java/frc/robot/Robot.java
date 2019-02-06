@@ -100,6 +100,6 @@ public class Robot extends TimedRobot {
   }
   @Override
   public void testPeriodic() {
-    base.TestEncoders();
+    //\base.TestEncoders();
   }
 }

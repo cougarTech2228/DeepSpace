@@ -21,6 +21,7 @@ public class AutoMaster {
     private NetworkTableEntry distTargIn;
     // horizontal distance from center of target, positive being to the right
     private NetworkTableEntry horzOffToIn;
+    private CommandGroup autoDeployGroup;
     public AutoMaster(DriveBase base, Navx navx, Hatch hatch) {
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
@@ -29,37 +30,33 @@ public class AutoMaster {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.base = base;
         this.hatch = hatch;
+        autoDeployGroup = new AutoDeploySequence();
         //autoSequence = new CommandGroup();
     }
     public void start() {
-        //Scheduler.getInstance().removeAll();
-
-        //autoSequence.addSequential(base.driveToEncoder(100000, 0.3));
-        /*
-        autoSequence.start();
+        if(!autoDeployGroup.isCompleted()){
+        autoDeployGroup.cancel();
         Scheduler.getInstance().removeAll();
-        if (!autoSequence.isCompleted()) autoSequence.cancel();
-        //autoDeployGroup.start();
-        if (distTargIn.getDouble(DEFAULT_VALUE) < 24) {
-            if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
-                autoSequence.start();
-            } else {
-                System.out.println("Not locked on: " + targState.getDouble(DEFAULT_VALUE));
-                autoSequence.addSequential(hatch.hatchMove(horzOffToIn.getDouble(0)));
-                autoSequence.addSequential(base.driveToEncoder(distTargIn.getDouble(0), 0.4));
-                autoSequence.addSequential(hatch.hatchDeploy(2));
-            }
-        } else {
-            System.out.println("Too far: " + distTargIn.getDouble(DEFAULT_VALUE));
-        }*/
-        //autoSequence.addSequential(base.driveToInch(12, 0.5));
-        CommandGroup autoSequence = new CommandGroup();
-        System.out.println("initializing");
-        autoSequence.addSequential(base.driveToInch(12, 0.5));
-        autoSequence.start();
+        autoDeployGroup.start();
         //autoSequence.close();
+        }
     }
     public void run() {
         Scheduler.getInstance().run();
+    }
+    public class AutoDeploySequence extends CommandGroup{
+        public AutoDeploySequence(){
+            this.addSequential(hatch.getHome());
+            this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
+            this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
+            this.addSequential(hatch.hatchDeploy(2));
+        }
+        @Override
+        protected void initialize() {
+        }
+        @Override
+        public void execute() {
+        }
+
     }
 }
