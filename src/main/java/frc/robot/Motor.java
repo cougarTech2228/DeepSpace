@@ -85,6 +85,7 @@ public class Motor {
 	 */
 	public void invert(boolean invert) {
 		motor.setInverted(invert);
+		invertEncoder = true;
 	}
 	public Motor(int CanID, Motor Following) {
 		motor = new WPI_TalonSRX(CanID);
@@ -156,6 +157,7 @@ public class Motor {
 		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 	public MoveTo moveToEncoder(double targetEncoderCount, double speed, Motor...pairedMotors) {
+		System.out.println("Returning new moveTo");
 		return new MoveTo(targetEncoderCount, speed, pairedMotors);
 	}
 	public class MoveTo extends Command {
@@ -166,39 +168,49 @@ public class Motor {
 		double speed;
 		Motor[] pairedMotors;
 
-		
 		public MoveTo(double targetEncoderCount, double speed, Motor...pairedMotors) {
 
 			this.pairedMotors = pairedMotors;
 			this.maxSpeed = speed;
+			this.targetEncoderCount = targetEncoderCount;
 			running = true;
 			percentComplete = 0;
 			this.speed = speed;
 		}
 		protected void initialize() {
+			System.out.println("Setting encoders to zero");
 			setEncoderToZero();
 		}
 		public void execute() {
 			double minimumSpeed = 0.15;
 
 			//calculates percent of turn complete
-			percentComplete = getSensorPosition() / targetEncoderCount;
+			double encoder = Math.abs(getSensorPosition());
+			percentComplete = Math.abs(encoder / targetEncoderCount);
 			double speedMultiplier = 1;
+			System.out.println("Encoders: " + getSensorPosition());
 
 			//if there is 500 counts or less to go, do this:
-			if(getSensorPosition() >= targetEncoderCount - 500) {
+			if(encoder >= targetEncoderCount - 500) {
 
 				//percentRampComplete is the percent of the 500 counts left to go
-				double percentRampComplete = (targetEncoderCount - getSensorPosition()) / 500;
+				double percentRampComplete = (targetEncoderCount - encoder) / 500.0;
 
 				//sets speed multiplier to ramped down value,
 				//with the lowest value possible being minimumSpeed
-				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
+				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed; 
 			}
 			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
 			speed = maxSpeed * speedMultiplier;
 			
 			//move
+			System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
+
+			if(1 - percentComplete < 0.015) {
+				System.out.println("Finished");
+				running = false;
+				speed = maxSpeed < 0 ? 0.2 : -0.2;
+			}
 			setSpeed(speed);
 			for(Motor m : pairedMotors) {
 				m.setSpeed(speed);
@@ -206,10 +218,7 @@ public class Motor {
 		}
 		@Override
 		protected boolean isFinished() {
-			if(Math.abs(1 - percentComplete) < 0.015) {
-				return true;
-			}
-			else return false;
+			return !running;
 		}
 		@Override
 		protected void end() {

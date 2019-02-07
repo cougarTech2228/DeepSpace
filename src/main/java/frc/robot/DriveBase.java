@@ -8,7 +8,7 @@ public class DriveBase {
 	private static double countsPerInch = 35.899;
 	private Navx navx;
 	private DriverIF controls;
-	private Motor rightFront;
+	public Motor rightFront;
 	private Motor rightBack;
 	private Motor leftFront;
 	private Motor leftBack;
@@ -189,18 +189,98 @@ public class DriveBase {
 			}
 		}
 	}
-
-	public DriveToEncoder driveToEncoder(double targetInches, double speed) {
-		return new DriveToEncoder(targetInches, speed);
+	public MoveToInches moveToInches(double targetEncoderInches, double speed) {
+		return new MoveToInches(targetEncoderInches, speed);
 	}
-	public class DriveToEncoder extends CommandGroup {
-		public DriveToEncoder(double targetInches, double speed) {
+	public class MoveToInches extends Command {
+		private double maxSpeed;
+		private double targetEncoderCount;
+		private boolean leftRunning = true;
+		private boolean rightRunning = true;
+		public MoveToInches(double targetEncoderInches, double speed) {
+			this.maxSpeed = speed;
+			this.targetEncoderCount = targetEncoderInches * countsPerInch;
+			leftRunning = true;
+			rightRunning = true;
+		}
+		protected void initialize() {
+			System.out.println("Setting encoders to zero");
+			rightFront.setEncoderToZero();
+			leftFront.setEncoderToZero();
+		}
+		public void execute() {
+			double minimumSpeed = 0.15;
+
+			//calculates percent of turn complete
+			double leftEncoder = Math.abs(leftFront.getSensorPosition());
+			double rightEncoder = Math.abs(rightFront.getSensorPosition());
+			double leftPercentComplete = Math.abs(leftEncoder / targetEncoderCount);
+			double rightPercentComplete = Math.abs(rightEncoder / targetEncoderCount);
+			double leftSpeedMultiplier = 1;
+			double rightSpeedMultiplier = 1;
+			System.out.println("Encoders right: " + rightFront.getSensorPosition() + " left: " + leftFront.getSensorPosition());
+
+			//if there is 500 counts or less to go, do this:
+			if(leftPercentComplete >= targetEncoderCount - 500) {
+
+				//percentRampComplete is the percent of the 500 counts left to go
+				double percentRampComplete = (targetEncoderCount - leftEncoder) / 500.0;
+
+				//sets speed multiplier to ramped down value,
+				//with the lowest value possible being minimumSpeed
+				leftSpeedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed; 
+			}
+			if(rightPercentComplete >= targetEncoderCount - 500) {
+
+				//percentRampComplete is the percent of the 500 counts left to go
+				double percentRampComplete = (targetEncoderCount - rightEncoder) / 500.0;
+
+				//sets speed multiplier to ramped down value,
+				//with the lowest value possible being minimumSpeed
+				rightSpeedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed; 
+			}
+			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
+			double leftSpeed = maxSpeed * leftSpeedMultiplier;
+			double rightSpeed = maxSpeed * rightSpeedMultiplier;
+			
+			//move
+			if(1 - leftPercentComplete < 0.015) {
+				System.out.println("Finished");
+				leftRunning = false;
+				leftSpeed = maxSpeed < 0 ? 0.2 : -0.2;
+			}
+			if(1 - rightPercentComplete < 0.015) {
+				System.out.println("Finished");
+				leftRunning = false;
+				rightSpeed = maxSpeed < 0 ? 0.2 : -0.2;
+			}
+			System.out.println("speed left: " + leftSpeed + ", right: " + rightSpeed);
+			leftFront.setSpeed(leftSpeed);
+			rightFront.setSpeed(rightSpeed);
+		}
+		@Override
+		protected boolean isFinished() {
+			return !leftRunning && !rightRunning;
+		}
+		@Override
+		protected void end() {
+			leftFront.stop();
+			rightFront.stop();
+		}
+	}
+
+
+	public DriveToInch driveToInch(double targetInches, double speed) {
+		return new DriveToInch(targetInches, speed);
+	}
+	public class DriveToInch extends CommandGroup {
+		public DriveToInch(double targetInches, double speed) {
 			if(mode == DriveType.Mecanum) {
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed, rightBack));
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed, leftBack));
 			} else if(mode == DriveType.Tank) {
-				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
 			}
 		}
 	}

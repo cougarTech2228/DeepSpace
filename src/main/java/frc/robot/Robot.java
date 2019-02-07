@@ -36,13 +36,13 @@ public class Robot extends TimedRobot {
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
-  private AutoMaster auto = new AutoMaster(base, navx);
   private Hatch hatch = new Hatch(controller, base);
   private proximityEnum proximityState = proximityEnum.LookingForID;
 
   private enum proximityEnum {
     LookingForID, LookingForData, Error
   }
+  private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -105,6 +105,7 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
     base.teleopInit();
+    auto.start();
   }
 
   @Override
@@ -144,6 +145,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    base.TestEncoders();
+    //\base.TestEncoders();
   }
+  
 }
