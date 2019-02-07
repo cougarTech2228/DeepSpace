@@ -26,6 +26,7 @@ public class Motor {
 	private int integralZone = 0;
 	private int closedLoopError = 0;
 	
+	private double encoderOffset = 0;
 	private double feedForwardGain = 1.5;
 	private double proportionalGain = 2;
 	private double integralGain = 0;
@@ -85,6 +86,7 @@ public class Motor {
 	 */
 	public void invert(boolean invert) {
 		motor.setInverted(invert);
+		motor.setSensorPhase(invert);
 		invertEncoder = true;
 	}
 	public Motor(int CanID, Motor Following) {
@@ -116,7 +118,7 @@ public class Motor {
 	}
 	public double getSensorPosition() {
 		int polarity = invertEncoder ? -1 : 1;
-		return polarity * motor.getSelectedSensorPosition(PID_IDx);
+		return polarity * (motor.getSelectedSensorPosition(PID_IDx) - encoderOffset);
 	}
 	public double getSensorVelocity() {
 		return motor.getSelectedSensorVelocity(PID_IDx);
@@ -130,10 +132,13 @@ public class Motor {
 	public double getBusVoltage() {
 		return motor.getBusVoltage();
 	}
-	public void setEncoderPosition(int position) {
+	public void setEncoderToZero() {
+		encoderOffset = motor.getSelectedSensorPosition(PID_IDx);
+	}
+	public void resetEncoderPosition(int position) {
 		motor.getSensorCollection().setQuadraturePosition(position, 25);
 	}
-	public void setEncoderToZero() {
+	public void resetToZero() {
 		motor.getSensorCollection().setQuadraturePosition(0, 25);
 	}
 	public void setRamp(double milliseconds) {
@@ -188,7 +193,7 @@ public class Motor {
 			double encoder = Math.abs(getSensorPosition());
 			percentComplete = Math.abs(encoder / targetEncoderCount);
 			double speedMultiplier = 1;
-			System.out.println("Encoders: " + getSensorPosition());
+			// System.out.println("Encoders: " + getSensorPosition());
 
 			//if there is 500 counts or less to go, do this:
 			if(encoder >= targetEncoderCount - 500) {
@@ -204,7 +209,7 @@ public class Motor {
 			speed = maxSpeed * speedMultiplier;
 			
 			//move
-			System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
+			// System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
 
 			if(1 - percentComplete < 0.015) {
 				System.out.println("Finished");

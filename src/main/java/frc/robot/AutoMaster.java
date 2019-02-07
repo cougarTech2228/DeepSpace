@@ -8,7 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 
 public class AutoMaster {
-    //public static CommandGroup autoSequence; 
+    // public static CommandGroup autoSequence;
     private DriveBase base;
     private Hatch hatch;
     private final String TABLE_KEY = "datatable";
@@ -22,6 +22,7 @@ public class AutoMaster {
     // horizontal distance from center of target, positive being to the right
     private NetworkTableEntry horzOffToIn;
     private CommandGroup autoDeployGroup;
+
     public AutoMaster(DriveBase base, Navx navx, Hatch hatch) {
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
@@ -31,32 +32,44 @@ public class AutoMaster {
         this.base = base;
         this.hatch = hatch;
         autoDeployGroup = new AutoDeploySequence();
-        //autoSequence = new CommandGroup();
+        // autoSequence = new CommandGroup();
     }
+
     public void start() {
-        if(!autoDeployGroup.isCompleted()){
-        autoDeployGroup.cancel();
-        Scheduler.getInstance().removeAll();
-        autoDeployGroup.start();
-        //autoSequence.close();
+
+        if (!autoDeployGroup.isCompleted()) {
+            System.out.println("Already in use");
+            autoDeployGroup.cancel();
+            Scheduler.getInstance().removeAll();
+            autoDeployGroup.start();
+            // autoSequence.close();
         }
     }
+
     public void run() {
         Scheduler.getInstance().run();
     }
-    public class AutoDeploySequence extends CommandGroup{
-        public AutoDeploySequence(){
-            this.addSequential(hatch.getHome());
+
+    public class AutoDeploySequence extends CommandGroup {
+        public AutoDeploySequence() {
+            // this.addSequential(hatch.getHome());
             this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
             this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
             this.addSequential(hatch.hatchDeploy(2));
+            this.addSequential(base.driveToInch(-4, .25));
         }
+
         @Override
         protected void initialize() {
         }
+
         @Override
         public void execute() {
         }
+        // @Override
+        // protected boolean isFinished(){
+
+        // }
 
     }
 }

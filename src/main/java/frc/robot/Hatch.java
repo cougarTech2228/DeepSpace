@@ -6,6 +6,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -38,6 +39,7 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private CommandGroup autoDeployGroup;
+    private int count;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -58,11 +60,13 @@ public class Hatch {
         autoDeployGroup.addSequential(hatchMove(horzOffToIn.getDouble(0)));
         autoDeployGroup.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
         autoToggle = new Toggler(3, true);
+        int count = 0;
     }
 
     public void extend() {
         left.set(true);
         right.set(true);
+
     }
 
     public void retract() {
@@ -109,12 +113,11 @@ public class Hatch {
             homing = true;
         }
         if (!rightSwitch.get() && !zeroed) {
-            strafe.setEncoderPosition(0);
+            strafe.setEncoderToZero();
             zeroed = true;
         }
         strafe.set(-STRAFE_SPEED);
-        if (strafe.getSensorPosition() - ENCODER_COUNT_CENTER > -100
-                && strafe.getSensorPosition() - ENCODER_COUNT_CENTER < 100) {
+        if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 100) {
             strafe.set(0);
             homing = false;
             zeroed = false;
@@ -123,7 +126,7 @@ public class Hatch {
 
     public void hatchStrafe() {
         if (!rightSwitch.get()) {
-            strafe.setEncoderPosition(0);
+            strafe.setEncoderToZero();
         }
         if (controls.hatchStrafeLeft() && leftSwitch.get()) {
             strafe.set(-STRAFE_SPEED);
@@ -134,7 +137,6 @@ public class Hatch {
         }
         // System.out.println(strafe.getSensorPosition());
     }
-
 
     /**
      * Freakin' cool method to automatically align the hatch to the station with
@@ -182,26 +184,47 @@ public class Hatch {
         private boolean homing;
         private boolean zeroed;
         private boolean complete;
+        private boolean waiting;
+        private double waitTime;
+
         public Home() {
+        }
+
+        @Override
+        protected void initialize() {
             zeroed = false;
             complete = false;
+            homing = false;
+            waiting = false;
+            waitTime = 0;
         }
+
         @Override
         protected void execute() {
-            System.out.println("Homing");
+            System.out.println("Homing" + strafe.getSensorPosition());
             if (!homing) {
+                homing = true;
                 strafe.set(STRAFE_SPEED);
-            }
-            if (!rightSwitch.get() && !zeroed) {
+            } else if (!rightSwitch.get() && !zeroed) {
+                System.out.println("At right boundary");
                 zeroed = true;
-                strafe.setEncoderPosition(0);
-                strafe.set(-STRAFE_SPEED);
-            }
-            if (strafe.getSensorPosition() - ENCODER_COUNT_CENTER > -100
-                    && strafe.getSensorPosition() - ENCODER_COUNT_CENTER < 100) {
+                waiting = true;
+                strafe.setEncoderToZero();
+                strafe.set(0);
+                waitTime = Timer.getFPGATimestamp();
+            } else if (waiting) {
+                System.out.println("Waiting: " + (Timer.getFPGATimestamp() - waitTime));
+                if (Timer.getFPGATimestamp() - waitTime > 1.0) {
+                    System.out.println("Ending wait");
+                    waiting = false;
+                    strafe.set(-STRAFE_SPEED);
+                }
+            } else if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 10000 && !waiting && zeroed) {
+                System.out.println("At center");
                 strafe.set(0);
                 complete = true;
             }
+            System.out.println("Hatch mtr: " + strafe.getSensorPosition());
         }
 
         @Override
@@ -209,12 +232,15 @@ public class Hatch {
             return complete;
         }
     }
-    public Home getHome(){
+
+    public Home getHome() {
         return new Home();
     }
+
     public HatchMove hatchMove(double inchesToMove) {
         return new HatchMove();
     }
+
     public class HatchMove extends Command {
         private double inchesToMove;
         private boolean movingHatchMechanism = false;
@@ -233,7 +259,7 @@ public class Hatch {
         @Override
         protected void execute() {
             if (!this.movingHatchMechanism) {
-                if (distTargIn.getDouble(DEFAULT_VALUE) < 32) {
+                if (distTargIn.getDouble(DEFAULT_VALUE) > 24 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
                     if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
                         this.movingHatchMechanism = true;
                         this.finished = false;
@@ -253,7 +279,7 @@ public class Hatch {
                     }
                 }
             }
-            
+
             this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
             if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
                 strafe.set(0);
@@ -264,7 +290,7 @@ public class Hatch {
             } else if (this.movedInches > this.inchesToMove && rightSwitch.get()) {
                 strafe.set(STRAFE_SPEED);
                 System.out.println("moving to the right");
-            } else if (this.movedInches < this.inchesToMove && leftSwitch.get()) {
+            } else if (this.movedInches < this.inchesToMove && !leftSwitch.get()) {
                 strafe.set(-STRAFE_SPEED);
                 System.out.println("moving to the left");
             }
@@ -301,10 +327,20 @@ public class Hatch {
         }
 
         protected void end() {
-            left.set(false);
-            right.set(false);
+            // left.set(false);
+            // right.set(false);
         }
 
+    }
+
+    public void testPeriodic() {
+        if (Math.abs(controls.encoderTestHatch()) > 0.1) {
+            strafe.setSpeed(controls.encoderTestHatch());
+            System.out.println("Hatch Motor: " + strafe.getSensorPosition());
+        } else {
+            strafe.setSpeed(0);
+            strafe.setEncoderToZero();
+        }
     }
 
 }
