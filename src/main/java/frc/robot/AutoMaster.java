@@ -37,12 +37,15 @@ public class AutoMaster {
 
     public void start() {
 
-        if (!autoDeployGroup.isCompleted()) {
+        if (autoDeployGroup.isRunning()) {
             System.out.println("Already in use");
             autoDeployGroup.cancel();
-            Scheduler.getInstance().removeAll();
+            // Scheduler.getInstance().removeAll();
             autoDeployGroup.start();
             // autoSequence.close();
+        } else {
+            System.out.println("Starting auto");
+            autoDeployGroup.start();
         }
     }
 
@@ -52,24 +55,26 @@ public class AutoMaster {
 
     public class AutoDeploySequence extends CommandGroup {
         public AutoDeploySequence() {
+            System.out.println("Constructing an AutoDeploySequence");
             // this.addSequential(hatch.getHome());
             this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
             this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
             this.addSequential(hatch.hatchDeploy(2));
             this.addSequential(base.driveToInch(-4, .25));
+
         }
+        // @Override
+        // public synchronized void start() {
+        //     System.out.println("Starting auto command");
+            
+        // }
 
         @Override
         protected void initialize() {
-        }
+            System.out.println("initializing");
+            
 
-        @Override
-        public void execute() {
         }
-        // @Override
-        // protected boolean isFinished(){
-
-        // }
 
     }
 }

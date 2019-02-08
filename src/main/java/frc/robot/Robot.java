@@ -7,6 +7,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -58,6 +60,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
+    /*
     Scheduler.getInstance().run();
 
     byte[] dataMessage = arduino.readSerialPort();
@@ -95,7 +98,7 @@ public class Robot extends TimedRobot {
 
       }
 
-    }
+    }*/
 
   }
 
@@ -127,7 +130,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     base.TeleopMove();
     // pixy.read();
-    // hatch.teleop();
+    hatch.teleop();
     // System.out.println(distance.distanceInches());
 
     // pigeon.pigeonCheck();
@@ -142,11 +145,14 @@ public class Robot extends TimedRobot {
 
     // pixy.read();
   }
-
   @Override
   public void testPeriodic() {
-    base.TestEncoders();
-    hatch.testPeriodic();
+    //base.teleopInit();
+    //base.rightFront.set(ControlMode.Position, 10000);
+    System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    //base.TestEncoders();
+    //hatch.testPeriodic();
   }
   
 }

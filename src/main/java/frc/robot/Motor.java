@@ -98,8 +98,8 @@ public class Motor {
 	public void autoInit() {
 		closeLoopEnabled = true;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
-		motor.configAllowableClosedloopError(PID_IDx, closedLoopError, timeout);
-		motor.config_kF(PID_IDx, feedForwardGain, timeout);
+		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
+		motor.config_kF(PID_IDx, 1, timeout);
 		
 		motor.config_kP(PID_IDx, proportionalGain, timeout);
 		motor.config_kI(PID_IDx, integralGain, timeout); 
@@ -110,15 +110,14 @@ public class Motor {
 		closeLoopEnabled = false;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
-		motor.config_kF(PID_IDx, feedForwardGain, timeout);
+		motor.config_kF(PID_IDx, 1, timeout);
 		
-		motor.config_kP(PID_IDx, 0, timeout);
+		motor.config_kP(PID_IDx, 0.01, timeout);
 		motor.config_kI(PID_IDx, 0, timeout); 
 		motor.config_kD(PID_IDx, 0, timeout);
 	}
 	public double getSensorPosition() {
-		int polarity = invertEncoder ? -1 : 1;
-		return polarity * (motor.getSelectedSensorPosition(PID_IDx) - encoderOffset);
+		return motor.getSelectedSensorPosition(PID_IDx) - encoderOffset;
 	}
 	public double getSensorVelocity() {
 		return motor.getSelectedSensorVelocity(PID_IDx);
@@ -183,6 +182,9 @@ public class Motor {
 			this.speed = speed;
 		}
 		protected void initialize() {
+			System.out.println("Initializing MoveTo");
+			running = true;
+			percentComplete = 0;
 			System.out.println("Setting encoders to zero");
 			setEncoderToZero();
 		}

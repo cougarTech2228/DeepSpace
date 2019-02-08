@@ -77,7 +77,10 @@ public class Hatch {
     public void teleop() {
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend()) {
-            extend();
+            // extend();
+            left.set(true);
+        } else if (controls.hatchExtendBottom()) {
+            right.set(true);
         } else if (controls.hatchRetract()) {
             retract();
         }
@@ -249,6 +252,12 @@ public class Hatch {
         private boolean finished = false;
 
         public HatchMove() {
+            System.out.println("COnstructing a hatchMove");
+        }
+
+        @Override
+        protected void initialize() {
+            System.out.println("Initializing HatchMove");
             this.inchesToMove = horzOffToIn.getDouble(DEFAULT_VALUE);
             this.movingHatchMechanism = false;
             previousPosition = 0;
@@ -258,6 +267,7 @@ public class Hatch {
 
         @Override
         protected void execute() {
+            // System.out.println("Executing Hatch");
             if (!this.movingHatchMechanism) {
                 if (distTargIn.getDouble(DEFAULT_VALUE) > 24 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
                     if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
@@ -276,23 +286,30 @@ public class Hatch {
                         } else {
                             System.out.println("wut");
                         }
+                    } else {
+                        System.out.println("Not locked");
                     }
+                } else {
+                    System.out.println("Not in specified distance");
+                }
+            } else if(this.movingHatchMechanism) {
+                this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
+                if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
+                    strafe.set(0);
+                    this.movedInches = 0;
+                    this.movingHatchMechanism = false;
+                    this.finished = true;
+                    System.out.println("GOT EM");
+                } else if (this.movedInches > this.inchesToMove && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED);
+                    System.out.println("moving to the right");
+                } else if (this.movedInches < this.inchesToMove && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED);
+                    System.out.println("moving to the left");
                 }
             }
-
-            this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
-            if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
-                strafe.set(0);
-                this.movedInches = 0;
-                this.movingHatchMechanism = false;
-                this.finished = true;
-                System.out.println("GOT EM");
-            } else if (this.movedInches > this.inchesToMove && rightSwitch.get()) {
-                strafe.set(STRAFE_SPEED);
-                System.out.println("moving to the right");
-            } else if (this.movedInches < this.inchesToMove && !leftSwitch.get()) {
-                strafe.set(-STRAFE_SPEED);
-                System.out.println("moving to the left");
+            else{
+                System.out.println("If you see this, something is super borked");
             }
         }
 
@@ -309,11 +326,12 @@ public class Hatch {
     public class HatchDeploy extends Command {
         public HatchDeploy(double time) {
             super(time);
+            System.out.println("Constructing hatchDeploy");
         }
 
         @Override
         protected void initialize() {
-
+            System.out.println("Initializing HatchDeploy");
         }
 
         @Override
