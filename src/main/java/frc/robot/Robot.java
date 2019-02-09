@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DriveBase.DriveType;
 
+
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -23,12 +25,10 @@ import frc.robot.DriveBase.DriveType;
  */
 
 public class Robot extends TimedRobot {
-  public ProximitySensor distance = new ProximitySensor(I2C.Port.kOnboard);
-  private Pigeon pigeon = new Pigeon(RobotMap.PIGEONIMU);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
   
-  private Arduino arduino = new Arduino();
+  private SerialDataHandler serialDataHandler = new SerialDataHandler();
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
@@ -37,6 +37,7 @@ public class Robot extends TimedRobot {
 
   private String m_autoSelected; 
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private int loopIndex = 0;
 
   @Override
   public void robotInit() {
@@ -55,7 +56,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
     base.teleopInit();
     auto.start();
@@ -71,35 +72,20 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    base.teleopInit();
-    pigeon.resetYaw();
-    
+    //base.teleopInit();
   }
+  
   @Override
   public void teleopPeriodic() {
-    base.TeleopMove();
-    // pixy.read();
-    hatch.teleop();
-    //Scheduler.getInstance().run();
-    //arduino.test();
-    //pigeon.pigeonCheck();
-    //System.out.println(navx.getYaw());
-
-    //PixyData p = new PixyData();
-    /*
-    try {
-      p = pixy.readPacket(1);
-      if(p == null)
-      p = new PixyData();
-    } catch(Exception e) {
-      e.printStackTrace();
-    }
-    System.out.println("X: " + p.X + "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);*/
-    
-    //pixy.read();
+    serialDataHandler.readPort();
+    if (loopIndex++ == 50) {
+      System.out.println(serialDataHandler.getSensor1Data());
+      System.out.println(serialDataHandler.getSensor2Data());
+      loopIndex = 0;
+   } 
   }
+
   @Override
   public void testPeriodic() {
-    //\base.TestEncoders();
   }
 }

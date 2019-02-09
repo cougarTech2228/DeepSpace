@@ -14,11 +14,17 @@ public class Arduino {
         // int bytes = port.getBytesReceived();
         port.setReadBufferSize(2);
         byte[] byteArray = port.read(2);
-        System.out.println("Arduino: ");
-        byte a = byteArray[0], b = byteArray[1];
-        int fin = (int)(Byte.toUnsignedInt(a));
-        fin = fin | (int)(Byte.toUnsignedInt(b) << 8);
-        System.out.println(fin);
 
+        if (byteArray.length == 2) {
+            System.out.println("Arduino: ");
+            byte a = byteArray[0], b = byteArray[1];
+            int fin = (int) (Byte.toUnsignedInt(a));
+            fin = fin | (int) (Byte.toUnsignedInt(b) << 8);
+            System.out.println(fin);
+        }
+        else
+        {
+            System.out.println("Nothing on port");
+        }
     }
 }
