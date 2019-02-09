@@ -8,6 +8,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.wpilibj.command.Command;
+
 public class Motor {
 	private static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
 	private WPI_TalonSRX motor;
@@ -24,6 +26,7 @@ public class Motor {
 	private int integralZone = 0;
 	private int closedLoopError = 0;
 	
+	private double encoderOffset = 0;
 	private double feedForwardGain = 1.5;
 	private double proportionalGain = 2;
 	private double integralGain = 0;
@@ -83,6 +86,8 @@ public class Motor {
 	 */
 	public void invert(boolean invert) {
 		motor.setInverted(invert);
+		motor.setSensorPhase(invert);
+		invertEncoder = true;
 	}
 	public Motor(int CanID, Motor Following) {
 		motor = new WPI_TalonSRX(CanID);
@@ -93,8 +98,8 @@ public class Motor {
 	public void autoInit() {
 		closeLoopEnabled = true;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
-		motor.configAllowableClosedloopError(PID_IDx, closedLoopError, timeout);
-		motor.config_kF(PID_IDx, feedForwardGain, timeout);
+		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
+		motor.config_kF(PID_IDx, 1, timeout);
 		
 		motor.config_kP(PID_IDx, proportionalGain, timeout);
 		motor.config_kI(PID_IDx, integralGain, timeout); 
@@ -105,15 +110,14 @@ public class Motor {
 		closeLoopEnabled = false;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
-		motor.config_kF(PID_IDx, feedForwardGain, timeout);
+		motor.config_kF(PID_IDx, 1, timeout);
 		
-		motor.config_kP(PID_IDx, 0, timeout);
+		motor.config_kP(PID_IDx, 0.01, timeout);
 		motor.config_kI(PID_IDx, 0, timeout); 
 		motor.config_kD(PID_IDx, 0, timeout);
 	}
 	public double getSensorPosition() {
-		int polarity = invertEncoder ? -1 : 1;
-		return polarity * motor.getSelectedSensorPosition(PID_IDx);
+		return motor.getSelectedSensorPosition(PID_IDx) - encoderOffset;
 	}
 	public double getSensorVelocity() {
 		return motor.getSelectedSensorVelocity(PID_IDx);
@@ -127,10 +131,13 @@ public class Motor {
 	public double getBusVoltage() {
 		return motor.getBusVoltage();
 	}
-	public void setEncoderPosition(int position) {
+	public void setEncoderToZero() {
+		encoderOffset = motor.getSelectedSensorPosition(PID_IDx);
+	}
+	public void resetEncoderPosition(int position) {
 		motor.getSensorCollection().setQuadraturePosition(position, 25);
 	}
-	public void setEncoderToZero() {
+	public void resetToZero() {
 		motor.getSensorCollection().setQuadraturePosition(0, 25);
 	}
 	public void setRamp(double milliseconds) {
@@ -153,50 +160,79 @@ public class Motor {
 	public void setBrakeMode(boolean on) {
 		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
-	public boolean magicMoveTo(double variable, double max, double speed) {
-		double BaseSpeed = 0.2;
-		double PercentComplete = Math.abs(variable) / max;
-		
-		if(PercentComplete < 0.3333333333333) {
-			double PercentRamp = PercentComplete * 3;
-			
-			setSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
-		}
-		else if(PercentComplete > 0.6666666666667) {
-			double PercentRamp = (PercentComplete - 0.6666666666667) * 3;
-			
-			setSpeed(BaseSpeed + PercentRamp * (1 - BaseSpeed));
-		}
-		else setSpeed(speed);
-		
-		System.out.println("Percent Complete: " + PercentComplete);
-		
-		return (PercentComplete >= 1);
+	public MoveTo moveToEncoder(double targetEncoderCount, double speed, Motor...pairedMotors) {
+		System.out.println("Returning new moveTo");
+		return new MoveTo(targetEncoderCount, speed, pairedMotors);
 	}
-	public boolean moveTo(int encoderCount, double speed) {
-		if(Math.abs(getSensorPosition()) >= Math.abs(encoderCount)) {
-			//Set(ControlMode.Velocity, SRXDriveBaseCfg.kCountsPerRevolution);
-			stop();
-			return true;
+	public class MoveTo extends Command {
+		boolean running;
+		double targetEncoderCount;
+		double percentComplete;
+		double maxSpeed;
+		double speed;
+		Motor[] pairedMotors;
+
+		public MoveTo(double targetEncoderCount, double speed, Motor...pairedMotors) {
+
+			this.pairedMotors = pairedMotors;
+			this.maxSpeed = speed;
+			this.targetEncoderCount = targetEncoderCount;
+			running = true;
+			percentComplete = 0;
+			this.speed = speed;
 		}
-		set(speed);
-		return false;
-	}
-	public static void moveMotors(int encoderCount, double speed, Motor... Motors) {
-		boolean moving = true;
-		while(moving) {
-			for(Motor m : Motors) {
-				System.out.println("Running!");
-				boolean motorState = m.moveTo(encoderCount, speed);
-				if(motorState) {
-					System.out.println("Done!" + m.getSensorPosition());
-					moving = false;
-					break;
-				}
+		protected void initialize() {
+			System.out.println("Initializing MoveTo");
+			running = true;
+			percentComplete = 0;
+			System.out.println("Setting encoders to zero");
+			setEncoderToZero();
+		}
+		public void execute() {
+			double minimumSpeed = 0.15;
+
+			//calculates percent of turn complete
+			double encoder = Math.abs(getSensorPosition());
+			percentComplete = Math.abs(encoder / targetEncoderCount);
+			double speedMultiplier = 1;
+			// System.out.println("Encoders: " + getSensorPosition());
+
+			//if there is 500 counts or less to go, do this:
+			if(encoder >= targetEncoderCount - 500) {
+
+				//percentRampComplete is the percent of the 500 counts left to go
+				double percentRampComplete = (targetEncoderCount - encoder) / 500.0;
+
+				//sets speed multiplier to ramped down value,
+				//with the lowest value possible being minimumSpeed
+				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed; 
+			}
+			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
+			speed = maxSpeed * speedMultiplier;
+			
+			//move
+			// System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
+
+			if(1 - percentComplete < 0.015) {
+				System.out.println("Finished");
+				running = false;
+				speed = maxSpeed < 0 ? 0.2 : -0.2;
+			}
+			setSpeed(speed);
+			for(Motor m : pairedMotors) {
+				m.setSpeed(speed);
 			}
 		}
-		System.out.println("Stopping!");
-		for(Motor m : Motors)
-			m.stop();
+		@Override
+		protected boolean isFinished() {
+			return !running;
+		}
+		@Override
+		protected void end() {
+			stop();
+			for(Motor m : pairedMotors) {
+				m.stop();
+			}
+		}
 	}
 }

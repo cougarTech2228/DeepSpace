@@ -5,25 +5,30 @@ package frc.robot;
 
 public class Elevator {
     private DriverIF controls;
-    private Motor frontlift;
-    private Motor backlift; 
-    private Motor liftdrive;
-    private double speed = 0;
-    private int encoderCount = 0;
+    private Motor frontLift;
+    private Motor backLift; 
+    private Motor liftDrive;
+    private double speedFront = 0;
+    private double speedBack = 0;
+    private double speedDrive = 0;
+    private double encoderCountBack = 0;
+    private double encoderCountFront = 0;
+    private double enocderCountDrive = 0;
     
 public Elevator(){
 
-    frontlift = new Motor (RobotMap.ACTION_MOTOR_1);
-    backlift = new Motor (RobotMap.ACTION_MOTOR_2);
-    liftdrive = new Motor (RobotMap.ACTION_MOTOR_3);
+    frontLift = new Motor (RobotMap.ACTION_MOTOR_1);
+    backLift = new Motor (RobotMap.ACTION_MOTOR_2);
+    liftDrive = new Motor (RobotMap.ACTION_MOTOR_3);
 
 
     }
 
-public void TeleopRaise(){
+public void TestRaise(){
     if(controls.elevatorUp()){
-        Motor.moveMotors(encoderCount, speed, backlift, frontlift);
-        Motor.moveMotors(encoderCount, speed, liftdrive);
+        frontLift.moveToEncoder(encoderCountFront, speedFront);
+        backLift.moveToEncoder(encoderCountBack, speedBack);
+        liftDrive.moveToEncoder(enocderCountDrive, speedDrive);
         }
     }
 }

@@ -1,23 +1,80 @@
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
+//import edu.wpi.first.wpilibj.IterativeRobotBase;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
 
 public class AutoMaster {
-    DriveBase base;
-    Navx navx;
-    public AutoMaster(DriveBase base, Navx navx) {
-        this.base = base;
-        this.navx = navx;
-    }
-    public void start() {
-        Scheduler.getInstance().removeAll();
+    // public static CommandGroup autoSequence;
+    private DriveBase base;
+    private Hatch hatch;
+    private final String TABLE_KEY = "datatable";
+    private NetworkTableInstance visionDataTableInst;
+    private NetworkTable visionDataTable;
+    private final int DEFAULT_VALUE = 69420666;
+    // state, 0 for searching, 1 for acquiring, or 2 for locked
+    private NetworkTableEntry targState;
+    // distance to target in inches,
+    private NetworkTableEntry distTargIn;
+    // horizontal distance from center of target, positive being to the right
+    private NetworkTableEntry horzOffToIn;
+    private CommandGroup autoDeployGroup;
 
-        CommandGroup Cg = new CommandGroup();
-        Cg.addSequential(base.TurnToAngle(navx, 360, 0.5));
-        Cg.start();
+    public AutoMaster(DriveBase base, Navx navx, Hatch hatch) {
+        visionDataTableInst = NetworkTableInstance.getDefault();
+        visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
+        targState = visionDataTable.getEntry("targState");
+        distTargIn = visionDataTable.getEntry("distTargetIn");
+        horzOffToIn = visionDataTable.getEntry("horzOffToIn");
+        this.base = base;
+        this.hatch = hatch;
+        autoDeployGroup = new AutoDeploySequence();
+        // autoSequence = new CommandGroup();
     }
+
+    public void start() {
+
+        if (autoDeployGroup.isRunning()) {
+            System.out.println("Already in use");
+            autoDeployGroup.cancel();
+            // Scheduler.getInstance().removeAll();
+            autoDeployGroup.start();
+            // autoSequence.close();
+        } else {
+            System.out.println("Starting auto");
+            autoDeployGroup.start();
+        }
+    }
+
     public void run() {
         Scheduler.getInstance().run();
+    }
+
+    public class AutoDeploySequence extends CommandGroup {
+        public AutoDeploySequence() {
+            System.out.println("Constructing an AutoDeploySequence");
+            // this.addSequential(hatch.getHome());
+            this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
+            this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
+            this.addSequential(hatch.hatchDeploy(2));
+            this.addSequential(base.driveToInch(-4, .25));
+
+        }
+        // @Override
+        // public synchronized void start() {
+        //     System.out.println("Starting auto command");
+            
+        // }
+
+        @Override
+        protected void initialize() {
+            System.out.println("initializing");
+            
+
+        }
+
     }
 }

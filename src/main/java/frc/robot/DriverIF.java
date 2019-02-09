@@ -17,8 +17,11 @@ public class DriverIF {
     public boolean hatchExtend(){
         return xbox.Y_BUTTON();
     }
-    public boolean hatchRetract(){
+    public boolean hatchExtendBottom(){
         return xbox.B_BUTTON();
+    }
+    public boolean hatchRetract(){
+        return xbox.X_BUTTON();
     }
     public boolean hatchStrafeLeft(){
         if(xbox.LEFT_TRIGGER() > 0){
@@ -46,5 +49,11 @@ public class DriverIF {
     }
     public boolean encoderTestRightBack(){
         return xbox.B_BUTTON();
+    }
+    public double encoderTestHatch() {
+        return xbox.RIGHT_JOYSTICK_X();
+    }
+    public boolean autoAlign(){
+        return xbox.A_BUTTON();
     }
 }
