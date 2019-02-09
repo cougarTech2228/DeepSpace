@@ -17,7 +17,7 @@ public class DriverIF {
     public boolean hatchExtend(){
         return xbox.Y_BUTTON();
     }
-    public boolean hatchExtendBottom(){
+    public boolean retractLiftDrive(){
         return xbox.B_BUTTON();
     }
     public boolean hatchRetract(){
@@ -35,7 +35,7 @@ public class DriverIF {
         }
         return false;
     }
-    public boolean elevatorUp(){
+    public boolean autoClimb(){
         return xbox.START_BUTTON();
     }
     public boolean encoderTestLeftFront(){
@@ -58,5 +58,8 @@ public class DriverIF {
     }
     public boolean deployElevator(){
         return xbox.LEFT_BUMPER();
+    }
+    public boolean manualClimb(){
+        return xbox.RIGHT_BUMPER();
     }
 }

@@ -2,18 +2,25 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import frc.robot.DriveBase.DriveToInch;
 
 public class Elevator {
-    private boolean doClimb = false, deploy = false, isButtonPressed = false;
+    private boolean doAutoClimb = false;
+    private boolean deploy = false;
+    private boolean wasAutoButtonPressed = false;
+    private boolean doManualClimb = false;
+    private boolean wasManualButtonPressed = false;
 
     private DriverIF controls;
+    private DriveToInch drive;
+    private DriveBase base;
 
     private SerialDataHandler arduino = new SerialDataHandler();
 
     private double circumference = 4 * Math.PI;
     private int gearRatio = 63;
     private double liftDriveMovePerRev = 0.1994;
-    private double liftDriveEncodersPerRev = circumference * gearRatio * liftDriveMovePerRev;
+    private double liftDriveEncodersPerRev = circumference * gearRatio / liftDriveMovePerRev;
 
     private double leftDistance = 0;
     private double rightDistance = 0;
@@ -27,72 +34,154 @@ public class Elevator {
 
     // Sensors
     private DigitalInput frontLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
-    private DigitalInput frontLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
-    private DigitalInput backLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
-    private DigitalInput backLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
+    private DigitalInput frontLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_3);
+    private DigitalInput backLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_4);
+    private DigitalInput backLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_5);
 
     private double frontLiftSpeedUp = 0.5;
     private double frontLiftSpeedDown = -0.4;
     private double backLiftSpeedUp = 0.5;
     private double backLiftSpeedDown = -0.4;
-    private double liftDriveSpeed = 0;
+    private double liftDriveSpeed = 0.2;
 
     private int encoderCount = 0;
 
-    private climb climbState = climb.PullRobotUp;
+    private autoClimb autoClimbState = autoClimb.PullRobotUp;
 
-    private enum climb {
+    private enum autoClimb {
         PullRobotUp, MoveForward, LiftDriveMotorUp
     }
 
-    public Elevator() {
-        frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
-        backLift = new Motor(RobotMap.ACTION_MOTOR_2);
-        liftDrive = new Motor(RobotMap.ACQUISITION_MOTOR_3);
+    private manualClimb manualClimbState = manualClimb.PullRobotUp;
+
+    private enum manualClimb {
+        PullRobotUp, MoveForward, LiftDriveMotorUp
     }
 
-    public void TeleopRaise() {
-        if (controls.elevatorUp() && isButtonPressed == false) {
-            if (doClimb == true) {
-                doClimb = false;
+    public Elevator(DriveBase driver, DriverIF controls) {
+        base = driver;
+        frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
+        backLift = new Motor(RobotMap.ACTION_MOTOR_2);
+        liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
+        this.controls = controls;
+    }
+
+    public void teleopRaise() {
+        // System.out.println(controls.manualClimb() + "-----------------------------------------");
+        // System.out.println(wasManualButtonPressed + "---------------------------------------");
+        if (controls.manualClimb() && wasManualButtonPressed == false) {
+            if (doManualClimb == true) {
+                doManualClimb = false;
+                liftDrive.setEncoderToZero();
             } else {
-                doClimb = true;
-                climbState = climb.PullRobotUp;
+                doManualClimb = true;
+                System.out.println("Climbing Up----------------------------------------");
+                manualClimbState = manualClimb.PullRobotUp;
             }
-            isButtonPressed = true;
-        } else if (!controls.elevatorUp()) {
-            isButtonPressed = false;
+            wasManualButtonPressed = true;
+        } else if (!controls.manualClimb()) {
+            wasManualButtonPressed = false;
         }
 
-        if (doClimb) {
-            leftDistance = arduino.getSensor1Data() / mmToIn;
-            rightDistance = arduino.getSensor2Data() / mmToIn;
+        if (doManualClimb) {
+            switch (manualClimbState) {
 
-            switch (climbState) {
             case PullRobotUp:
-            if(Math.abs(leftDistance - rightDistance) < 1 && leftDistance <= maxDistanceToPlatform && rightDistance <= maxDistanceToPlatform){
                 if (!frontLiftLowered.get()) {
                     frontLift.set(frontLiftSpeedDown);
                 }
                 if (!backLiftLowered.get()) {
-                    backLift.set(-backLiftSpeedDown);
+                    backLift.set(backLiftSpeedDown);
                 }
 
-                if (frontLiftLowered.get() && backLiftLowered.get()) {
+                if (backLiftLowered.get() && frontLiftLowered.get()) {
                     frontLift.set(0);
                     backLift.set(0);
-                    climbState = climb.MoveForward;
+                    System.out.println("Moving Forward-----------------------------------");
+                    manualClimbState = manualClimb.MoveForward;
                 }
-            }
+
                 break;
 
             case MoveForward:
-                // if()
+                if (controls.throttle() > 0.1) {
+                    liftDrive.set(controls.throttle() * .1);
+                    base.TeleopMove();
+                } else if (controls.retractLiftDrive()) {
+                    System.out.println("Lifting Drive Motor Up-------------------------------------");
+                    manualClimbState = manualClimb.LiftDriveMotorUp;
+                }
+                break;
+
+            case LiftDriveMotorUp:
+                if (frontLiftRaised.get()) {
+                    frontLift.set(frontLiftSpeedUp);
+                } else {
+                    System.out.println("Finished");
+                    frontLift.set(0);
+                }
+
+                break;
+
+            }
+        }
+
+        // -----------------------------AUTOCLIMB CODE---------------------------------------------------------
+
+        if (controls.autoClimb() && wasAutoButtonPressed == false) {
+            if (doAutoClimb == true) {
+                doAutoClimb = false;
+                liftDrive.setEncoderToZero();
+            } else {
+                doAutoClimb = true;
+                System.out.println("Auto Climbing Up----------------------------------------");
+                autoClimbState = autoClimb.PullRobotUp;
+            }
+            wasAutoButtonPressed = true;
+        } else if (!controls.autoClimb()) {
+            wasAutoButtonPressed = false;
+        }
+
+        if (doAutoClimb) {
+            leftDistance = arduino.getSensor1Data() / mmToIn;
+            rightDistance = arduino.getSensor2Data() / mmToIn;
+
+            switch (autoClimbState) {
+            case PullRobotUp:
+                if (Math.abs(leftDistance - rightDistance) < 1 && leftDistance <= maxDistanceToPlatform
+                        && rightDistance <= maxDistanceToPlatform) {
+                    if (!frontLiftLowered.get()) {
+                        frontLift.set(frontLiftSpeedDown);
+                    }
+                    if (!backLiftLowered.get()) {
+                        backLift.set(-backLiftSpeedDown);
+                    }
+
+                    if (frontLiftLowered.get() && backLiftLowered.get()) {
+                        frontLift.set(0);
+                        backLift.set(0);
+                        System.out.println("Auto Moving Forward-----------------------------");
+                        autoClimbState = autoClimb.MoveForward;
+                    }
+                }
+                break;
+
+            case MoveForward:
+                if (!(liftDrive.getSensorPosition() == liftDriveEncodersPerRev * 20)) {
+                    drive.elevatorClimb(liftDriveSpeed, liftDriveEncodersPerRev * 20);
+                } else {
+                    liftDrive.set(0);
+                    System.out.println("Auto Lifting The Drive Motor Up");
+                    autoClimbState = autoClimb.LiftDriveMotorUp;
+                }
                 break;
 
             case LiftDriveMotorUp:
                 if (!frontLiftRaised.get()) {
                     frontLift.set(frontLiftSpeedUp);
+                } else {
+                    System.out.println("Finished");
+                    frontLift.set(0);
                 }
                 break;
 
@@ -108,15 +197,12 @@ public class Elevator {
         }
 
         if (deploy) {
-            if (!frontLiftRaised.get()) {
-                frontLift.set(frontLiftSpeedUp);
-            }
+
             if (!backLiftRaised.get()) {
                 backLift.set(backLiftSpeedUp);
             }
 
-            if (backLiftRaised.get() && frontLiftRaised.get()) {
-                frontLift.set(0);
+            if (backLiftRaised.get()) {
                 backLift.set(0);
                 deploy = false;
             }
