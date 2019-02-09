@@ -159,9 +159,9 @@ public class Robot extends TimedRobot {
   public void testPeriodic() {
     //base.teleopInit();
     //base.rightFront.set(ControlMode.Position, 10000);
-    System.out.println("Counts: " + base.rightFront.getSensorPosition());
-    System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
-    //base.TestEncoders();
+    //System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    base.TestEncoders();
     //hatch.testPeriodic();
   }
 
