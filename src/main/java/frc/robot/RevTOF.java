@@ -4,10 +4,20 @@ import edu.wpi.first.wpilibj.I2C;
 import java.util.ArrayList;
 
 public class RevTOF {
-    I2C device;
+  
+	public static final double IMAGE_WIDTH = 320.0;
+	public static final double GEAR_WIDTH_FT = 1.166;
+	public static final int BLOCK_SIZE = 14;
+	public static int TOF_ADDRESS = 0x52;
+	private I2C port;
+	private boolean inRange;
+	private double offset;
+	
+	private ArrayList<TOFBlock> pixyBlocks = new ArrayList<>();
 	
 	public RevTOF() {
-		device = new I2C(I2C.Port.kOnboard, 0x52);
+		
+		port = new I2C(I2C.Port.kOnboard, TOF_ADDRESS );
 		
 	}
 	public void read() {
