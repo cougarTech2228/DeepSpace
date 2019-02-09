@@ -57,10 +57,10 @@ public class AutoMaster {
         public AutoDeploySequence() {
             System.out.println("Constructing an AutoDeploySequence");
             // this.addSequential(hatch.getHome());
-            this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
-            this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
-            this.addSequential(hatch.hatchDeploy(2));
-            this.addSequential(base.driveToInch(-4, .25));
+            //this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
+            this.addSequential(base.driveToInch(24/*distTargIn.getDouble(DEFAULT_VALUE)*/, -1));
+            //this.addSequential(hatch.hatchDeploy(2));
+            //this.addSequential(base.driveToInch(-4, .25));
 
         }
         // @Override
