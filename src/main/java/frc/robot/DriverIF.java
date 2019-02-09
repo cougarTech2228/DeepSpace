@@ -50,4 +50,7 @@ public class DriverIF {
     public boolean autoAlign(){
         return xbox.A_BUTTON();
     }
+    public boolean deployElevator(){
+        return xbox.LEFT_BUMPER();
+    }
 }
