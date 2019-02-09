@@ -4,17 +4,25 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Elevator {
-private boolean doClimb = false, deploy = false;
+    private boolean doClimb = false, deploy = false, isButtonPressed = false;
 
     private DriverIF controls;
 
-    // private SerialDataHandler arduino = new SerialDataHandler();
-    private int leftDistance = 0;
-    private int rightDistance = 0;
+    private SerialDataHandler arduino = new SerialDataHandler();
+
+    private double circumference = 4 * Math.PI;
+    private int gearRatio = 63;
+    private double liftDriveMovePerRev = 0.1994;
+    private double liftDriveEncodersPerRev = circumference * gearRatio * liftDriveMovePerRev;
+
+    private double leftDistance = 0;
+    private double rightDistance = 0;
+    private double mmToIn = 0.0393701;
+    private double maxDistanceToPlatform = 0;
 
     // The front of the bot is where the hatch mechanism is
     private Motor frontLift;
-    private Motor backLift; 
+    private Motor backLift;
     private Motor liftDrive;
 
     // Sensors
@@ -32,73 +40,82 @@ private boolean doClimb = false, deploy = false;
     private int encoderCount = 0;
 
     private climb climbState = climb.PullRobotUp;
+
     private enum climb {
         PullRobotUp, MoveForward, LiftDriveMotorUp
     }
-    
-public Elevator(){
-    frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
-    backLift = new Motor(RobotMap.ACTION_MOTOR_2);
-    liftDrive = new Motor(RobotMap.ACQUISITION_MOTOR_3);
+
+    public Elevator() {
+        frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
+        backLift = new Motor(RobotMap.ACTION_MOTOR_2);
+        liftDrive = new Motor(RobotMap.ACQUISITION_MOTOR_3);
     }
 
-public void TeleopRaise(){
-    if(controls.elevatorUp()){
-        doClimb = true;
-    }
+    public void TeleopRaise() {
+        if (controls.elevatorUp() && isButtonPressed == false) {
+            if (doClimb == true) {
+                doClimb = false;
+            } else {
+                doClimb = true;
+                climbState = climb.PullRobotUp;
+            }
+            isButtonPressed = true;
+        } else if (!controls.elevatorUp()) {
+            isButtonPressed = false;
+        }
 
-    if(doClimb){
-        // leftDistance = arduino.getSensor1Position();
-        // rightDistance = arduino.getSensor2Position();
+        if (doClimb) {
+            leftDistance = arduino.getSensor1Data() / mmToIn;
+            rightDistance = arduino.getSensor2Data() / mmToIn;
 
-        switch (climbState){
+            switch (climbState) {
             case PullRobotUp:
-                if(!frontLiftLowered.get()){
+            if(Math.abs(leftDistance - rightDistance) < 1 && leftDistance <= maxDistanceToPlatform && rightDistance <= maxDistanceToPlatform){
+                if (!frontLiftLowered.get()) {
                     frontLift.set(frontLiftSpeedDown);
                 }
-                if(!backLiftLowered.get()){                    
+                if (!backLiftLowered.get()) {
                     backLift.set(-backLiftSpeedDown);
                 }
 
-                if(frontLiftLowered.get() && backLiftLowered.get()){
+                if (frontLiftLowered.get() && backLiftLowered.get()) {
                     frontLift.set(0);
                     backLift.set(0);
                     climbState = climb.MoveForward;
                 }
-            break;
+            }
+                break;
 
             case MoveForward:
                 // if()
-            break;
+                break;
 
             case LiftDriveMotorUp:
-                if(!frontLiftRaised.get()){
+                if (!frontLiftRaised.get()) {
                     frontLift.set(frontLiftSpeedUp);
                 }
-            break;
+                break;
 
+            }
 
-
-        } 
+        }
 
     }
 
-        }
-
-    public void raiseElevator(){
-        if(controls.deployElevator()){
+    public void raiseElevator() {
+        if (controls.deployElevator()) {
             deploy = true;
         }
 
-        if(deploy){
-            if(!frontLiftRaised.get()){
+        if (deploy) {
+            if (!frontLiftRaised.get()) {
                 frontLift.set(frontLiftSpeedUp);
             }
-            if(!backLiftRaised.get()){
+            if (!backLiftRaised.get()) {
                 backLift.set(backLiftSpeedUp);
             }
 
-            if(backLiftRaised.get() && frontLiftRaised.get()){
+            if (backLiftRaised.get() && frontLiftRaised.get()) {
                 frontLift.set(0);
                 backLift.set(0);
                 deploy = false;
@@ -106,5 +123,5 @@ public void TeleopRaise(){
         }
 
     }
-    
+
 }
