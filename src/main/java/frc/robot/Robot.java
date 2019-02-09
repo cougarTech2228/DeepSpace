@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
 import edu.wpi.first.wpilibj.Relay;
 
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -30,8 +29,12 @@ import edu.wpi.first.wpilibj.Relay;
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
-  
+
   private SerialDataHandler serialDataHandler = new SerialDataHandler();
+
+  private static int pigeonPort = RobotMap.PIGEONIMU;
+  private static Pigeon pigeon = new Pigeon(pigeonPort);
+
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
@@ -41,6 +44,7 @@ public class Robot extends TimedRobot {
   private enum proximityEnum {
     LookingForID, LookingForData, Error
   }
+
   private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   private String m_autoSelected;
@@ -62,44 +66,41 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     /*
-    Scheduler.getInstance().run();
-
-    byte[] dataMessage = arduino.readSerialPort();
-
-    if (dataMessage.length == 2) {
-      int dataByte0 = (int) (Byte.toUnsignedInt(dataMessage[0]));
-      int dataByte1 = (int) (Byte.toUnsignedInt(dataMessage[1]));
-
-      switch (proximityState) {
-
-      case LookingForID:
-
-        System.out.println("DataByte0: " + dataByte0);
-        System.out.println("DataByte1 " + dataByte1);
-
-        if (dataByte0 == 0xff) {
-          if (dataByte1 == 0x01 || dataByte1 == 0x2) {
-            proximityState = proximityEnum.LookingForData;
-          }
-        }
-
-        break;
-
-      case LookingForData:
-
-        System.out.println("Proximity Sensor " + leftDistance.distanceInches() + "--------------------------");
-        proximityState = proximityEnum.LookingForID;
-
-        break;
-
-      case Error:
-      default:
-
-        break;
-
-      }
-
-    }*/
+     * Scheduler.getInstance().run();
+     * 
+     * byte[] dataMessage = arduino.readSerialPort();
+     * 
+     * if (dataMessage.length == 2) { int dataByte0 = (int)
+     * (Byte.toUnsignedInt(dataMessage[0])); int dataByte1 = (int)
+     * (Byte.toUnsignedInt(dataMessage[1]));
+     * 
+     * switch (proximityState) {
+     * 
+     * case LookingForID:
+     * 
+     * System.out.println("DataByte0: " + dataByte0);
+     * System.out.println("DataByte1 " + dataByte1);
+     * 
+     * if (dataByte0 == 0xff) { if (dataByte1 == 0x01 || dataByte1 == 0x2) {
+     * proximityState = proximityEnum.LookingForData; } }
+     * 
+     * break;
+     * 
+     * case LookingForData:
+     * 
+     * System.out.println("Proximity Sensor " + leftDistance.distanceInches() +
+     * "--------------------------"); proximityState = proximityEnum.LookingForID;
+     * 
+     * break;
+     * 
+     * case Error: default:
+     * 
+     * break;
+     * 
+     * }
+     * 
+     * }
+     */
 
   }
 
@@ -122,9 +123,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    //base.teleopInit();
+    // base.teleopInit();
+    base.teleopInit();
+    pigeon.resetYaw();
+
   }
-  
+
   @Override
   public void teleopPeriodic() {
     serialDataHandler.readPort();
@@ -133,10 +137,32 @@ public class Robot extends TimedRobot {
       System.out.println(String.format("sensor2Data: %04X ", serialDataHandler.getSensor2Data()));
       loopIndex = 0;
     }
+    base.TeleopMove();
+    // pixy.read();
+    hatch.teleop();
+    // System.out.println(distance.distanceInches());
+
+    // pigeon.pigeonCheck();
+    // System.out.println(navx.getYaw());
+
+    // PixyData p = new PixyData();
+    /*
+     * try { p = pixy.readPacket(1); if(p == null) p = new PixyData(); }
+     * catch(Exception e) { e.printStackTrace(); } System.out.println("X: " + p.X +
+     * "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);
+     */
+
+    // pixy.read();
   }
 
   @Override
   public void testPeriodic() {
+    //base.teleopInit();
+    //base.rightFront.set(ControlMode.Position, 10000);
+    System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    //base.TestEncoders();
+    //hatch.testPeriodic();
   }
-  
+
 }
