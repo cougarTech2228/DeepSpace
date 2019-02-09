@@ -1,6 +1,10 @@
 package frc.robot;
 
+import java.util.Arrays;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj.SerialPort;
+import jdk.jfr.Unsigned;
 
 public class Arduino {
     SerialPort port;
@@ -10,7 +14,7 @@ public class Arduino {
         port.reset();
     }
 
-    public void test() {
+    public byte[] readSerialPort() {
         // int bytes = port.getBytesReceived();
         port.setReadBufferSize(2);
         byte[] byteArray = port.read(2);
@@ -26,5 +30,9 @@ public class Arduino {
         {
             System.out.println("Nothing on port");
         }
+        
+        return byteArray;
     }
+
+    
 }
