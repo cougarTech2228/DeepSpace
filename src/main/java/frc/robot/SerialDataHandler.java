@@ -32,11 +32,12 @@ public class SerialDataHandler {
 
         sensorData = (int) (Byte.toUnsignedInt(a));
         sensorData = sensorData | (int) (Byte.toUnsignedInt(b) << 8);
+
         return sensorData;
     }
 
     public void readPort() {
-        // int bytes = port.getBytesReceived();
+        
         port.setReadBufferSize(2);
         byte[] byteArray = port.read(2);
 
@@ -45,43 +46,35 @@ public class SerialDataHandler {
             byte a = byteArray[0]; 
             byte b = byteArray[1];
 
+            //System.out.println(String.format("byteA: %02X ", a));
+            //System.out.println(String.format("byteB: %02X ", b));
+
             switch (state) {
             case SEARCHING_FOR_HEADER:
-               
-                if (b == 0xff) {
-                    if (a == 0x01) {
+
+                if ((int)(Byte.toUnsignedInt(b)) == 0xff) {
+                    if ((int)(Byte.toUnsignedInt(a)) == 0x01) {
                         state = SEARCHING_FOR_DATA_1;
-                    } else if (a == 0x02) {
+                    } else if ((int)(Byte.toUnsignedInt(a)) == 0x02) {
                         state = SEARCHING_FOR_DATA_2;
                     } else {
                         System.out.println("Invalid ID");
                     }
                 }
                 break;
-                case SEARCHING_FOR_DATA_1:
-                
+            case SEARCHING_FOR_DATA_1:
                 sensor1Data = convertData(a, b);
                 state = SEARCHING_FOR_HEADER;
-
                 break;
-                case SEARCHING_FOR_DATA_2:
-                
+            case SEARCHING_FOR_DATA_2:
                 sensor2Data = convertData(a, b);
                 state = SEARCHING_FOR_HEADER;
-
                 break;
-                default:
+            default:
                 System.out.println("Unexcepted case");
                 break;
             }
-
-            int fin = (int) (Byte.toUnsignedInt(a));
-            fin = fin | (int) (Byte.toUnsignedInt(b) << 8);
-
-            //System.out.println(String.format("%02X ", fin));
-        }
-        else
-        {
+        } else {
             System.out.println("Nothing on port");
         }
     }

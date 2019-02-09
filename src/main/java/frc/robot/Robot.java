@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
-
+import edu.wpi.first.wpilibj.Relay;
 
 
 /**
@@ -47,6 +47,8 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private int loopIndex = 0;
 
+  private Relay visionRelay = new Relay(0);
+
   @Override
   public void robotInit() {
 
@@ -54,6 +56,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     auto.start();
+    visionRelay.set(Relay.Value.kForward);
   }
 
   @Override
@@ -125,11 +128,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     serialDataHandler.readPort();
-    if (loopIndex++ == 50) {
-      System.out.println(serialDataHandler.getSensor1Data());
-      System.out.println(serialDataHandler.getSensor2Data());
+    if (loopIndex++ == 5) {
+      System.out.println(String.format("sensor1Data: %04X ", serialDataHandler.getSensor1Data()));
+      System.out.println(String.format("sensor2Data: %04X ", serialDataHandler.getSensor2Data()));
       loopIndex = 0;
-   } 
+    }
   }
 
   @Override
