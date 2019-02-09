@@ -73,6 +73,14 @@ public class RobotMap {
     public final static int DIGITAL_INPUT_1 = 1;
     public final static int DIGITAL_INPUT_2 = 2;
     public final static int DIGITAL_INPUT_3 = 3;
+    public final static int DIGITAL_INPUT_4 = 4;
+    public final static int DIGITAL_INPUT_5 = 5;
+    public final static int DIGITAL_INPUT_6 = 6;
+    public final static int DIGITAL_INPUT_7 = 7;
+    public final static int DIGITAL_INPUT_8 = 8;
+    public final static int DIGITAL_INPUT_9 = 9;
+
+    
     //Misc devices
     public static int PIGEONIMU = 61;
     public static int CANIFIER = 62;
