@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.VelocityMeasPeriod;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.command.Command;
+import jdk.jfr.Threshold;
 
 public class Motor {
 	private static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
@@ -165,55 +166,106 @@ public class Motor {
 		return new MoveTo(targetEncoderCount, speed, pairedMotors);
 	}
 	public class MoveTo extends Command {
+		int state; //0=encoders, 1=navx, 2=pijy
+		double[] slowThreshhold = new double[] {430, 45, 45};
 		boolean running;
-		double targetEncoderCount;
+		double target;
 		double percentComplete;
 		double maxSpeed;
 		double speed;
+		Navx navx;
+		Pigeon pijy;
 		Motor[] pairedMotors;
 
 		public MoveTo(double targetEncoderCount, double speed, Motor...pairedMotors) {
-
+			state = 0;
 			this.pairedMotors = pairedMotors;
 			this.maxSpeed = speed;
-			this.targetEncoderCount = targetEncoderCount;
+			this.target = targetEncoderCount;
 			running = true;
 			percentComplete = 0;
 			this.speed = speed;
+		}
+		public MoveTo(double targetAngle, double speed, Navx navx, Motor...pairedMotors) {
+			state = 1;
+			this.navx = navx;
+			this.pairedMotors = pairedMotors;
+			this.maxSpeed = speed;
+			this.target = targetAngle;
+			running = true;
+			percentComplete = 0;
+			this.speed = speed;
+		}
+		public MoveTo(double targetAngle, double speed, Pigeon pijy, Motor...pairedMotors) {
+			state = 2;
+			this.pijy = pijy;
+			this.pairedMotors = pairedMotors;
+			this.maxSpeed = speed;
+			this.target = targetAngle;
+			running = true;
+			percentComplete = 0;
+			this.speed = speed;
+		}
+		public void setThreshold(double value) {
+			slowThreshhold[state] = value;
 		}
 		protected void initialize() {
 			System.out.println("Initializing MoveTo");
 			running = true;
 			percentComplete = 0;
 			System.out.println("Setting encoders to zero");
+			slowThreshhold[state] *= Math.abs(maxSpeed);
 			setEncoderToZero();
 		}
 		public void execute() {
-			double minimumSpeed = 0.15;
-
+			double minimumSpeed = 0.20;
+			double value = 0;
 			//calculates percent of turn complete
-			double encoder = Math.abs(getSensorPosition());
-			percentComplete = Math.abs(encoder / targetEncoderCount);
+			if(state == 0) value = Math.abs(getSensorPosition());
+			else if (state == 1) value = Math.abs(navx.getAngle());
+			else if (state == 2) value = Math.abs(pijy.getYaw());
+
+			percentComplete = Math.abs(value / target);
 			double speedMultiplier = 1;
 			// System.out.println("Encoders: " + getSensorPosition());
 
-			//if there is 500 counts or less to go, do this:
-			if(encoder >= targetEncoderCount - 500) {
-
-				//percentRampComplete is the percent of the 500 counts left to go
-				double percentRampComplete = (targetEncoderCount - encoder) / 500.0;
+			//if there is (500 counts/45 degrees/45 degrees) or less to go, do this:
+			/*
+			if(value >= target - slowThreshhold[state]) {
+				//percentRampComplete is the percent of the (500 counts/45 degrees/45 degrees) left to go
+				double percentRampComplete = (target - value) / slowThreshhold[state];
 
 				//sets speed multiplier to ramped down value,
 				//with the lowest value possible being minimumSpeed
-				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed; 
+				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
+				System.out.print("slowing: " + maxSpeed * speedMultiplier); 
 			}
+			else if(value <= slowThreshhold[state]) {
+				double percentRampComplete = value / slowThreshhold[state];
+
+				//sets speed multiplier to ramped down value,
+				//with the lowest value possible being minimumSpeed
+				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
+				System.out.print("slowing: " + maxSpeed * speedMultiplier); 
+			}
+			else System.out.print("normal: " + speed);
+			System.out.println("value: " + value + ", complete: " + percentComplete);
 			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
 			speed = maxSpeed * speedMultiplier;
-			
+			*/
+			double speed = -(Math.abs(value - target/2) + target/2) / slowThreshhold[state];
+			if(speed > Math.abs(maxSpeed)) {
+				speed = Math.abs(maxSpeed);
+			}
+			if(maxSpeed < 0) {
+				speed = -speed;
+			}
+
+			System.out.println("pc: " + percentComplete);
 			//move
 			// System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
 
-			if(1 - percentComplete < 0.015) {
+			if(1 - percentComplete < 0.005) {
 				System.out.println("Finished");
 				running = false;
 				speed = maxSpeed < 0 ? 0.2 : -0.2;

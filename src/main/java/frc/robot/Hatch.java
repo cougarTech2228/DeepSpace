@@ -269,7 +269,8 @@ public class Hatch {
         protected void execute() {
             // System.out.println("Executing Hatch");
             if (!this.movingHatchMechanism) {
-                if (distTargIn.getDouble(DEFAULT_VALUE) > 24 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
+                if (distTargIn.getDouble(DEFAULT_VALUE) > 18 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
+                    System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
                     if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
                         this.movingHatchMechanism = true;
                         this.finished = false;
@@ -277,10 +278,10 @@ public class Hatch {
                         System.out.println("Starting auto alignment");
                         System.out.println(distTargIn.getDouble(99));
                         System.out.println("Inches away from center: " + inchesToMove);
-                        if (inchesToMove > 0 && leftSwitch.get()) {
+                        if (inchesToMove < 0 && leftSwitch.get()) {
                             strafe.set(-STRAFE_SPEED);
                             System.out.println("moving left");
-                        } else if (inchesToMove < 0 && rightSwitch.get()) {
+                        } else if (inchesToMove > 0 && rightSwitch.get()) {
                             strafe.set(STRAFE_SPEED);
                             System.out.println("Moving right");
                         } else {
@@ -291,6 +292,7 @@ public class Hatch {
                     }
                 } else {
                     System.out.println("Not in specified distance");
+                    System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
                 }
             } else if(this.movingHatchMechanism) {
                 this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
