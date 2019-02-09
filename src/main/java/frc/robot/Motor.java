@@ -253,15 +253,21 @@ public class Motor {
 			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
 			speed = maxSpeed * speedMultiplier;
 			*/
-			double speed = -(Math.abs(value - target/2) + target/2) / slowThreshhold[state];
+			double speed = -(Math.abs(2 * value - target) - target) / (2 * slowThreshhold[state]);
+			System.out.println("Data: " + value + ", " + target + ", " + slowThreshhold[state]);
+			speed += minimumSpeed;
+			// speed *= -1;
 			if(speed > Math.abs(maxSpeed)) {
+				System.out.println("Throttling speed");
 				speed = Math.abs(maxSpeed);
 			}
 			if(maxSpeed < 0) {
+				System.out.println("Neg speed");
 				speed = -speed;
 			}
 
-			System.out.println("pc: " + percentComplete);
+			System.out.println("enc: " + getSensorPosition());
+			System.out.println("Sped: " + speed);
 			//move
 			// System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
 
@@ -277,10 +283,12 @@ public class Motor {
 		}
 		@Override
 		protected boolean isFinished() {
+			
 			return !running;
 		}
 		@Override
 		protected void end() {
+			System.out.println("Actually finished");
 			stop();
 			for(Motor m : pairedMotors) {
 				m.stop();
