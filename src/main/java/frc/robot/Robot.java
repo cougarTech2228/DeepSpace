@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
+import edu.wpi.first.wpilibj.Relay;
 import frc.robot.DriveBase.DriveType;
 
 /**
@@ -40,6 +41,7 @@ public class Robot extends TimedRobot {
   private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
   private Hatch hatch = new Hatch(controller, base);
   private proximityEnum proximityState = proximityEnum.LookingForID;
+  private Relay visionRelay = new Relay(0);
 
   private enum proximityEnum {
     LookingForID, LookingForData, Error
@@ -55,6 +57,7 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    visionRelay.set(Relay.Value.kForward);
     auto.start();
   }
 
