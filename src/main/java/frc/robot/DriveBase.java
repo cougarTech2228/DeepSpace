@@ -302,13 +302,13 @@ public class DriveBase {
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
 			}
 		}
+	}
 
-		public void elevatorClimb(double speed, double target){
+	public void elevatorClimb(double speed, double target){
 		leftFront.moveToEncoder(target, speed);
 		rightFront.moveToEncoder(target, speed);
 		}
-	}
-
+		
 	// test
 	public void TestEncoders() {
 		if (controls.encoderTestLeftFront()) {

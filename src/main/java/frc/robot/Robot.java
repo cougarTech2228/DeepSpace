@@ -163,6 +163,7 @@ public class Robot extends TimedRobot {
     //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
     // base.TestEncoders();
     //hatch.testPeriodic();
+    elevator.testLiftDriveEncoder();
   }
 
 }
