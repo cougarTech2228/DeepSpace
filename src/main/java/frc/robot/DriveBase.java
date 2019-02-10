@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import jdk.jfr.Threshold;
 
 public class DriveBase {
 
@@ -15,6 +16,7 @@ public class DriveBase {
 	private double driveSpeedPercentage = 1;
 	private double strafeSpeedPercentage = 1;
 	private double turnSpeedPercentage = 0.5;
+	private Pigeon pidgey;
 
 	private DriveType mode;
 
@@ -22,10 +24,11 @@ public class DriveBase {
 		Mecanum, Tank
 	}
 
-	public DriveBase(DriverIF controls, Navx navx, DriveType mode) {
+	public DriveBase(DriverIF controls, Navx navx, Pigeon pidgey, DriveType mode) {
 		this.controls = controls;
 		this.navx = navx;
 		this.mode = mode;
+		this.pidgey = pidgey;
 
 		rightFront = new Motor(RobotMap.RIGHT_FRONT);
 		leftFront = new Motor(RobotMap.LEFT_FRONT);
@@ -83,7 +86,6 @@ public class DriveBase {
 			input = -1;
 		return input;
 	}
-
 	public void TeleopMove() {
 		double Forward = controls.throttle();
 		double Turn = controls.turn();
@@ -205,82 +207,74 @@ public class DriveBase {
 	}
 
 	public class MoveToInches extends CommandGroup {
+		private double equationConstant;
 		private double maxSpeed;
 		private double targetEncoderCount;
+		private double threshold = 430;
+		private double initialSpeed = 0.25;
+		private double endingSpeed = 0.15;
 		private boolean leftRunning = true;
 		private boolean rightRunning = true;
 
 		public MoveToInches(double targetEncoderInches, double speed) {
 			this.maxSpeed = speed;
 			this.targetEncoderCount = targetEncoderInches * countsPerInch;
-			leftRunning = true;
-			rightRunning = true;
+			
 		}
 
 		protected void initialize() {
 			System.out.println("Setting encoders to zero");
-			//rightFront.setEncoderToZero();
-			//leftFront.setEncoderToZero();
+			rightFront.setEncoderToZero();
+			leftFront.setEncoderToZero();
+			equationConstant = threshold * (initialSpeed - endingSpeed) - targetEncoderCount;
+			pidgey.resetYaw();
 		}
-
 		public void execute() {
-			double minimumSpeed = 0.15;
+			double encoderRight = Math.abs(rightFront.getSensorPosition());
+			double encoderLeft = Math.abs(leftFront.getSensorPosition());
 
-			// calculates percent of turn complete
-			double leftEncoder = Math.abs(leftFront.getSensorPosition());
-			double rightEncoder = Math.abs(rightFront.getSensorPosition());
-			double leftPercentComplete = Math.abs(leftEncoder / targetEncoderCount);
-			double rightPercentComplete = Math.abs(rightEncoder / targetEncoderCount);
-			double leftSpeedMultiplier = 1;
-			double rightSpeedMultiplier = 1;
-			System.out.println(
-					"Encoders right: " + rightFront.getSensorPosition() + " left: " + leftFront.getSensorPosition());
+			double percentComplete = (encoderLeft + encoderRight) / (2 * targetEncoderCount);
 
-			// if there is 500 counts or less to go, do this:
-			if (leftPercentComplete >= targetEncoderCount - 500) {
+			double speedRight = calcSpeed(encoderRight);
+			double speedLeft = calcSpeed(encoderLeft);
 
-				// percentRampComplete is the percent of the 500 counts left to go
-				double percentRampComplete = (targetEncoderCount - leftEncoder) / 500.0;
+			double angle = pidgey.getYaw();
 
-				// sets speed multiplier to ramped down value,
-				// with the lowest value possible being minimumSpeed
-				leftSpeedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
-			}
-			if (rightPercentComplete >= targetEncoderCount - 500) {
+			System.out.println("angle: " + angle);
 
-				// percentRampComplete is the percent of the 500 counts left to go
-				double percentRampComplete = (targetEncoderCount - rightEncoder) / 500.0;
+			//speedRight *= (45 + angle) / 45.0;
+			//speedLeft *= (45 - angle) / 45.0;
 
-				// sets speed multiplier to ramped down value,
-				// with the lowest value possible being minimumSpeed
-				rightSpeedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
-			}
-			// set speed to a ramped max speed or if not in the last 45 degs, set to max
-			// speed
-			double leftSpeed = maxSpeed * leftSpeedMultiplier;
-			double rightSpeed = maxSpeed * rightSpeedMultiplier;
-
-			// move
-			if (1 - leftPercentComplete < 0.015) {
-				System.out.println("Finished");
+			if(percentComplete > 0.95) {
 				leftRunning = false;
-				leftSpeed = maxSpeed < 0 ? 0.2 : -0.2;
+				rightRunning = false;
+				leftFront.stop();
+				rightFront.stop();
 			}
-			if (1 - rightPercentComplete < 0.015) {
-				System.out.println("Finished");
-				leftRunning = false;
-				rightSpeed = maxSpeed < 0 ? 0.2 : -0.2;
+			else {
+				leftFront.setSpeed(speedLeft);
+				rightFront.setSpeed(speedRight);
 			}
-			System.out.println("speed left: " + leftSpeed + ", right: " + rightSpeed);
-			leftFront.setSpeed(leftSpeed);
-			rightFront.setSpeed(rightSpeed);
+
 		}
-
+		private double calcSpeed(double value) {
+			//equation: y = -(|2x+a|+a)/2b + c: where x = speed, a = targetCounts, b = threshold * (initialSpeed - endingSpeed), c = 2*threshold, d = initialSpeed
+			//to see how it works, graph it on desmos
+			double speed = -(Math.abs(2 * value - targetEncoderCount + equationConstant) - targetEncoderCount + equationConstant) / (2 * threshold) + initialSpeed;
+			System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
+			//make sure it starts at a low speed
+			if(speed > Math.abs(maxSpeed)) {
+				speed = Math.abs(maxSpeed);
+			}
+			if(maxSpeed < 0) {
+				speed = -speed;
+			}
+			return speed;
+		}
 		@Override
 		protected boolean isFinished() {
 			return !leftRunning && !rightRunning;
 		}
-
 		@Override
 		protected void end() {
 			leftFront.stop();
@@ -298,14 +292,18 @@ public class DriveBase {
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed, rightBack));
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed, leftBack));
 			} else if (mode == DriveType.Tank) {
-				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
-				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
+				//this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
+				//this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addParallel(moveToInches(24, -0.5));
 			}
 		}
 	}
 
 	// test
 	public void TestEncoders() {
+		//leftFront.set(1);
+		//rightFront.set(1);
+		
 		if (controls.encoderTestLeftFront()) {
 			leftFront.set(0.5);
 			System.out.println(leftFront.getSensorPosition());

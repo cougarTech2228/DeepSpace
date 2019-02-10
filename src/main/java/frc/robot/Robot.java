@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
   private ProximitySensor rightDistance = new ProximitySensor(arduino, RobotMap.RIGHT_DISTANCE_SENSOR);
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
+  private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
   private Hatch hatch = new Hatch(controller, base);
   private proximityEnum proximityState = proximityEnum.LookingForID;
 

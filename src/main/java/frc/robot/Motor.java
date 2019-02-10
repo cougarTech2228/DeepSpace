@@ -168,6 +168,9 @@ public class Motor {
 	public class MoveTo extends Command {
 		int state; //0=encoders, 1=navx, 2=pijy
 		double[] slowThreshhold = new double[] {430, 45, 45};
+		double initialSpeed = 0.25;
+		double endingSpeed = 0.15;
+		double equationConstant;
 		boolean running;
 		double target;
 		double percentComplete;
@@ -215,71 +218,52 @@ public class Motor {
 			percentComplete = 0;
 			System.out.println("Setting encoders to zero");
 			slowThreshhold[state] *= Math.abs(maxSpeed);
+			equationConstant = slowThreshhold[state] * (initialSpeed - endingSpeed);
 			setEncoderToZero();
 		}
 		public void execute() {
-			double minimumSpeed = 0.20;
 			double value = 0;
-			//calculates percent of turn complete
-			if(state == 0) value = Math.abs(getSensorPosition());
-			else if (state == 1) value = Math.abs(navx.getAngle());
-			else if (state == 2) value = Math.abs(pijy.getYaw());
-
+			//gets the value of the encoder/angle, if encoder, find the encoder counts of the paired motors
+			if(state == 0) {
+				value = Math.abs(getSensorPosition());
+			}
+			else if (state == 1) {
+				value = Math.abs(navx.getAngle());
+			}
+			else if (state == 2) {
+				value = Math.abs(pijy.getYaw());
+			}
+			//percent complete is self-explainitory
 			percentComplete = Math.abs(value / target);
-			double speedMultiplier = 1;
-			// System.out.println("Encoders: " + getSensorPosition());
-
-			//if there is (500 counts/45 degrees/45 degrees) or less to go, do this:
-			/*
-			if(value >= target - slowThreshhold[state]) {
-				//percentRampComplete is the percent of the (500 counts/45 degrees/45 degrees) left to go
-				double percentRampComplete = (target - value) / slowThreshhold[state];
-
-				//sets speed multiplier to ramped down value,
-				//with the lowest value possible being minimumSpeed
-				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
-				System.out.print("slowing: " + maxSpeed * speedMultiplier); 
-			}
-			else if(value <= slowThreshhold[state]) {
-				double percentRampComplete = value / slowThreshhold[state];
-
-				//sets speed multiplier to ramped down value,
-				//with the lowest value possible being minimumSpeed
-				speedMultiplier = percentRampComplete * (1 - minimumSpeed) + minimumSpeed;
-				System.out.print("slowing: " + maxSpeed * speedMultiplier); 
-			}
-			else System.out.print("normal: " + speed);
-			System.out.println("value: " + value + ", complete: " + percentComplete);
-			//set speed to a ramped max speed or if not in the last 45 degs, set to max speed
-			speed = maxSpeed * speedMultiplier;
-			*/
-			double speed = -(Math.abs(2 * value - target) - target) / (2 * slowThreshhold[state]);
-			System.out.println("Data: " + value + ", " + target + ", " + slowThreshhold[state]);
-			speed += minimumSpeed;
-			// speed *= -1;
-			if(speed > Math.abs(maxSpeed)) {
-				System.out.println("Throttling speed");
-				speed = Math.abs(maxSpeed);
-			}
-			if(maxSpeed < 0) {
-				System.out.println("Neg speed");
-				speed = -speed;
-			}
+			
+			//an equation Justin devised ramp up and down. It should ALWAYS output a positive number (target is target encoder count/angle, 
+			//value is current encoder count/angle, slowThreshold is the amount of counts/degrees that the ramp up lasts)
+			//Ex: if slowThreshold[0] == 430, then the robot will speed up for the first 430 counts until max speed is reached, then it will slow down for the last 430 counts
+			double speed = calcSpeed(value);
 
 			System.out.println("enc: " + getSensorPosition());
 			System.out.println("Sped: " + speed);
-			//move
-			// System.out.println("Moving: " + getSensorPosition() + ", "+ percentComplete + ", speed: " + speed);
-
+			
 			if(1 - percentComplete < 0.005) {
 				System.out.println("Finished");
 				running = false;
 				speed = maxSpeed < 0 ? 0.2 : -0.2;
 			}
 			setSpeed(speed);
-			for(Motor m : pairedMotors) {
-				m.setSpeed(speed);
+		}
+		private double calcSpeed(double value) {
+			double speed = -(Math.abs(2 * value - target + equationConstant) - target + equationConstant) / (2 * slowThreshhold[state]);
+			System.out.println("Data: " + value + ", " + target + ", " + slowThreshhold[state]);
+			//make sure it starts at a low speed
+			speed += initialSpeed;
+			if(speed > Math.abs(maxSpeed)) {
+				speed = Math.abs(maxSpeed);
 			}
+			if(maxSpeed < 0) {
+				speed = -speed;
+			}
+			return speed;
+
 		}
 		@Override
 		protected boolean isFinished() {
