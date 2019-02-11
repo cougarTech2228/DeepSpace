@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.buttons.Button;
 
 public class Hatch {
     private Solenoid left;
@@ -40,6 +41,7 @@ public class Hatch {
     private int autotestingtemp = 0;
     private CommandGroup autoDeployGroup;
     private int count;
+    private Button autoAlignButton;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -61,6 +63,14 @@ public class Hatch {
         autoDeployGroup.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
         autoToggle = new Toggler(3, true);
         int count = 0;
+        
+    autoAlignButton = new Button(){
+        @Override
+        public boolean get() {
+            return controls.autoAlign();
+        }
+    };
+    autoAlignButton.toggleWhenPressed(new AutoDeploy());
     }
 
     public void extend() {
