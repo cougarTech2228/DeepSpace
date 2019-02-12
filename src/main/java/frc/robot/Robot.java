@@ -57,6 +57,14 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    SmartDashboard.putNumber("right kP", 0.01);
+    SmartDashboard.putNumber("left kP", 0.01);
+    SmartDashboard.putNumber("right kI", 0.001);
+    SmartDashboard.putNumber("left kI", 0.001);
+    SmartDashboard.putNumber("right Izone", 30);
+    SmartDashboard.putNumber("left Izone", 30);
+    SmartDashboard.putNumber("right kD", 10);
+    SmartDashboard.putNumber("left kD", 10);
     visionRelay.set(Relay.Value.kForward);
     auto.start();
   }
@@ -147,6 +155,10 @@ public class Robot extends TimedRobot {
      */
 
     // pixy.read();
+  }
+  @Override
+  public void testInit() {
+    base.autoInit();
   }
   @Override
   public void testPeriodic() {

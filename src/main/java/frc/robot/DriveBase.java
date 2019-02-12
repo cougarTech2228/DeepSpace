@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import jdk.jfr.Threshold;
 
 public class DriveBase {
@@ -64,8 +65,41 @@ public class DriveBase {
 	}
 
 	public void teleopInit() {
-		rightFront.teleopInit();
-		leftFront.teleopInit();
+		//rightFront.teleopInit();
+		//leftFront.teleopInit();
+		int maxRightVel = 272;
+		int maxLeftVel = 253;
+
+		double right = 111;
+		double left = 106;
+
+		rightFront.setMaxVelocity(272);
+		leftFront.setMaxVelocity(253);
+		
+		//SmartDashboard.putNumber("right kP",  2.6);
+		//SmartDashboard.putNumber("left kP", 2.4);
+		//SmartDashboard.putBoolean("button", false);
+
+		rightFront.motor.configMotionCruiseVelocity(maxRightVel / 2, 10);
+		leftFront.motor.configMotionCruiseVelocity(maxLeftVel / 2, 10);
+
+		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
+		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
+
+		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
+		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+
+		rightFront.motor.config_kP(0, 0.5, 10);
+		leftFront.motor.config_kP(0, 0.5, 10);
+
+		rightFront.motor.config_kI(0, 0.001, 10);
+		leftFront.motor.config_kI(0, 0.001, 10);
+
+		rightFront.motor.config_IntegralZone(0, 20, 10);
+		leftFront.motor.config_IntegralZone(0, 20, 10);
+
+		rightFront.motor.config_kD(0, 5, 10);
+		leftFront.motor.config_kD(0, 5, 10);
 
 		// init back motors for mecanum
 		if (mode == DriveType.Mecanum) {
@@ -75,8 +109,51 @@ public class DriveBase {
 	}
 
 	public void autoInit() {
-		rightFront.autoInit();
-		leftFront.autoInit();
+
+		int maxRightVel = 272;
+		int maxLeftVel = 253;
+
+		double right = 111;
+		double left = 106;
+
+		rightFront.setMaxVelocity(maxRightVel);
+		leftFront.setMaxVelocity(maxLeftVel);
+		
+		//SmartDashboard.putNumber("right kP",  2.6);
+		//SmartDashboard.putNumber("left kP", 2.4);
+		//SmartDashboard.putBoolean("button", false);
+
+		rightFront.motor.configMotionCruiseVelocity(maxRightVel / 2, 10);
+		leftFront.motor.configMotionCruiseVelocity(maxLeftVel / 2, 10);
+
+		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
+		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
+
+		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
+		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+
+		double rightP = SmartDashboard.getNumber("right kP", 0);
+		double leftP = SmartDashboard.getNumber("left kP", 0);
+		double c = SmartDashboard.getNumber("left kI", 0);
+		double d = SmartDashboard.getNumber("left kI", 0);
+		double a = SmartDashboard.getNumber("right kD", 0);
+		double b = SmartDashboard.getNumber("left kD", 0);
+		int e = (int)SmartDashboard.getNumber("right Izone", 0);
+		int f = (int)SmartDashboard.getNumber("left Izone", 0);
+
+		rightFront.motor.config_kP(0, rightP, 10);
+		leftFront.motor.config_kP(0, leftP, 10);
+
+		rightFront.motor.config_kI(0, c, 10);
+		leftFront.motor.config_kI(0, d, 10);
+
+		rightFront.motor.config_IntegralZone(0, e, 10);
+		leftFront.motor.config_IntegralZone(0, f, 10);
+
+		rightFront.motor.config_kD(0, a, 10);
+		leftFront.motor.config_kD(0, b, 10);
+		//SmartDashboard.putBoolean("button", false);
+
 	}
 
 	private double Limit(double input) {
@@ -303,7 +380,12 @@ public class DriveBase {
 	public void TestEncoders() {
 		//leftFront.set(1);
 		//rightFront.set(1);
-		
+
+		leftFront.setSpeed(0.5);
+		rightFront.setSpeed(0.5);
+		//leftFront.set(1);
+		//rightFront.set(1);
+		/*
 		if (controls.encoderTestLeftFront()) {
 			leftFront.set(0.5);
 			System.out.println(leftFront.getSensorPosition());
@@ -331,6 +413,6 @@ public class DriveBase {
 		} else {
 			rightBack.stop();
 			rightBack.setEncoderToZero();
-		}
+		}*/
 	}
 }

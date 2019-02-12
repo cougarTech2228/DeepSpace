@@ -13,7 +13,8 @@ import jdk.jfr.Threshold;
 
 public class Motor {
 	private static ArrayList<Motor> AllMotors = new ArrayList<Motor>();
-	private WPI_TalonSRX motor;
+	public WPI_TalonSRX motor;
+	private int maxVelocity;
 	private int timeout = 10;
 	private boolean invertMotor = false;
 	private boolean invertEncoder = false;
@@ -28,8 +29,8 @@ public class Motor {
 	private int closedLoopError = 0;
 	
 	private double encoderOffset = 0;
-	private double feedForwardGain = 1.5;
-	private double proportionalGain = 2;
+	private double feedForwardGain = 0;
+	private double proportionalGain = 0;
 	private double integralGain = 0;
 	private double derivativeGain = 10;
 	
@@ -48,7 +49,7 @@ public class Motor {
 		
 		// Reverse TalonSRX if necessary
 		motor.setInverted(invertMotor);
-		
+		//motor.configMotionCruiseVelocity(sensorUnitsPer100ms)
 		// Configure voltage compensation mode and set max voltage to 11 volts
 		motor.configVoltageCompSaturation(11.0, timeout);
 		// tweak the voltage bus measurement filter, default is 32 cells in rolling average (1ms per sample)
@@ -111,9 +112,9 @@ public class Motor {
 		closeLoopEnabled = false;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
-		motor.config_kF(PID_IDx, 1, timeout);
+		motor.config_kF(PID_IDx, 0, timeout);
 		
-		motor.config_kP(PID_IDx, 0.01, timeout);
+		motor.config_kP(PID_IDx, 0, timeout);
 		motor.config_kI(PID_IDx, 0, timeout); 
 		motor.config_kD(PID_IDx, 0, timeout);
 	}
@@ -141,6 +142,9 @@ public class Motor {
 	public void resetToZero() {
 		motor.getSensorCollection().setQuadraturePosition(0, 25);
 	}
+	public void setMaxVelocity(int countsPer100ms) {
+		maxVelocity = countsPer100ms;
+	}
 	public void setRamp(double milliseconds) {
 		if(closeLoopEnabled)
 			motor.configClosedloopRamp(milliseconds, timeout);
@@ -153,7 +157,7 @@ public class Motor {
 		motor.set(mode, value);
 	}
 	public void setSpeed(double speed) {
-		motor.set(ControlMode.Velocity, 563.69 * speed);
+		motor.set(ControlMode.Velocity, maxVelocity * speed);
 	}
 	public void stop() {
 		motor.stopMotor();
