@@ -41,7 +41,7 @@ public class Hatch {
     private int autotestingtemp = 0;
     private CommandGroup autoDeployGroup;
     private int count;
-    private Button autoAlignButton;
+    private Button autoAlignButton, autoAlignKill;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -58,19 +58,24 @@ public class Hatch {
         targState = visionDataTable.getEntry("targState");
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
-        this.autoDeployGroup = new CommandGroup();
-        autoDeployGroup.addSequential(hatchMove(horzOffToIn.getDouble(0)));
-        autoDeployGroup.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
-        autoToggle = new Toggler(3, true);
+        this.autoDeployGroup = new AutoDeploy();
+        autoToggle = new Toggler(2, true);
         int count = 0;
-        
-    autoAlignButton = new Button(){
-        @Override
-        public boolean get() {
-            return controls.autoAlign();
-        }
-    };
-    autoAlignButton.toggleWhenPressed(new AutoDeploy());
+
+        autoAlignButton = new Button() {
+            @Override
+            public boolean get() {
+                return autoToggle.state == 1;
+            }
+        };
+        autoAlignKill = new Button() {
+            @Override
+            public boolean get() {
+                return autoToggle.state == 0;
+            }
+        };
+        autoAlignButton.whenPressed(this.autoDeployGroup);
+        autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
     }
 
     public void extend() {
@@ -85,6 +90,7 @@ public class Hatch {
     }
 
     public void teleop() {
+        autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend()) {
             // extend();
@@ -158,26 +164,32 @@ public class Hatch {
     public class AutoDeploy extends CommandGroup {
 
         public AutoDeploy() {
-
+            this.addSequential(new HatchMove());
+            this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
+            this.addSequential(new HatchDeploy(.1));
         }
 
         @Override
         protected void initialize() {
-
-            if (distTargIn.getDouble(99) < 24) {
-                if (targState.getDouble(0) == 2.0) {
-
-                    if (Math.abs(horzOffToIn.getDouble(99)) <= 3) {
-                        this.addSequential(new HatchMove());
+            if (distTargIn.getDouble(DEFAULT_VALUE) > 18 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
+                System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
+                if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
+                    double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
+                            - horzOffToIn.getDouble(DEFAULT_VALUE));
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("Offset is too great: " + offset);
+                        this.cancel();
                     }
-                    this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
-
                 } else {
-                    System.out.println("Not locked on: " + targState.getDouble(0));
+                    System.out.println("Not locked");
+                    this.cancel();
                 }
             } else {
-                System.out.println("Too far: " + distTargIn.getDouble(99));
+                System.out.println("Not in specified distance");
+                System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
+                this.cancel();
             }
+
         }
 
         @Override
@@ -188,7 +200,6 @@ public class Hatch {
         @Override
         public void end() {
             autoToggle.state = 0;
-            extend();
             super.end();
         }
     }
@@ -279,32 +290,23 @@ public class Hatch {
         protected void execute() {
             // System.out.println("Executing Hatch");
             if (!this.movingHatchMechanism) {
-                if (distTargIn.getDouble(DEFAULT_VALUE) > 18 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
-                    System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
-                    if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
-                        this.movingHatchMechanism = true;
-                        this.finished = false;
-                        this.previousPosition = strafe.getSensorPosition();
-                        System.out.println("Starting auto alignment");
-                        System.out.println(distTargIn.getDouble(99));
-                        System.out.println("Inches away from center: " + inchesToMove);
-                        if (inchesToMove < 0 && leftSwitch.get()) {
-                            strafe.set(-STRAFE_SPEED);
-                            System.out.println("moving left");
-                        } else if (inchesToMove > 0 && rightSwitch.get()) {
-                            strafe.set(STRAFE_SPEED);
-                            System.out.println("Moving right");
-                        } else {
-                            System.out.println("wut");
-                        }
-                    } else {
-                        System.out.println("Not locked");
-                    }
+                this.movingHatchMechanism = true;
+                this.finished = false;
+                this.previousPosition = strafe.getSensorPosition();
+                System.out.println("Starting auto alignment");
+                System.out.println(distTargIn.getDouble(99));
+                System.out.println("Inches away from center: " + inchesToMove);
+                if (inchesToMove < 0 && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED);
+                    System.out.println("moving left");
+                } else if (inchesToMove > 0 && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED);
+                    System.out.println("Moving right");
                 } else {
-                    System.out.println("Not in specified distance");
-                    System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
+                    System.out.println("wut");
                 }
-            } else if(this.movingHatchMechanism) {
+
+            } else if (this.movingHatchMechanism) {
                 this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
                 if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
                     strafe.set(0);
@@ -319,8 +321,7 @@ public class Hatch {
                     strafe.set(-STRAFE_SPEED);
                     System.out.println("moving to the left");
                 }
-            }
-            else{
+            } else {
                 System.out.println("If you see this, something is super borked");
             }
         }
