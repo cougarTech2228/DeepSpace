@@ -1,10 +1,12 @@
 The TO DO List for all u gamers, its gamer time!
 
-- create vision code and make it see and relay data about the reflective tape (Ryan)
-- get navx working with I2C port (Justin?)
-- create a Tank Drive base code
-- Review Pigeon IMU and determine functionality
-- Flash all remaining RoboRIO's to current 2019 Firmware and image
+- Create vision code and make it see and relay data about the reflective tape (Ryan)
+- Create a Tank Drive base code
+- Create a placer mechanism code(Everyone)
+- Flash all remaining RoboRIO's to current 2019 Firmware and image (Chester)
+- Get Pixy cam to recognize objects (Justin)
+- Get Pixy cam to read lines (Justin)
+- Ultrasonic sensor on roborio
+- Get drivebase wprking with proximity sensors
 - Mark all RoboRIO's and Radios with installed firmware and image versions
 - Show up (Chester)
-- Make cargo class (Everyone)
