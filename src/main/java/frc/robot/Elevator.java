@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Elevator {
 private boolean doClimb = false, deploy = false;
-
+    private Navx navx;
     private DriverIF controls;
 
     // private SerialDataHandler arduino = new SerialDataHandler();
@@ -43,6 +43,11 @@ public Elevator(){
     }
 
 public void TeleopRaise(){
+    if(navx.getYaw() >= 0.05 || navx.getRoll() >= 0.05){
+    System.out.println("Robot Tipping!");    
+    System.out.println("Yaw: " + navx.getYaw());
+    System.out.println("Roll: " + navx.getRoll());
+}
     if(controls.elevatorUp()){
         doClimb = true;
     }
