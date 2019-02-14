@@ -381,9 +381,9 @@ public class DriveBase {
 	public void TestEncoders() {
 		//leftFront.set(1);
 		//rightFront.set(1);
-
-		leftFront.setSpeed(0.5);
-		rightFront.setSpeed(0.5);
+		double sped = SmartDashboard.getNumber("speed", 0);
+		leftFront.setSpeed(sped);
+		rightFront.setSpeed(sped);
 		//leftFront.set(1);
 		//rightFront.set(1);
 		/*

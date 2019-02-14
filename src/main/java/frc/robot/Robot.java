@@ -64,6 +64,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left Izone", 30);
     SmartDashboard.putNumber("right kD", 10);
     SmartDashboard.putNumber("left kD", 10);
+    SmartDashboard.putNumber("speed", 0.5);
     visionRelay.set(Relay.Value.kForward);
     auto.start();
   }

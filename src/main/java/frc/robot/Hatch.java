@@ -62,20 +62,20 @@ public class Hatch {
         autoToggle = new Toggler(2, true);
         int count = 0;
 
-        autoAlignButton = new Button() {
-            @Override
-            public boolean get() {
-                return autoToggle.state == 1;
-            }
-        };
-        autoAlignKill = new Button() {
-            @Override
-            public boolean get() {
-                return autoToggle.state == 0;
-            }
-        };
-        autoAlignButton.whenPressed(this.autoDeployGroup);
-        autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
+        // autoAlignButton = new Button() {
+        //     @Override
+        //     public boolean get() {
+        //         return autoToggle.state == 1;
+        //     }
+        // };
+        // autoAlignKill = new Button() {
+        //     @Override
+        //     public boolean get() {
+        //         return autoToggle.state == 0;
+        //     }
+        // };
+        // autoAlignButton.whenPressed(this.autoDeployGroup);
+        // autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
     }
 
     public void extend() {
@@ -100,30 +100,18 @@ public class Hatch {
         } else if (controls.hatchRetract()) {
             retract();
         }
-        if (controls.autoAlign()) {
-            autotestingtemp++;
-        } else
-            autotestingtemp = 0;
-        if (autotestingtemp == 1) {
-            autotestingtemp = 2;
-            // System.out.println(autoToggle.state);
-            Scheduler.getInstance().removeAll();
-            if (!autoDeployGroup.isCompleted())
-                autoDeployGroup.cancel();
-            // autoDeployGroup.start();
-            if (distTargIn.getDouble(DEFAULT_VALUE) < 24) {
-                if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
-                    autoDeployGroup.start();
-                } else {
-                    System.out.println("Not locked on: " + targState.getDouble(DEFAULT_VALUE));
-                }
-            } else {
-                System.out.println("Too far: " + distTargIn.getDouble(DEFAULT_VALUE));
-            }
+        if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
+           autoDeployGroup.start();
+        } 
+        else if(autoToggle.state == 0 && autoDeployGroup.isRunning()){
+            autoDeployGroup.cancel();
         }
+        else if(autoDeployGroup.isCompleted()){
+
+        }
+        
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
-        hatchStrafe();
     }
 
     public void home() {
