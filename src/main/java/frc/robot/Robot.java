@@ -8,7 +8,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
+import edu.wpi.first.wpilibj.TimedRobot;
+import com.ctre.phoenix.ILoopable;
+import frc.robot.LEDUtilities.*;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -36,9 +38,9 @@ public class Robot extends TimedRobot {
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
 
   private DriverIF controller = new DriverIF();
-  private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
-  private Elevator elevator = new Elevator(base, controller);
+  // private Navx navx = new Navx(Navx.Port.I2C);
+  // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
+  // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
 
   // private AutoMaster auto = new AutoMaster(base, navx, hatch);
@@ -57,6 +59,8 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putData("Auto choices", m_chooser);
     // auto.start();
     // visionRelay.set(Relay.Value.kForward);
+
+    Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -120,7 +124,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // base.teleopInit();
-
+    for(ILoopable loop : Tasks.FullList){
+      Schedulers.PeriodicTasks.add(loop);
+    }
     // pigeon.resetYaw();
 
   }
@@ -135,8 +141,8 @@ public class Robot extends TimedRobot {
     // }
     // base.TeleopMove();
 
-      elevator.teleopRaise();
-      elevator.raiseElevator();
+      // elevator.teleopRaise();
+      // elevator.raiseElevator();
 
     // pixy.read();
     // hatch.teleop();
@@ -153,6 +159,8 @@ public class Robot extends TimedRobot {
      */
 
     // pixy.read();
+    Schedulers.PeriodicTasks.process();
+
   }
 
   @Override
@@ -163,7 +171,7 @@ public class Robot extends TimedRobot {
     //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
     // base.TestEncoders();
     //hatch.testPeriodic();
-    elevator.testLiftDriveEncoder();
+    // elevator.testLiftDriveEncoder();
   }
 
 }
