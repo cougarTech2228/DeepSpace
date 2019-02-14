@@ -27,7 +27,6 @@ import frc.robot.DriveBase.DriveType;
  */
 
 public class Robot extends TimedRobot {
-
   private static int pigeonPort = RobotMap.PIGEONIMU;
   private static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
