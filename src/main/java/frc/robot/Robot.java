@@ -8,6 +8,8 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.schedulers.ConcurrentScheduler;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.ILoopable;
 import frc.robot.LEDUtilities.*;
@@ -19,7 +21,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
 import edu.wpi.first.wpilibj.Relay;
-
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -50,7 +51,10 @@ public class Robot extends TimedRobot {
   // private int loopIndex = 0;
 
   // private Relay visionRelay = new Relay(0);
-
+  
+  public static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  
+  
   @Override
   public void robotInit() {
 
@@ -124,9 +128,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // base.teleopInit();
-    for(ILoopable loop : Tasks.FullList){
-      Schedulers.PeriodicTasks.add(loop);
-    }
+ 
+  Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+
     // pigeon.resetYaw();
 
   }
