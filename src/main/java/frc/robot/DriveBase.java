@@ -375,6 +375,11 @@ public class DriveBase {
 				this.addParallel(moveToInches(24, -0.5));
 			}
 		}
+
+		public void elevatorClimb(double speed, double target){
+		leftFront.moveToEncoder(target, speed);
+		rightFront.moveToEncoder(target, speed);
+		}
 	}
 
 	// test

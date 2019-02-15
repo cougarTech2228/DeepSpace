@@ -95,8 +95,8 @@ public class Hatch {
         if (controls.hatchExtend()) {
             // extend();
             left.set(true);
-        } else if (controls.hatchExtendBottom()) {
-            right.set(true);
+        // } else if (controls.hatchExtendBottom()) {
+        //     right.set(true);
         } else if (controls.hatchRetract()) {
             retract();
         }
