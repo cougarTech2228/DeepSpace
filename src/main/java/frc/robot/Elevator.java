@@ -2,6 +2,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.command.Command;
 import frc.robot.DriveBase.DriveToInch;
 
 public class Elevator {
@@ -191,7 +192,7 @@ public class Elevator {
 
     }
 
-    public void raiseElevator() {
+    public boolean raiseElevator() {
         if (controls.deployElevator()) {
             deploy = true;
         }
@@ -205,9 +206,32 @@ public class Elevator {
             if (backLiftRaised.get()) {
                 backLift.set(0);
                 deploy = false;
+                return true;
             }
         }
+        return false;
 
     }
-
+    public class ElevatorCommand extends Command{
+        private boolean finished;
+        protected void initialize(){
+            this.finished = false;
+        }
+        protected void execute(){
+            if (!backLiftRaised.get()) {
+                backLift.set(backLiftSpeedUp);
+            }
+    
+            if (backLiftRaised.get()) {
+                backLift.set(0);
+                finished = true;
+            }
+        }
+        protected boolean isFinished(){
+            return finished;
+        }
+        public void end(){
+    
+        }
+    }
 }

@@ -130,8 +130,7 @@ public class DriveBase {
 		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
 		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
 
-		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
-		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+		
 
 		double rightP = SmartDashboard.getNumber("right kP", 0);
 		double leftP = SmartDashboard.getNumber("left kP", 0);
@@ -139,8 +138,16 @@ public class DriveBase {
 		double d = SmartDashboard.getNumber("left kI", 0);
 		double a = SmartDashboard.getNumber("right kD", 0);
 		double b = SmartDashboard.getNumber("left kD", 0);
+		double rightkF = SmartDashboard.getNumber("rightkF", 0);
+		double leftkF = SmartDashboard.getNumber("leftkF", 0);
 		int e = (int)SmartDashboard.getNumber("right Izone", 0);
 		int f = (int)SmartDashboard.getNumber("left Izone", 0);
+
+		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
+		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+
+		// rightFront.motor.config_kF(0, rightkF, 10);
+		// leftFront.motor.config_kF(0, leftkF, 10);
 
 		rightFront.motor.config_kP(0, rightP, 10);
 		leftFront.motor.config_kP(0, leftP, 10);

@@ -53,6 +53,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    SmartDashboard.putNumber("rightkF", 0);
+		SmartDashboard.putNumber("leftkF", 0);
     SmartDashboard.putNumber("right kP", 0.01);
     SmartDashboard.putNumber("left kP", 0.01);
     SmartDashboard.putNumber("right kI", 0.001);
@@ -113,7 +115,7 @@ public class Robot extends TimedRobot {
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     // System.out.println("Auto selected: " + m_autoSelected);
     // base.teleopInit();
-    // auto.start();
+    auto.start();
   }
 
   @Override

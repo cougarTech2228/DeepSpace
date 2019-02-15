@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.buttons.Button;
 
 public class Hatch {
     private Solenoid left;
@@ -40,8 +39,6 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private CommandGroup autoDeployGroup;
-    private int count;
-    private Button autoAlignButton, autoAlignKill;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
