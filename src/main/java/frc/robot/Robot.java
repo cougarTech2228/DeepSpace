@@ -129,14 +129,16 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     // serialDataHandler.readPort();
     // if (loopIndex++ == 5) {
-    //   System.out.println(String.format("sensor1Data: %04X ", serialDataHandler.getSensor1Data()));
-    //   System.out.println(String.format("sensor2Data: %04X ", serialDataHandler.getSensor2Data()));
-    //   loopIndex = 0;
+    // System.out.println(String.format("sensor1Data: %04X ",
+    // serialDataHandler.getSensor1Data()));
+    // System.out.println(String.format("sensor2Data: %04X ",
+    // serialDataHandler.getSensor2Data()));
+    // loopIndex = 0;
     // }
     // base.TeleopMove();
 
-      elevator.teleopRaise();
-      elevator.raiseElevator();
+    elevator.teleopRaise();
+    elevator.raiseElevator();
 
     // pixy.read();
     // hatch.teleop();
@@ -157,12 +159,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    //base.teleopInit();
-    //base.rightFront.set(ControlMode.Position, 10000);
-    //System.out.println("Counts: " + base.rightFront.getSensorPosition());
-    //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    // base.teleopInit();
+    // base.rightFront.set(ControlMode.Position, 10000);
+    // System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    // System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
     // base.TestEncoders();
-    //hatch.testPeriodic();
+    // hatch.testPeriodic();
     elevator.testLiftDriveEncoder();
   }
 

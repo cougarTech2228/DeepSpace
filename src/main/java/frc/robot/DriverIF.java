@@ -53,6 +53,10 @@ public class DriverIF {
         return xbox.B_BUTTON();
     }
 
+    public boolean deployElevator() {
+        return xbox.LEFT_BUMPER();
+    }
+
     public boolean encoderTestLeftFront() {
         return xbox.X_BUTTON();
     }
@@ -77,9 +81,4 @@ public class DriverIF {
         return xbox.A_BUTTON();
     }
 
-    public boolean deployElevator() {
-        return xbox.LEFT_BUMPER();
-    }
-
-    
 }
