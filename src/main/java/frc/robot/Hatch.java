@@ -107,7 +107,7 @@ public class Hatch {
             autoDeployGroup.cancel();
         }
         else if(autoDeployGroup.isCompleted()){
-
+            System.out.println("Auto Deploy completed");
         }
         
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
