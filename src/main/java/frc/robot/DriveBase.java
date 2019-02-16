@@ -16,6 +16,7 @@ public class DriveBase {
 	private double driveSpeedPercentage = 1;
 	private double strafeSpeedPercentage = 1;
 	private double turnSpeedPercentage = 0.5;
+	private double maxSpeed = 1;
 	private Pigeon pidgey;
 	private boolean zeroPigeon;
 
@@ -207,6 +208,9 @@ public class DriveBase {
 			//double angle = pidgey.getYaw();
 			// System.out.println("RightF" + RightF);
 			// System.out.println("LeftF" + LeftF);
+			RightF *= maxSpeed;
+			LeftF *= maxSpeed;
+			
 			rightFront.set(RightF);
 			leftFront.set(LeftF);
 		} else if (mode == DriveType.Mecanum) {
@@ -219,6 +223,11 @@ public class DriveBase {
 			LeftF = Limit(Forward - Strafe - Turn);
 			RightB = Limit(Forward - Strafe + Turn);
 			LeftB = Limit(Forward + Strafe - Turn);
+
+			RightF *= maxSpeed;
+			RightB *= maxSpeed;
+			LeftF *= maxSpeed;
+			LeftB *= maxSpeed;
 
 			rightFront.setSpeed(RightF);
 			leftFront.setSpeed(LeftF);
