@@ -60,16 +60,16 @@ public class Hatch {
         int count = 0;
 
         // autoAlignButton = new Button() {
-        //     @Override
-        //     public boolean get() {
-        //         return autoToggle.state == 1;
-        //     }
+        // @Override
+        // public boolean get() {
+        // return autoToggle.state == 1;
+        // }
         // };
         // autoAlignKill = new Button() {
-        //     @Override
-        //     public boolean get() {
-        //         return autoToggle.state == 0;
-        //     }
+        // @Override
+        // public boolean get() {
+        // return autoToggle.state == 0;
+        // }
         // };
         // autoAlignButton.whenPressed(this.autoDeployGroup);
         // autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
@@ -92,21 +92,19 @@ public class Hatch {
         if (controls.hatchExtend()) {
             // extend();
             left.set(true);
-        // } else if (controls.hatchExtendBottom()) {
-        //     right.set(true);
+            // } else if (controls.hatchExtendBottom()) {
+            // right.set(true);
         } else if (controls.hatchRetract()) {
             retract();
         }
         if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
-           autoDeployGroup.start();
-        } 
-        else if(autoToggle.state == 0 && autoDeployGroup.isRunning()){
+            System.out.println("Starting auto hatch alignment from button press");
+            autoDeployGroup.start();
+        } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
             autoDeployGroup.cancel();
         }
-        else if(autoDeployGroup.isCompleted()){
-            System.out.println("Auto Deploy completed");
-        }
-        
+        hatchStrafe();
+
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
     }

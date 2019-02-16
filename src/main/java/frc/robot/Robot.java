@@ -11,6 +11,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Relay.Direction;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -37,7 +38,7 @@ public class Robot extends TimedRobot {
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
   private Hatch hatch = new Hatch(controller, base);
-  private Relay visionRelay = new Relay(0);
+  private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
 
@@ -54,7 +55,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     SmartDashboard.putNumber("rightkF", 0);
-		SmartDashboard.putNumber("leftkF", 0);
+    SmartDashboard.putNumber("leftkF", 0);
     SmartDashboard.putNumber("right kP", 0.01);
     SmartDashboard.putNumber("left kP", 0.01);
     SmartDashboard.putNumber("right kI", 0.001);
@@ -65,57 +66,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
     visionRelay.set(Relay.Value.kForward);
-    auto.start();
   }
 
   @Override
   public void robotPeriodic() {
-    /*
-     * Scheduler.getInstance().run();
-     * 
-     * byte[] dataMessage = arduino.readSerialPort();
-     * 
-     * if (dataMessage.length == 2) { int dataByte0 = (int)
-     * (Byte.toUnsignedInt(dataMessage[0])); int dataByte1 = (int)
-     * (Byte.toUnsignedInt(dataMessage[1]));
-     * 
-     * switch (proximityState) {
-     * 
-     * case LookingForID:
-     * 
-     * System.out.println("DataByte0: " + dataByte0);
-     * System.out.println("DataByte1 " + dataByte1);
-     * 
-     * if (dataByte0 == 0xff) { if (dataByte1 == 0x01 || dataByte1 == 0x2) {
-     * proximityState = proximityEnum.LookingForData; } }
-     * 
-     * break;
-     * 
-     * case LookingForData:
-     * 
-     * System.out.println("Proximity Sensor " + leftDistance.distanceInches() +
-     * "--------------------------"); proximityState = proximityEnum.LookingForID;
-     * 
-     * break;
-     * 
-     * case Error: default:
-     * 
-     * break;
-     * 
-     * }
-     * 
-     * }
-     */
-
+    Scheduler.getInstance().run();
   }
 
   @Override
   public void autonomousInit() {
-    // m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    // System.out.println("Auto selected: " + m_autoSelected);
-    // base.teleopInit();
-    auto.start();
+    // auto.start();
   }
 
   @Override
@@ -128,44 +88,21 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
-    // base.teleopInit();
-
-    // pigeon.resetYaw();
 
   }
 
   @Override
   public void teleopPeriodic() {
-    Scheduler.getInstance().run();
+
+    if (controller.relayTest()) {
+      visionRelay.set(Relay.Value.kOn);
+    } else {
+      visionRelay.set(Relay.Value.kOff);
+    }
+
     base.TeleopMove();
-    // serialDataHandler.readPort();
-    // if (loopIndex++ == 5) {
-    // System.out.println(String.format("sensor1Data: %04X ",
-    // serialDataHandler.getSensor1Data()));
-    // System.out.println(String.format("sensor2Data: %04X ",
-    // serialDataHandler.getSensor2Data()));
-    // loopIndex = 0;
-    // }
-    // base.TeleopMove();
-
     elevator.teleopRaise();
-    elevator.raiseElevator();
-
-    // pixy.read();
     hatch.teleop();
-    // System.out.println(distance.distanceInches());
-
-    // pigeon.pigeonCheck();
-    // System.out.println(navx.getYaw());
-
-    // PixyData p = new PixyData();
-    /*
-     * try { p = pixy.readPacket(1); if(p == null) p = new PixyData(); }
-     * catch(Exception e) { e.printStackTrace(); } System.out.println("X: " + p.X +
-     * "Y: " + p.Y + "Width: " + p.Width + "Height: " + p.Height);
-     */
-
-    // pixy.read();
 
   }
 
@@ -176,12 +113,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    // base.teleopInit();
-    // base.rightFront.set(ControlMode.Position, 10000);
-    // System.out.println("Counts: " + base.rightFront.getSensorPosition());
-    // System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
-    // base.TestEncoders();
-    // hatch.testPeriodic();
   }
 
 }

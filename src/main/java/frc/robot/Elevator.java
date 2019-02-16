@@ -41,13 +41,14 @@ public class Elevator {
     private Motor frontLift;
     private Motor backLift;
     private Motor liftDrive;
+    private Motor elevatorDeployMotor;
 
     // Sensors
     private DigitalInput frontLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
     private DigitalInput frontLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_3);
     private DigitalInput backLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_4);
     private DigitalInput backLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_5);
-    private DigitalInput driveSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_6);
+    private DigitalInput elevatorDeploy = new DigitalInput(RobotMap.DIGITAL_INPUT_6);
 
     private double frontLiftSpeedUp = 0.5;
     private double frontLiftSpeedDown = -0.4;
@@ -83,14 +84,19 @@ public class Elevator {
         frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
         backLift = new Motor(RobotMap.ACTION_MOTOR_2);
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
+        elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
     }
 
     public void teleopRaise() {
-        // System.out.println(controls.manualClimb() +
-        // "-----------------------------------------");
-        // System.out.println(wasManualButtonPressed +
-        // "---------------------------------------");
+        SmartDashboard.putBoolean("Front Raised", frontLiftRaised.get());
+        SmartDashboard.putBoolean("Front Lowered", frontLiftLowered.get());
+        SmartDashboard.putBoolean("Back Raised", backLiftRaised.get());
+        SmartDashboard.putBoolean("Back Lowered", backLiftLowered.get());
+        SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
+        
+        raiseElevator();
+
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
@@ -174,7 +180,7 @@ public class Elevator {
                 } else {
                     // if (Math.abs(liftDrive.getSensorPosition()) <= liftDriveEncodersPerRev * 20)
                     // {
-                    if (driveSwitch.get()) {
+                    if (elevatorDeploy.get()) {
                         base.elevatorClimb(liftDriveSpeed, liftDriveEncodersPerRev * 20);
                         liftDrive.set(liftDriveSpeed);
                         // System.out.println(liftDrive.getSensorPosition());
@@ -206,7 +212,7 @@ public class Elevator {
                     System.out.println("Moving");
                 } else {
                     // if (Math.abs(base.platformEncoderLeft()) <= driveEncodersPerRev) {
-                    if (driveSwitch.get()) {
+                    if (elevatorDeploy.get()) {
                         base.elevatorClimb(.3, driveEncodersPerRev);
                         System.out.println("Moving");
                     }
@@ -226,27 +232,18 @@ public class Elevator {
     }
 
     public void raiseElevator() {
-        SmartDashboard.putBoolean("Front Raised", frontLiftRaised.get());
-        SmartDashboard.putBoolean("Front Lowered", frontLiftLowered.get());
-        SmartDashboard.putBoolean("Back Raised", backLiftRaised.get());
-        SmartDashboard.putBoolean("Back Lowered", backLiftLowered.get());
-        SmartDashboard.putBoolean("Drive Switch", driveSwitch.get());
-
         if (controls.deployElevator()) {
             deploy = true;
-            System.out.println("LB is Pressed");
         }
 
         if (deploy) {
 
-            if (backLiftRaised.get()) {
-                backLift.set(backLiftSpeedUp);
-                System.out.println("Raising The Elevator");
+            if (!elevatorDeploy.get()) {
+                elevatorDeployMotor.set(backLiftSpeedUp);
             }
 
             else {
-                System.out.println("Elevator is Raised");
-                backLift.set(0);
+                elevatorDeployMotor.set(0);
                 deploy = false;
             }
         }
