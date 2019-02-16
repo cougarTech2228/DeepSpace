@@ -59,7 +59,6 @@ public class Hatch {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
         autoToggle = new Toggler(2, true);
-        int count = 0;
 
     }
     /**
@@ -348,7 +347,7 @@ public class Hatch {
     }
 
     // Getter methods for commands
-    public HatchDeploy hatchDeploy(double time) {
+    public HatchDeploy getHatchDeploy(double time) {
         return new HatchDeploy(time);
     }
 
@@ -356,8 +355,11 @@ public class Hatch {
         return new Home();
     }
 
-    public HatchMove hatchMove(double inchesToMove) {
+    public HatchMove getHatchMove(double inchesToMove) {
         return new HatchMove();
+    }
+    public AutoDeploy getAutoDeploy(){
+        return new AutoDeploy();
     }
 
 }
