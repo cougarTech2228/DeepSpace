@@ -94,7 +94,7 @@ public class Elevator {
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
 
         raiseElevator();
-
+        /*
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
@@ -226,7 +226,7 @@ public class Elevator {
                 }
                 break;
             }
-        }
+        }*/
 
     }
 

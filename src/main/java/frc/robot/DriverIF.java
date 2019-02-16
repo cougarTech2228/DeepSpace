@@ -32,17 +32,11 @@ public class DriverIF {
     }
 
     public boolean hatchStrafeLeft() {
-        if (xbox.LEFT_TRIGGER() > 0) {
-            return true;
-        }
-        return false;
+        return xbox.LEFT_TRIGGER() > 0;
     }
 
     public boolean hatchStrafeRight() {
-        if (xbox.RIGHT_TRIGGER() > 0) {
-            return true;
-        }
-        return false;
+        return xbox.RIGHT_TRIGGER() > 0;
     }
 
     public boolean autoClimb() {
