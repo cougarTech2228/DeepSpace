@@ -21,7 +21,7 @@ public class Hatch {
     private DigitalInput rightSwitch;
     private Motor strafe;
     private Compressor compressor;
-    private final double STRAFE_SPEED = .35;
+    private final double STRAFE_SPEED = .60;
     private final int ENCODER_COUNTS_TO_IN = 54666;
     private final int ENCODER_COUNT_CENTER = 164000;
     private final int DEFAULT_VALUE = 42069666;
