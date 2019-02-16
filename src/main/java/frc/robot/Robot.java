@@ -91,14 +91,14 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    if (controller.relayTest()) {
-      visionRelay.set(Relay.Value.kOn);
-    } else {
-      visionRelay.set(Relay.Value.kOff);
-    }
+    // if (controller.relayTest()) {
+    //   visionRelay.set(Relay.Value.kOn);
+    // } else {
+    //   visionRelay.set(Relay.Value.kOff);
+    // }
 
     base.TeleopMove();
-    elevator.teleopRaise();
+    // elevator.teleopRaise();
     hatch.teleop();
 
   }

@@ -40,6 +40,7 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private AutoDeploy autoDeployGroup;
+    private HatchMove hatchMove;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -58,6 +59,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
+        hatchMove = new HatchMove();
         autoToggle = new Toggler(2, true);
 
     }
@@ -78,7 +80,7 @@ public class Hatch {
 
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
-        tilt.set(true);
+        // tilt.set(true);
     }
 
     public void teleop() {
@@ -93,9 +95,9 @@ public class Hatch {
         }
         if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
             System.out.println("Starting auto hatch alignment from button press");
-            autoDeployGroup.start();
+            hatchMove.start();
         } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
-            autoDeployGroup.cancel();
+            hatchMove.cancel();
         }
         hatchStrafe();
 
