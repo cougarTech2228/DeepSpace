@@ -128,8 +128,7 @@ public class DriveBase {
 		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
 		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
 
-		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
-		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+		
 
 		double rightP = SmartDashboard.getNumber("right kP", 0);
 		double leftP = SmartDashboard.getNumber("left kP", 0);
@@ -137,8 +136,16 @@ public class DriveBase {
 		double d = SmartDashboard.getNumber("left kI", 0);
 		double a = SmartDashboard.getNumber("right kD", 0);
 		double b = SmartDashboard.getNumber("left kD", 0);
+		double rightkF = SmartDashboard.getNumber("rightkF", 0);
+		double leftkF = SmartDashboard.getNumber("leftkF", 0);
 		int e = (int)SmartDashboard.getNumber("right Izone", 0);
 		int f = (int)SmartDashboard.getNumber("left Izone", 0);
+
+		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
+		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+
+		// rightFront.motor.config_kF(0, rightkF, 10);
+		// leftFront.motor.config_kF(0, leftkF, 10);
 
 		rightFront.motor.config_kP(0, rightP, 10);
 		leftFront.motor.config_kP(0, leftP, 10);
@@ -358,6 +365,19 @@ public class DriveBase {
 		}
 	}
 
+	public double platformEncoderRight() {
+		return rightFront.getSensorPosition();
+	}
+
+	public double platformEncoderLeft() {
+		return leftFront.getSensorPosition();
+	}
+
+	public void stopMoving(){
+		rightFront.set(0);
+		leftFront.set(0);
+	}
+
 	public DriveToInch driveToInch(double targetInches, double speed) {
 		return new DriveToInch(targetInches, speed);
 	}
@@ -375,13 +395,18 @@ public class DriveBase {
 		}
 	}
 
+	public void elevatorClimb(double speed, double target) {
+		leftFront.moveToEncoder(target, speed);
+		rightFront.moveToEncoder(target, speed);
+	}
+
 	// test
 	public void TestEncoders() {
 		//leftFront.set(1);
 		//rightFront.set(1);
-
-		leftFront.setSpeed(0.5);
-		rightFront.setSpeed(0.5);
+		double sped = SmartDashboard.getNumber("speed", 0);
+		leftFront.setSpeed(sped);
+		rightFront.setSpeed(sped);
 		//leftFront.set(1);
 		//rightFront.set(1);
 		/*

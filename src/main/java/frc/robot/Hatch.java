@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.buttons.Button;
 
 public class Hatch {
     private Solenoid left;
@@ -39,9 +38,7 @@ public class Hatch {
     private boolean zeroed = false;
     private Toggler autoToggle;
     private int autotestingtemp = 0;
-    private CommandGroup autoDeployGroup;
-    private int count;
-    private Button autoAlignButton, autoAlignKill;
+    private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -62,20 +59,6 @@ public class Hatch {
         autoToggle = new Toggler(2, true);
         int count = 0;
 
-        autoAlignButton = new Button() {
-            @Override
-            public boolean get() {
-                return autoToggle.state == 1;
-            }
-        };
-        autoAlignKill = new Button() {
-            @Override
-            public boolean get() {
-                return autoToggle.state == 0;
-            }
-        };
-        autoAlignButton.whenPressed(this.autoDeployGroup);
-        autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
     }
 
     public void extend() {
@@ -95,35 +78,21 @@ public class Hatch {
         if (controls.hatchExtend()) {
             // extend();
             left.set(true);
-        } else if (controls.hatchExtendBottom()) {
-            right.set(true);
+            // } else if (controls.hatchExtendBottom()) {
+            // right.set(true);
         } else if (controls.hatchRetract()) {
             retract();
         }
-        if (controls.autoAlign()) {
-            autotestingtemp++;
-        } else
-            autotestingtemp = 0;
-        if (autotestingtemp == 1) {
-            autotestingtemp = 2;
-            // System.out.println(autoToggle.state);
-            Scheduler.getInstance().removeAll();
-            if (!autoDeployGroup.isCompleted())
-                autoDeployGroup.cancel();
-            // autoDeployGroup.start();
-            if (distTargIn.getDouble(DEFAULT_VALUE) < 24) {
-                if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
-                    autoDeployGroup.start();
-                } else {
-                    System.out.println("Not locked on: " + targState.getDouble(DEFAULT_VALUE));
-                }
-            } else {
-                System.out.println("Too far: " + distTargIn.getDouble(DEFAULT_VALUE));
-            }
+        if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
+            System.out.println("Starting auto hatch alignment from button press");
+            autoDeployGroup.start();
+        } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
+            autoDeployGroup.cancel();
         }
+        hatchStrafe();
+
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
-        hatchStrafe();
     }
 
     public void home() {
@@ -167,6 +136,7 @@ public class Hatch {
             this.addSequential(new HatchMove());
             this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
             this.addSequential(new HatchDeploy(.1));
+            this.addSequential(dBase.driveToInch(-3, 0.4));
         }
 
         @Override
@@ -273,7 +243,7 @@ public class Hatch {
         private boolean finished = false;
 
         public HatchMove() {
-            System.out.println("COnstructing a hatchMove");
+            System.out.println("Constructing a hatchMove");
         }
 
         @Override

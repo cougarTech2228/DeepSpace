@@ -1,6 +1,6 @@
-package frc.robot;
+package frc.robot.config;
 
-public interface Config {
+public abstract class Config {
     
     public double leftF = 0;
     public double leftP = 0;
