@@ -58,7 +58,6 @@ public class Elevator {
 
     private double closedLoopSpeed = 0;
 
-
     private int encoderCount = 0;
 
     private autoClimb autoClimbState = autoClimb.PullRobotUp;
@@ -94,7 +93,7 @@ public class Elevator {
         SmartDashboard.putBoolean("Back Raised", backLiftRaised.get());
         SmartDashboard.putBoolean("Back Lowered", backLiftLowered.get());
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
-        
+
         raiseElevator();
 
         if (controls.manualClimb() && wasManualButtonPressed == false) {
@@ -137,6 +136,7 @@ public class Elevator {
                 if (doManualClimb) {
                     if (frontLiftLowered.get()) {
                         frontLift.set(frontLiftSpeedDown);
+                        System.out.println("Lowering Front");
                     } else {
                         frontLift.set(0);
                     }
@@ -148,6 +148,7 @@ public class Elevator {
 
                     if (!frontLiftLowered.get() && !backLiftLowered.get()) {
                         climbState = climb.MoveForward;
+                        System.out.println("Moving Forward");
                     }
                 } else {
                     if (frontLiftLowered.get()) {
@@ -171,7 +172,7 @@ public class Elevator {
 
             case MoveForward:
                 if (doManualClimb) {
-                    liftDrive.set(controls.throttle());
+                    liftDrive.set(-controls.throttle());
                     base.TeleopMove();
                     if (controls.retractLiftDrive()) {
                         System.out.println("Lifting Drive Motor Up-------------------------------------");
@@ -232,50 +233,61 @@ public class Elevator {
     }
 
     public void raiseElevator() {
-        if (controls.deployElevator()) {
-            deploy = true;
-        }
+        // if (controls.deployElevator()) {
+        //     deploy = true;
+        // }
 
-        if (deploy) {
+        if (controls.deployElevator()) {
 
             if (!elevatorDeploy.get()) {
-                elevatorDeployMotor.set(backLiftSpeedUp);
+                elevatorDeployMotor.set(-0.2);
             }
+            
 
             else {
                 elevatorDeployMotor.set(0);
-                deploy = false;
+                // deploy = false;
             }
+
+            if(backLiftRaised.get()){
+                backLift.set(0);
+            }
+        }
+        else{
+            elevatorDeployMotor.set(0);
         }
 
     }
-    public class ElevatorCommand extends Command{
+
+    public class ElevatorCommand extends Command {
         private boolean finished;
-        protected void initialize(){
+
+        protected void initialize() {
             this.finished = false;
         }
-        protected void execute(){
+
+        protected void execute() {
             if (!backLiftRaised.get()) {
                 backLift.set(backLiftSpeedUp);
             }
-    
+
             if (backLiftRaised.get()) {
                 backLift.set(0);
                 finished = true;
             }
         }
-        protected boolean isFinished(){
+
+        protected boolean isFinished() {
             return finished;
         }
-        public void end(){
-    
+
+        public void end() {
+
         }
     }
-
 
     public void testLiftDriveEncoder() {
         System.out.println(liftDrive.getSensorPosition());
     }
-
 
 }

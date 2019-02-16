@@ -88,7 +88,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void teleopInit() {
+<<<<<<< HEAD
     base.teleopInit();
+=======
+    hatch.teleopInit();
+>>>>>>> 82c840f45fbf903e83383714357dc8da7d4f48bc
   }
 
   @Override
@@ -113,6 +117,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
+    hatch.teleopInit();
   }
 
 }
