@@ -31,7 +31,7 @@ public class AutoMaster {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.base = base;
         this.hatch = hatch;
-        autoDeployGroup = new AutoDeploySequence();
+        autoDeployGroup = hatch.getAutoDeploy();
         // autoSequence = new CommandGroup();
     }
 
@@ -51,30 +51,5 @@ public class AutoMaster {
 
     public void run() {
         Scheduler.getInstance().run();
-    }
-
-    public class AutoDeploySequence extends CommandGroup {
-        public AutoDeploySequence() {
-            System.out.println("Constructing an AutoDeploySequence");
-            // this.addSequential(hatch.getHome());
-            this.addSequential(hatch.hatchMove(horzOffToIn.getDouble(DEFAULT_VALUE)));
-            this.addSequential(base.driveToInch(distTargIn.getDouble(DEFAULT_VALUE), -0.4));
-            this.addSequential(hatch.hatchDeploy(2));
-            this.addSequential(base.driveToInch(-4, .25));
-
-        }
-        // @Override
-        // public synchronized void start() {
-        //     System.out.println("Starting auto command");
-            
-        // }
-
-        @Override
-        protected void initialize() {
-            System.out.println("initializing");
-            
-
-        }
-
     }
 }

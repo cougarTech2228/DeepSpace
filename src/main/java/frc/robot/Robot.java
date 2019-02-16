@@ -46,7 +46,6 @@ public class Robot extends TimedRobot {
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private int loopIndex = 0;
 
   @Override
   public void robotInit() {
@@ -83,9 +82,7 @@ public class Robot extends TimedRobot {
     // auto.run();
   }
 
-  /**
-   * This function is called periodically during operator control.
-   */
+ 
   @Override
   public void teleopInit() {
     hatch.teleopInit();
