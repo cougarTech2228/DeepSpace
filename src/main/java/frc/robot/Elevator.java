@@ -249,11 +249,10 @@ public class Elevator {
                 // deploy = false;
             }
 
-            else{
+            else {
                 // if (!elevatorDeploy.get()) {
                 elevatorDeployMotor.set(0.2);
             }
-
 
             if (backLiftRaised.get()) {
                 backLift.set(0.2);
