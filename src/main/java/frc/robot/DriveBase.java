@@ -204,7 +204,7 @@ public class DriveBase {
 		return new MoveToInches(targetEncoderInches, speed);
 	}
 
-	public class MoveToInches extends Command {
+	public class MoveToInches extends CommandGroup {
 		private double maxSpeed;
 		private double targetEncoderCount;
 		private boolean leftRunning = true;
@@ -219,8 +219,8 @@ public class DriveBase {
 
 		protected void initialize() {
 			System.out.println("Setting encoders to zero");
-			rightFront.setEncoderToZero();
-			leftFront.setEncoderToZero();
+			//rightFront.setEncoderToZero();
+			//leftFront.setEncoderToZero();
 		}
 
 		public void execute() {
