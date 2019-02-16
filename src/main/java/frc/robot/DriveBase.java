@@ -367,6 +367,19 @@ public class DriveBase {
 		}
 	}
 
+	public double platformEncoderRight() {
+		return rightFront.getSensorPosition();
+	}
+
+	public double platformEncoderLeft() {
+		return leftFront.getSensorPosition();
+	}
+
+	public void stopMoving(){
+		rightFront.set(0);
+		leftFront.set(0);
+	}
+
 	public DriveToInch driveToInch(double targetInches, double speed) {
 		return new DriveToInch(targetInches, speed);
 	}
@@ -382,11 +395,11 @@ public class DriveBase {
 				this.addParallel(moveToInches(24, -0.5));
 			}
 		}
+	}
 
-		public void elevatorClimb(double speed, double target){
+	public void elevatorClimb(double speed, double target) {
 		leftFront.moveToEncoder(target, speed);
 		rightFront.moveToEncoder(target, speed);
-		}
 	}
 
 	// test

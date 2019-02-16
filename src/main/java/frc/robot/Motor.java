@@ -166,7 +166,7 @@ public class Motor {
 		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 	public MoveTo moveToEncoder(double targetEncoderCount, double speed, Motor...pairedMotors) {
-		System.out.println("Returning new moveTo");
+		// System.out.println("Returning new moveTo");
 		return new MoveTo(targetEncoderCount, speed, pairedMotors);
 	}
 	public class MoveTo extends Command {
