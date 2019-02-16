@@ -60,18 +60,9 @@ public class Hatch {
         int count = 0;
 
     }
-
-    public void extend() {
-        left.set(true);
-        right.set(true);
-
-    }
-
-    public void retract() {
-        left.set(false);
-        right.set(false);
-    }
-
+    /**
+     * Method called in teleop of Robot, runs the hatch mechanism through controller input
+     */
     public void teleop() {
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
@@ -94,6 +85,45 @@ public class Hatch {
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
     }
+    /**
+     * Method called during testPeriodic, runs hatch mechanism in test
+     */
+    public void testPeriodic() {
+        if (Math.abs(controls.encoderTestHatch()) > 0.1) {
+            strafe.setSpeed(controls.encoderTestHatch());
+            System.out.println("Hatch Motor: " + strafe.getSensorPosition());
+        } else {
+            strafe.setSpeed(0);
+            strafe.setEncoderToZero();
+        }
+    }
+    /**
+     * 
+     */
+    public void hatchStrafe() {
+        if (!rightSwitch.get()) {
+            strafe.setEncoderToZero();
+        }
+        if (controls.hatchStrafeLeft() && leftSwitch.get()) {
+            strafe.set(-STRAFE_SPEED);
+        } else if (controls.hatchStrafeRight() && rightSwitch.get()) {
+            strafe.set(STRAFE_SPEED);
+        } else {
+            strafe.set(0);
+        }
+        // System.out.println(strafe.getSensorPosition());
+    }
+
+    public void extend() {
+        left.set(true);
+        right.set(true);
+
+    }
+
+    public void retract() {
+        left.set(false);
+        right.set(false);
+    }
 
     public void home() {
         if (!homing) {
@@ -112,19 +142,7 @@ public class Hatch {
         }
     }
 
-    public void hatchStrafe() {
-        if (!rightSwitch.get()) {
-            strafe.setEncoderToZero();
-        }
-        if (controls.hatchStrafeLeft() && leftSwitch.get()) {
-            strafe.set(-STRAFE_SPEED);
-        } else if (controls.hatchStrafeRight() && rightSwitch.get()) {
-            strafe.set(STRAFE_SPEED);
-        } else {
-            strafe.set(0);
-        }
-        // System.out.println(strafe.getSensorPosition());
-    }
+    // Auto Commands
 
     /**
      * Freakin' cool method to automatically align the hatch to the station with
@@ -227,14 +245,6 @@ public class Hatch {
         }
     }
 
-    public Home getHome() {
-        return new Home();
-    }
-
-    public HatchMove hatchMove(double inchesToMove) {
-        return new HatchMove();
-    }
-
     public class HatchMove extends Command {
         private double inchesToMove;
         private boolean movingHatchMechanism = false;
@@ -302,10 +312,6 @@ public class Hatch {
         }
     }
 
-    public HatchDeploy hatchDeploy(double time) {
-        return new HatchDeploy(time);
-    }
-
     public class HatchDeploy extends Command {
         public HatchDeploy(double time) {
             super(time);
@@ -334,14 +340,17 @@ public class Hatch {
 
     }
 
-    public void testPeriodic() {
-        if (Math.abs(controls.encoderTestHatch()) > 0.1) {
-            strafe.setSpeed(controls.encoderTestHatch());
-            System.out.println("Hatch Motor: " + strafe.getSensorPosition());
-        } else {
-            strafe.setSpeed(0);
-            strafe.setEncoderToZero();
-        }
+    // Getter methods for commands
+    public HatchDeploy hatchDeploy(double time) {
+        return new HatchDeploy(time);
+    }
+
+    public Home getHome() {
+        return new Home();
+    }
+
+    public HatchMove hatchMove(double inchesToMove) {
+        return new HatchMove();
     }
 
 }
