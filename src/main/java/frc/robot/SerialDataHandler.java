@@ -13,8 +13,9 @@ public class SerialDataHandler {
 
     SerialPort port;
 
-    public SerialDataHandler() {
-        port = new SerialPort(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+    public SerialDataHandler(int baudRate, SerialPort.Port serialPort, int numBits, SerialPort.Parity serialParity, SerialPort.StopBits stopBits) {
+        
+        port = new SerialPort(baudRate, serialPort, numBits, serialParity, stopBits);
         port.reset();
     }
 
