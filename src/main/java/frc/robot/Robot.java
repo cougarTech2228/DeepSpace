@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   // private static int pigeonPort = RobotMap.PIGEONIMU;
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
   // private Navx navx = new Navx(Navx.Port.I2C
-  private SerialDataHandler serialDataHandler = new SerialDataHandler(9000, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
