@@ -8,8 +8,6 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.schedulers.ConcurrentScheduler;
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.ILoopable;
 import frc.robot.LEDUtilities.*;
@@ -21,6 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.SerialPort;
+import com.ctre.phoenix.schedulers.ConcurrentScheduler;
+
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -33,12 +34,10 @@ public class Robot extends TimedRobot {
   // private static final String kDefaultAuto = "Default";
   // private static final String kCustomAuto = "My Auto";
 
-  // private SerialDataHandler serialDataHandler = new SerialDataHandler();
+  private SerialDataHandler serialDataHandler = new SerialDataHandler();
 
   // private static int pigeonPort = RobotMap.PIGEONIMU;
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
-
-  private DriverIF controller = new DriverIF();
   // private Navx navx = new Navx(Navx.Port.I2C);
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   // private Elevator elevator = new Elevator(base, controller);
@@ -47,14 +46,9 @@ public class Robot extends TimedRobot {
   // private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   // private String m_autoSelected;
-  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  // private int loopIndex = 0;
-
+  private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
   // private Relay visionRelay = new Relay(0);
-  
-  public static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
-  
-  
+
   @Override
   public void robotInit() {
 
@@ -128,21 +122,25 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // base.teleopInit();
- 
-  Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
 
+    
+
+     
+  for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
+  Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    }}
     // pigeon.resetYaw();
 
-  }
+  
 
   @Override
   public void teleopPeriodic() {
-    // serialDataHandler.readPort();
-    // if (loopIndex++ == 5) {
-    //   System.out.println(String.format("sensor1Data: %04X ", serialDataHandler.getSensor1Data()));
-    //   System.out.println(String.format("sensor2Data: %04X ", serialDataHandler.getSensor2Data()));
-    //   loopIndex = 0;
-    // }
+    
+     serialDataHandler.readPort();
+    //if (loopIndex++ == 5) {
+     System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
+     System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
+     //}
     // base.TeleopMove();
 
       // elevator.teleopRaise();
