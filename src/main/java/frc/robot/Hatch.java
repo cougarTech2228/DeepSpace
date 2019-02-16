@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.command.Scheduler;
 public class Hatch {
     private Solenoid left;
     private Solenoid right;
+    private Solenoid tilt;
     private DriverIF controls;
     private DriveBase dBase;
     private DigitalInput leftSwitch;
@@ -43,6 +44,7 @@ public class Hatch {
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
+        tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
         strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
         strafe.setBrakeMode(true);
         compressor = new Compressor(RobotMap.PCM);
@@ -72,16 +74,20 @@ public class Hatch {
         right.set(false);
     }
 
+    public void teleopInit() {
+        System.out.println("Hatch teleopInit");
+        tilt.set(true);
+    }
+
     public void teleop() {
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend()) {
-            // extend();
-            left.set(true);
-            // } else if (controls.hatchExtendBottom()) {
-            // right.set(true);
+            // tilt.set(true);
+            extend();
         } else if (controls.hatchRetract()) {
             retract();
+            // tilt.set(false);
         }
         if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
             System.out.println("Starting auto hatch alignment from button press");
