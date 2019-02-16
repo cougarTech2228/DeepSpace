@@ -51,12 +51,10 @@ public class DriveBase {
 			leftFront.invert(true);
 			leftBack.invert(true);
 		}
-
 		rightFront.setBrakeMode(true);
 		rightBack.setBrakeMode(true);
 		leftFront.setBrakeMode(true);
 		leftBack.setBrakeMode(true);
-
 	}
 
 	private double zeroLimit(double input) {
