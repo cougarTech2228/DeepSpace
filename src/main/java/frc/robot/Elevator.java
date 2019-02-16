@@ -3,7 +3,9 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DriveBase.DriveToInch;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
     private boolean doAutoClimb = false;
@@ -13,15 +15,22 @@ public class Elevator {
     private boolean wasManualButtonPressed = false;
 
     private DriverIF controls;
-    private DriveToInch drive;
     private DriveBase base;
 
     private SerialDataHandler arduino = new SerialDataHandler();
 
+    // Lift Drive encoder math
     private double circumference = 4 * Math.PI;
     private int gearRatio = 63;
     private double liftDriveMovePerRev = 0.1994;
     private double liftDriveEncodersPerRev = circumference * gearRatio / liftDriveMovePerRev;
+
+    // Drive Motor encoder math
+    private double driveCircumference = 6 * Math.PI;
+    private double driveGearRatio = (12.0 * 34.0) / (50.0 * 50.0);
+    private double driveMovePerRev = 0.1994;
+    // ^^^ Copied from the liftDrive cuz I'm lazy ^^^
+    private double driveEncodersPerRev = driveCircumference * driveGearRatio / driveMovePerRev;
 
     private double leftDistance = 0;
     private double rightDistance = 0;
@@ -32,12 +41,14 @@ public class Elevator {
     private Motor frontLift;
     private Motor backLift;
     private Motor liftDrive;
+    private Motor elevatorDeployMotor;
 
     // Sensors
     private DigitalInput frontLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_2);
     private DigitalInput frontLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_3);
     private DigitalInput backLiftRaised = new DigitalInput(RobotMap.DIGITAL_INPUT_4);
     private DigitalInput backLiftLowered = new DigitalInput(RobotMap.DIGITAL_INPUT_5);
+    private DigitalInput elevatorDeploy = new DigitalInput(RobotMap.DIGITAL_INPUT_6);
 
     private double frontLiftSpeedUp = 0.5;
     private double frontLiftSpeedDown = -0.4;
@@ -45,18 +56,27 @@ public class Elevator {
     private double backLiftSpeedDown = -0.4;
     private double liftDriveSpeed = 0.2;
 
+    private double closedLoopSpeed = 0;
+
+
     private int encoderCount = 0;
 
     private autoClimb autoClimbState = autoClimb.PullRobotUp;
 
     private enum autoClimb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp
+        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
     }
 
     private manualClimb manualClimbState = manualClimb.PullRobotUp;
 
     private enum manualClimb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp
+        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
+    }
+
+    private climb climbState = climb.PullRobotUp;
+
+    private enum climb {
+        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
     }
 
     public Elevator(DriveBase driver, DriverIF controls) {
@@ -64,18 +84,26 @@ public class Elevator {
         frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
         backLift = new Motor(RobotMap.ACTION_MOTOR_2);
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
+        elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
     }
 
     public void teleopRaise() {
-        // System.out.println(controls.manualClimb() + "-----------------------------------------");
-        // System.out.println(wasManualButtonPressed + "---------------------------------------");
+        SmartDashboard.putBoolean("Front Raised", frontLiftRaised.get());
+        SmartDashboard.putBoolean("Front Lowered", frontLiftLowered.get());
+        SmartDashboard.putBoolean("Back Raised", backLiftRaised.get());
+        SmartDashboard.putBoolean("Back Lowered", backLiftLowered.get());
+        SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
+        
+        raiseElevator();
+
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
                 liftDrive.setEncoderToZero();
             } else {
                 doManualClimb = true;
+                doAutoClimb = false;
                 System.out.println("Climbing Up----------------------------------------");
                 manualClimbState = manualClimb.PullRobotUp;
             }
@@ -84,50 +112,8 @@ public class Elevator {
             wasManualButtonPressed = false;
         }
 
-        if (doManualClimb) {
-            switch (manualClimbState) {
-
-            case PullRobotUp:
-                if (!frontLiftLowered.get()) {
-                    frontLift.set(frontLiftSpeedDown);
-                }
-                if (!backLiftLowered.get()) {
-                    backLift.set(backLiftSpeedDown);
-                }
-
-                if (backLiftLowered.get() && frontLiftLowered.get()) {
-                    frontLift.set(0);
-                    backLift.set(0);
-                    System.out.println("Moving Forward-----------------------------------");
-                    manualClimbState = manualClimb.MoveForward;
-                }
-
-                break;
-
-            case MoveForward:
-                if (controls.throttle() > 0.1) {
-                    liftDrive.set(controls.throttle() * .1);
-                    base.TeleopMove();
-                } else if (controls.retractLiftDrive()) {
-                    System.out.println("Lifting Drive Motor Up-------------------------------------");
-                    manualClimbState = manualClimb.LiftDriveMotorUp;
-                }
-                break;
-
-            case LiftDriveMotorUp:
-                if (frontLiftRaised.get()) {
-                    frontLift.set(frontLiftSpeedUp);
-                } else {
-                    System.out.println("Finished");
-                    frontLift.set(0);
-                }
-
-                break;
-
-            }
-        }
-
-        // -----------------------------AUTOCLIMB CODE---------------------------------------------------------
+        // -----------------------------AUTOCLIMB
+        // CODE---------------------------------------------------------
 
         if (controls.autoClimb() && wasAutoButtonPressed == false) {
             if (doAutoClimb == true) {
@@ -135,6 +121,7 @@ public class Elevator {
                 liftDrive.setEncoderToZero();
             } else {
                 doAutoClimb = true;
+                doManualClimb = false;
                 System.out.println("Auto Climbing Up----------------------------------------");
                 autoClimbState = autoClimb.PullRobotUp;
             }
@@ -143,73 +130,123 @@ public class Elevator {
             wasAutoButtonPressed = false;
         }
 
-        if (doAutoClimb) {
-            leftDistance = arduino.getSensor1Data() / mmToIn;
-            rightDistance = arduino.getSensor2Data() / mmToIn;
+        if (doAutoClimb || doManualClimb) {
+            switch (climbState) {
 
-            switch (autoClimbState) {
             case PullRobotUp:
-                if (Math.abs(leftDistance - rightDistance) < 1 && leftDistance <= maxDistanceToPlatform
-                        && rightDistance <= maxDistanceToPlatform) {
-                    if (!frontLiftLowered.get()) {
+                if (doManualClimb) {
+                    if (frontLiftLowered.get()) {
                         frontLift.set(frontLiftSpeedDown);
+                    } else {
+                        frontLift.set(0);
                     }
-                    if (!backLiftLowered.get()) {
-                        backLift.set(-backLiftSpeedDown);
+                    if (backLiftLowered.get()) {
+                        backLift.set(backLiftSpeedDown);
+                    } else {
+                        backLift.set(0);
                     }
 
-                    if (frontLiftLowered.get() && backLiftLowered.get()) {
+                    if (!frontLiftLowered.get() && !backLiftLowered.get()) {
+                        climbState = climb.MoveForward;
+                    }
+                } else {
+                    if (frontLiftLowered.get()) {
+                        frontLift.set(frontLiftSpeedDown);
+                    } else {
                         frontLift.set(0);
+                    }
+
+                    if (backLiftLowered.get()) {
+                        backLift.set(-backLiftSpeedDown);
+                    } else {
                         backLift.set(0);
+                    }
+
+                    if (!frontLiftLowered.get() && !backLiftLowered.get()) {
                         System.out.println("Auto Moving Forward-----------------------------");
-                        autoClimbState = autoClimb.MoveForward;
+                        climbState = climb.MoveForward;
                     }
                 }
                 break;
 
             case MoveForward:
-                if (!(liftDrive.getSensorPosition() == liftDriveEncodersPerRev * 20)) {
-                    drive.elevatorClimb(liftDriveSpeed, liftDriveEncodersPerRev * 20);
+                if (doManualClimb) {
+                    liftDrive.set(controls.throttle());
+                    base.TeleopMove();
+                    if (controls.retractLiftDrive()) {
+                        System.out.println("Lifting Drive Motor Up-------------------------------------");
+                        climbState = climb.LiftDriveMotorUp;
+                    }
                 } else {
-                    liftDrive.set(0);
-                    System.out.println("Auto Lifting The Drive Motor Up");
-                    autoClimbState = autoClimb.LiftDriveMotorUp;
+                    // if (Math.abs(liftDrive.getSensorPosition()) <= liftDriveEncodersPerRev * 20)
+                    // {
+                    if (elevatorDeploy.get()) {
+                        base.elevatorClimb(liftDriveSpeed, liftDriveEncodersPerRev * 20);
+                        liftDrive.set(liftDriveSpeed);
+                        // System.out.println(liftDrive.getSensorPosition());
+                    } else {
+                        liftDrive.set(0);
+                        base.stopMoving();
+                        System.out.println("Auto Lifting The Drive Motor Up");
+                        climbState = climb.LiftDriveMotorUp;
+                        // }
+                    }
                 }
                 break;
 
             case LiftDriveMotorUp:
-                if (!frontLiftRaised.get()) {
+
+                if (frontLiftRaised.get()) {
                     frontLift.set(frontLiftSpeedUp);
                 } else {
-                    System.out.println("Finished");
+                    System.out.println("Moving Forward Again");
                     frontLift.set(0);
+                    climbState = climb.MoveFullyForward;
                 }
+
                 break;
 
-            }
+            case MoveFullyForward:
+                if (doManualClimb) {
+                    base.TeleopMove();
+                    System.out.println("Moving");
+                } else {
+                    // if (Math.abs(base.platformEncoderLeft()) <= driveEncodersPerRev) {
+                    if (elevatorDeploy.get()) {
+                        base.elevatorClimb(.3, driveEncodersPerRev);
+                        System.out.println("Moving");
+                    }
 
+                    else {
+                        base.stopMoving();
+                        System.out.println("Finished");
+                        doAutoClimb = false;
+                    }
+                    // }
+
+                }
+                break;
+            }
         }
 
     }
 
-    public boolean raiseElevator() {
+    public void raiseElevator() {
         if (controls.deployElevator()) {
             deploy = true;
         }
 
         if (deploy) {
 
-            if (!backLiftRaised.get()) {
-                backLift.set(backLiftSpeedUp);
+            if (!elevatorDeploy.get()) {
+                elevatorDeployMotor.set(backLiftSpeedUp);
             }
 
-            if (backLiftRaised.get()) {
-                backLift.set(0);
+            else {
+                elevatorDeployMotor.set(0);
                 deploy = false;
-                return true;
             }
         }
-        return false;
 
     }
     public class ElevatorCommand extends Command{
@@ -234,4 +271,11 @@ public class Elevator {
     
         }
     }
+
+
+    public void testLiftDriveEncoder() {
+        System.out.println(liftDrive.getSensorPosition());
+    }
+
+
 }
