@@ -13,6 +13,7 @@ public class Elevator {
     private boolean wasAutoButtonPressed = false;
     private boolean doManualClimb = false;
     private boolean wasManualButtonPressed = false;
+    private boolean isStallCurrentActive = false;
 
     private DriverIF controls;
     private DriveBase base;
@@ -233,28 +234,35 @@ public class Elevator {
     }
 
     public void raiseElevator() {
+        SmartDashboard.putNumber("Elevator Deploy Current", elevatorDeployMotor.getMotorCurrent());
+        SmartDashboard.putBoolean("Stall Current Activity", isStallCurrentActive);
         // if (controls.deployElevator()) {
-        //     deploy = true;
+        // deploy = true;
         // }
 
         if (controls.deployElevator()) {
 
-            if (!elevatorDeploy.get()) {
-                elevatorDeployMotor.set(-0.2);
-            }
-            
+            if (elevatorDeployMotor.getMotorCurrent() >= 3.5) {
+                isStallCurrentActive = true;
 
-            else {
-                elevatorDeployMotor.set(0);
+            }
+
+            if (isStallCurrentActive) {
+                elevatorDeployMotor.set(0.15);
                 // deploy = false;
             }
 
-            if(backLiftRaised.get()){
+            else{
+                // if (!elevatorDeploy.get()) {
+                elevatorDeployMotor.set(0.2);
+            }
+
+
+            if (backLiftRaised.get()) {
+                backLift.set(0.2);
+            } else {
                 backLift.set(0);
             }
-        }
-        else{
-            elevatorDeployMotor.set(0);
         }
 
     }
