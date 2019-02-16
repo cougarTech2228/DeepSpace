@@ -111,7 +111,6 @@ public class Elevator {
 
         // -----------------------------AUTOCLIMB
         // CODE---------------------------------------------------------
-
         if (controls.autoClimb() && wasAutoButtonPressed == false) {
             if (doAutoClimb == true) {
                 doAutoClimb = false;

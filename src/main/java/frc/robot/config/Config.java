@@ -2,18 +2,18 @@ package frc.robot.config;
 
 public abstract class Config {
     
-    public double leftF = 0;
-    public double leftP = 0;
-    public double leftI = 0;
-    public double leftD = 0;
-    public int leftIzone = 0;
+    public double leftF;
+    public double leftP;
+    public double leftI;
+    public double leftD;
+    public int leftIzone;
 
-    public double rightF = 0;
-    public double rightP = 0;
-    public double rightI = 0;
-    public double rightD = 0;
-    public int rightIzone = 0;
+    public double rightF;
+    public double rightP;
+    public double rightI;
+    public double rightD;
+    public int rightIzone;
 
-    public double rightCountsPerInch = 0;
-    public double leftCountsPerInch = 0;
+    public double rightCountsPerInch;
+    public double leftCountsPerInch;
 }
