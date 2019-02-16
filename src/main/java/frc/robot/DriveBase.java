@@ -1,10 +1,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
-import edu.wpi.first.wpilibj.buttons.Button;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import jdk.jfr.Threshold;
 
 public class DriveBase {
 
@@ -19,6 +17,7 @@ public class DriveBase {
 	private double strafeSpeedPercentage = 1;
 	private double turnSpeedPercentage = 0.5;
 	private Pigeon pidgey;
+	private boolean zeroPigeon;
 
 	private DriveType mode;
 
@@ -31,6 +30,7 @@ public class DriveBase {
 		this.navx = navx;
 		this.mode = mode;
 		this.pidgey = pidgey;
+		zeroPigeon = false;
 
 		rightFront = new Motor(RobotMap.RIGHT_FRONT);
 		leftFront = new Motor(RobotMap.LEFT_FRONT);
@@ -64,8 +64,9 @@ public class DriveBase {
 	}
 
 	public void teleopInit() {
-		//rightFront.teleopInit();
-		//leftFront.teleopInit();
+		rightFront.teleopInit();
+		leftFront.teleopInit();
+		/*
 		int maxRightVel = 272;
 		int maxLeftVel = 253;
 
@@ -104,7 +105,7 @@ public class DriveBase {
 		if (mode == DriveType.Mecanum) {
 			rightBack.teleopInit();
 			leftBack.teleopInit();
-		}
+		}*/
 	}
 
 	public void autoInit() {
@@ -184,10 +185,30 @@ public class DriveBase {
 
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
+
+			if(Turn == 0) {
+				/*
+				//untested
+				double rightE = rightFront.getSensorPosition();
+				double leftE = leftFront.getSensorPosition();
+
+				double avg = (rightE + leftE) / 2;
+
+				double rightD = rightE - avg;
+				double leftD = leftE - avg;
+
+				double rightP = rightD / 50;
+				double leftP = leftD / 50;
+
+				RightF -= rightP;
+				LeftF -= leftP;*/
+			}
+
+			//double angle = pidgey.getYaw();
 			// System.out.println("RightF" + RightF);
 			// System.out.println("LeftF" + LeftF);
-			rightFront.setSpeed(RightF);
-			leftFront.setSpeed(LeftF);
+			rightFront.set(RightF);
+			leftFront.set(LeftF);
 		} else if (mode == DriveType.Mecanum) {
 
 			double Strafe = controls.strafe();
@@ -325,8 +346,8 @@ public class DriveBase {
 
 			System.out.println("angle: " + angle);
 
-			//speedRight *= (45 + angle) / 45.0;
-			//speedLeft *= (45 - angle) / 45.0;
+			speedRight *= (45 + angle) / 45.0;
+			speedLeft *= (45 - angle) / 45.0;
 
 			if(percentComplete > 0.95) {
 				leftRunning = false;
