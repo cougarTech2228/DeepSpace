@@ -38,7 +38,7 @@ public class Hatch {
     private boolean zeroed = false;
     private Toggler autoToggle;
     private int autotestingtemp = 0;
-    private CommandGroup autoDeployGroup;
+    private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -59,20 +59,6 @@ public class Hatch {
         autoToggle = new Toggler(2, true);
         int count = 0;
 
-        // autoAlignButton = new Button() {
-        //     @Override
-        //     public boolean get() {
-        //         return autoToggle.state == 1;
-        //     }
-        // };
-        // autoAlignKill = new Button() {
-        //     @Override
-        //     public boolean get() {
-        //         return autoToggle.state == 0;
-        //     }
-        // };
-        // autoAlignButton.whenPressed(this.autoDeployGroup);
-        // autoAlignKill.cancelWhenPressed(this.autoDeployGroup);
     }
 
     public void extend() {
@@ -152,6 +138,7 @@ public class Hatch {
             this.addSequential(new HatchMove());
             this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
             this.addSequential(new HatchDeploy(.1));
+            this.addSequential(dBase.driveToInch(-3, 0.4));
         }
 
         @Override
@@ -258,7 +245,7 @@ public class Hatch {
         private boolean finished = false;
 
         public HatchMove() {
-            System.out.println("COnstructing a hatchMove");
+            System.out.println("Constructing a hatchMove");
         }
 
         @Override
