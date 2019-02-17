@@ -45,7 +45,7 @@ public class Hatch {
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
-        tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
+        // tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
         strafe = new Motor(RobotMap.ORIENTATION_MOTOR_1);
         strafe.setBrakeMode(true);
         compressor = new Compressor(RobotMap.PCM);
@@ -63,14 +63,15 @@ public class Hatch {
         autoToggle = new Toggler(2, true);
 
     }
+
     /**
-     * Method called in teleop of Robot, runs the hatch mechanism through controller input
+     * Method called in teleop of Robot, runs the hatch mechanism through controller
+     * input
      */
 
     public void extend() {
         left.set(true);
         right.set(true);
-
     }
 
     public void retract() {
@@ -93,17 +94,30 @@ public class Hatch {
             retract();
             // tilt.set(false);
         }
-        if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
-            System.out.println("Starting auto hatch alignment from button press");
-            hatchMove.start();
-        } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
-            hatchMove.cancel();
+        if (controls.autoAlign()) {
+            if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
+                double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
+                        - horzOffToIn.getDouble(DEFAULT_VALUE));
+                if ((offset < 6 && offset > 0) && targState.getDouble(DEFAULT_VALUE) == 2) {
+                    System.out.println("Starting auto hatch alignment from button press");
+                    hatchMove.start();
+                } else {
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("offset too great");
+                    } else {
+                        System.out.println("Not locked");
+                    }
+                }
+            } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
+                hatchMove.cancel();
+            }
         }
         hatchStrafe();
 
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
     }
+
     /**
      * Method called during testPeriodic, runs hatch mechanism in test
      */
@@ -116,6 +130,7 @@ public class Hatch {
             strafe.setEncoderToZero();
         }
     }
+
     /**
      * 
      */
@@ -360,7 +375,8 @@ public class Hatch {
     public HatchMove getHatchMove(double inchesToMove) {
         return new HatchMove();
     }
-    public AutoDeploy getAutoDeploy(){
+
+    public AutoDeploy getAutoDeploy() {
         return new AutoDeploy();
     }
 

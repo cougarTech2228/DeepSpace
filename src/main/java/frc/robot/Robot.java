@@ -9,6 +9,8 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
+import edu.wpi.cscore.CameraServerJNI;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Relay.Direction;
@@ -65,6 +67,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
     visionRelay.set(Relay.Value.kForward);
+    CameraServer.getInstance().startAutomaticCapture();
   }
 
   @Override
