@@ -319,6 +319,11 @@ public class DriveBase {
 		return new MoveToInches(targetEncoderInches, speed);
 	}
 
+	public void moveDriveBaseElevator(){
+		rightFront.set(.2);
+		leftFront.set(.2);
+	}
+
 	public class MoveToInches extends CommandGroup {
 		private double equationConstant;
 		private double maxSpeed;
@@ -334,6 +339,8 @@ public class DriveBase {
 			this.targetEncoderCount = targetEncoderInches * countsPerInch;
 			
 		}
+
+		
 
 		protected void initialize() {
 			System.out.println("Setting encoders to zero");

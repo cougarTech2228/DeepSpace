@@ -4,6 +4,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
@@ -17,7 +18,7 @@ public class Elevator {
     private DriverIF controls;
     private DriveBase base;
 
-    private SerialDataHandler arduino = new SerialDataHandler();
+    private SerialDataHandler serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 
     // Lift Drive encoder math
     private double circumference = 4 * Math.PI;
@@ -59,6 +60,8 @@ public class Elevator {
     private double closedLoopSpeed = 0;
 
     private double startTime;
+    private double distance1ToTheWall;
+    private double distance2ToTheWall;
 
     private int encoderCount = 0;
 
@@ -138,7 +141,6 @@ public class Elevator {
             switch (climbState) {
 
             case PullRobotUp:
-                if (doManualClimb) {
                     if (frontLiftLowered.get()) {
                         frontLift.set(frontLiftSpeedDown);
                         System.out.println("Lowering Front");
@@ -151,28 +153,13 @@ public class Elevator {
                         backLift.set(0);
                     }
 
-                    if (!frontLiftLowered.get() && (Timer.getFPGATimestamp() - startTime == 5)) {
+                    if (!frontLiftLowered.get() && (Timer.getFPGATimestamp() - startTime >= 5)) {
+                        // distance1ToTheWall = sensor1InInches();
+                        // distance2ToTheWall = sensor2InInches();
                         climbState = climb.MoveForward;
                         System.out.println("Moving Forward");
                     }
-                } else {
-                    if (frontLiftLowered.get()) {
-                        frontLift.set(frontLiftSpeedDown);
-                    } else {
-                        frontLift.set(0);
-                    }
-
-                    if (backLiftLowered.get()) {
-                        backLift.set(-backLiftSpeedDown);
-                    } else {
-                        backLift.set(0);
-                    }
-
-                    if (!frontLiftLowered.get() && !backLiftLowered.get()) {
-                        System.out.println("Auto Moving Forward-----------------------------");
-                        climbState = climb.MoveForward;
-                    }
-                }
+                
                 break;
 
             case MoveForward:
@@ -186,10 +173,9 @@ public class Elevator {
                 } else {
                     // if (Math.abs(liftDrive.getSensorPosition()) <= liftDriveEncodersPerRev * 20)
                     // {
-                    if (elevatorDeploy.get()) {
-                        base.elevatorClimb(liftDriveSpeed, liftDriveEncodersPerRev * 20);
-                        liftDrive.set(liftDriveSpeed);
-                        // System.out.println(liftDrive.getSensorPosition());
+                    if ((distance1ToTheWall - sensor1InInches() < 20) || (distance2ToTheWall - sensor2InInches() < 20)) {
+                        liftDrive.set(.2);
+                        base.moveDriveBaseElevator();
                     } else {
                         liftDrive.set(0);
                         base.stopMoving();
@@ -207,6 +193,8 @@ public class Elevator {
                 } else {
                     System.out.println("Moving Forward Again");
                     frontLift.set(0);
+                    // distance1ToTheWall = sensor1InInches();
+                    // distance2ToTheWall = sensor2InInches();
                     climbState = climb.MoveFullyForward;
                 }
 
@@ -299,6 +287,14 @@ public class Elevator {
 
     public void testLiftDriveEncoder() {
         System.out.println(liftDrive.getSensorPosition());
+    }
+
+    private double sensor1InInches(){
+        return serial.getSensor1Data() * mmToIn;
+    }
+
+    private double sensor2InInches(){
+        return serial.getSensor2Data() * mmToIn;
     }
 
 }

@@ -103,22 +103,22 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    if (controller.relayTest()) {
-      visionRelay.set(Relay.Value.kOn);
-    } else {
-      visionRelay.set(Relay.Value.kOff);
-    }
+    // if (controller.relayTest()) {
+    //   visionRelay.set(Relay.Value.kOn);
+    // } else {
+    //   visionRelay.set(Relay.Value.kOff);
+    // }
 
-    base.TeleopMove();
+    // base.TeleopMove();
     elevator.teleopRaise();
-    hatch.teleop();
-    
-    for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
-      Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
-    }
+    // hatch.teleop();
 
-    serialDataHandler.readPort();
-    Schedulers.PeriodicTasks.process();
+    // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
+    //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    // }
+
+    // serialDataHandler.readPort();
+    // Schedulers.PeriodicTasks.process();
   }
 
   @Override
