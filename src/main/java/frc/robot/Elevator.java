@@ -2,6 +2,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -57,6 +58,8 @@ public class Elevator {
 
     private double closedLoopSpeed = 0;
 
+    private double startTime;
+
     private int encoderCount = 0;
 
     private autoClimb autoClimbState = autoClimb.PullRobotUp;
@@ -94,7 +97,7 @@ public class Elevator {
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
 
         raiseElevator();
-        /*
+
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
@@ -102,6 +105,7 @@ public class Elevator {
             } else {
                 doManualClimb = true;
                 doAutoClimb = false;
+                startTime = Timer.getFPGATimestamp();
                 System.out.println("Climbing Up----------------------------------------");
                 manualClimbState = manualClimb.PullRobotUp;
             }
@@ -119,6 +123,7 @@ public class Elevator {
             } else {
                 doAutoClimb = true;
                 doManualClimb = false;
+                startTime = Timer.getFPGATimestamp();
                 System.out.println("Auto Climbing Up----------------------------------------");
                 autoClimbState = autoClimb.PullRobotUp;
             }
@@ -126,6 +131,8 @@ public class Elevator {
         } else if (!controls.autoClimb()) {
             wasAutoButtonPressed = false;
         }
+
+        // Climbing State Machine
 
         if (doAutoClimb || doManualClimb) {
             switch (climbState) {
@@ -138,13 +145,13 @@ public class Elevator {
                     } else {
                         frontLift.set(0);
                     }
-                    if (backLiftLowered.get()) {
+                    if (Timer.getFPGATimestamp() - startTime == 5) {
                         backLift.set(backLiftSpeedDown);
                     } else {
                         backLift.set(0);
                     }
 
-                    if (!frontLiftLowered.get() && !backLiftLowered.get()) {
+                    if (!frontLiftLowered.get() && (Timer.getFPGATimestamp() - startTime == 5)) {
                         climbState = climb.MoveForward;
                         System.out.println("Moving Forward");
                     }
@@ -226,7 +233,7 @@ public class Elevator {
                 }
                 break;
             }
-        }*/
+        }
 
     }
 

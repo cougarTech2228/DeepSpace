@@ -8,7 +8,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
+import edu.wpi.first.wpilibj.TimedRobot;
+import com.ctre.phoenix.ILoopable;
+import frc.robot.LEDUtilities.*;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Relay.Direction;
@@ -19,6 +21,8 @@ import edu.wpi.first.wpilibj.shuffleboard.*;
 import edu.wpi.first.wpilibj.Relay;
 import frc.robot.DriveBase.DriveType;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.SerialPort;
+import com.ctre.phoenix.schedulers.ConcurrentScheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -40,12 +44,14 @@ public class Robot extends TimedRobot {
   private Hatch hatch = new Hatch(controller, base);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
-  // private Hatch hatch = new Hatch(controller, base);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
+      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 
   private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
 
   @Override
   public void robotInit() {
@@ -65,6 +71,13 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
     visionRelay.set(Relay.Value.kForward);
+    // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    // m_chooser.addOption("My Auto", kCustomAuto);
+    // SmartDashboard.putData("Auto choices", m_chooser);
+    // auto.start();
+    // visionRelay.set(Relay.Value.kForward);
+
+    Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -82,7 +95,6 @@ public class Robot extends TimedRobot {
     // auto.run();
   }
 
- 
   @Override
   public void teleopInit() {
     hatch.teleopInit();
@@ -100,7 +112,13 @@ public class Robot extends TimedRobot {
     base.TeleopMove();
     elevator.teleopRaise();
     hatch.teleop();
+    
+    for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
+      Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    }
 
+    serialDataHandler.readPort();
+    Schedulers.PeriodicTasks.process();
   }
 
   @Override
