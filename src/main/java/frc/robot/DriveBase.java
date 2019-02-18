@@ -202,8 +202,8 @@ public class DriveBase {
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
 
-			System.out.println("rightF " + RightF);
-			System.out.println("leftF " + LeftF);
+			//System.out.println("rightF " + RightF);
+			//System.out.println("leftF " + LeftF);
 			/*
 			 * if(Turn == 0) {
 			 * 

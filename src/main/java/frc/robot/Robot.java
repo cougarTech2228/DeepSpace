@@ -109,10 +109,10 @@ public class Robot extends TimedRobot {
     // } else {
     //   visionRelay.set(Relay.Value.kOff);
     // }
-    System.out.println("pidgey: " + pigeon.getYaw());
+    //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
-    //hatch.teleop();
+    hatch.teleop();
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
