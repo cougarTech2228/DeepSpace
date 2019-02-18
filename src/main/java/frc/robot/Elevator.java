@@ -4,11 +4,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
-<<<<<<< HEAD
 import edu.wpi.first.wpilibj.command.CommandGroup;
-=======
 import edu.wpi.first.wpilibj.SerialPort;
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
@@ -96,7 +93,6 @@ public class Elevator {
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
         elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
-<<<<<<< HEAD
         SmartDashboard.putData("lift front", liftElevator(0.5, 0.0));
         SmartDashboard.putData("lower front", liftElevator(-0.5, 0.0));
         SmartDashboard.putData("lift back", liftElevator(0, 0.5));
@@ -108,15 +104,6 @@ public class Elevator {
         SmartDashboard.putData("drive elevator", driveElevator(10, 0.2));
         SmartDashboard.putData("deploy elevator", deployElevator(true));
         SmartDashboard.putData("retract elevator", deployElevator(false));
-=======
-
-        frontLift.invert(true);
-
-        frontLift.setBrakeMode(true);
-        backLift.setBrakeMode(true);
-        liftDrive.setBrakeMode(true);
-        elevatorDeployMotor.setBrakeMode(true);
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
     }
 
 
@@ -129,11 +116,8 @@ public class Elevator {
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
 
         raiseElevator();
-<<<<<<< HEAD
         
-=======
 
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
@@ -447,12 +431,9 @@ public class Elevator {
             return complete;
         }
         @Override
-        public void end() {
-
-<<<<<<< HEAD
-        }
+        public void end() {}
     }
-=======
+
     private double sensor1InInches() {
         return serial.getSensor1Data() * mmToIn;
     }
@@ -461,5 +442,4 @@ public class Elevator {
         return serial.getSensor2Data() * mmToIn;
     }
 
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
 }

@@ -109,15 +109,9 @@ public class Robot extends TimedRobot {
     //   visionRelay.set(Relay.Value.kOff);
     // }
 
-<<<<<<< HEAD
     base.TeleopMove();
     //elevator.teleopRaise();
     hatch.teleop();
-=======
-    // base.TeleopMove();
-    elevator.teleopRaise();
-    // hatch.teleop();
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
@@ -130,18 +124,11 @@ public class Robot extends TimedRobot {
   @Override
   public void testInit() {
     hatch.teleopInit();
-<<<<<<< HEAD
-=======
     base.autoInit();
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
   }
 
   @Override
   public void testPeriodic() {
-<<<<<<< HEAD
-    //hatch.teleopInit();
-=======
->>>>>>> 472bbda21d1af78585c0a7fbef5f7ed13dfb7201
   }
 
 }
