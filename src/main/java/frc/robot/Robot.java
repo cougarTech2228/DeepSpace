@@ -123,12 +123,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    hatch.teleopInit();
     base.autoInit();
   }
 
   @Override
   public void testPeriodic() {
-    hatch.teleopInit();
   }
 
 }

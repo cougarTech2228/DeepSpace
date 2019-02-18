@@ -18,7 +18,8 @@ public class Elevator {
     private DriverIF controls;
     private DriveBase base;
 
-    private SerialDataHandler serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+    private SerialDataHandler serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
+            SerialPort.StopBits.kOne);
 
     // Lift Drive encoder math
     private double circumference = 4 * Math.PI;
@@ -52,7 +53,7 @@ public class Elevator {
     private DigitalInput elevatorDeploy = new DigitalInput(RobotMap.DIGITAL_INPUT_6);
 
     private double frontLiftSpeedUp = 0.5;
-    private double frontLiftSpeedDown = -0.4;
+    private double frontLiftSpeedDown = -0.5;
     private double backLiftSpeedUp = 0.5;
     private double backLiftSpeedDown = -0.4;
     private double liftDriveSpeed = 0.2;
@@ -80,7 +81,7 @@ public class Elevator {
     private climb climbState = climb.PullRobotUp;
 
     private enum climb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
+        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward, Error
     }
 
     public Elevator(DriveBase driver, DriverIF controls) {
@@ -90,6 +91,13 @@ public class Elevator {
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
         elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
+
+        frontLift.invert(true);
+
+        frontLift.setBrakeMode(true);
+        backLift.setBrakeMode(true);
+        liftDrive.setBrakeMode(true);
+        elevatorDeployMotor.setBrakeMode(true);
     }
 
     public void teleopRaise() {
@@ -141,30 +149,41 @@ public class Elevator {
             switch (climbState) {
 
             case PullRobotUp:
-                    if (frontLiftLowered.get()) {
-                        frontLift.set(frontLiftSpeedDown);
-                        System.out.println("Lowering Front");
-                    } else {
-                        frontLift.set(0);
-                    }
-                    if (Timer.getFPGATimestamp() - startTime == 5) {
-                        backLift.set(backLiftSpeedDown);
-                    } else {
-                        backLift.set(0);
-                    }
+                elevatorDeployMotor.set(0);
 
-                    if (!frontLiftLowered.get() && (Timer.getFPGATimestamp() - startTime >= 5)) {
-                        // distance1ToTheWall = sensor1InInches();
-                        // distance2ToTheWall = sensor2InInches();
-                        climbState = climb.MoveForward;
-                        System.out.println("Moving Forward");
-                    }
-                
+                if (frontLiftLowered.get()) {
+                    frontLift.set(frontLiftSpeedDown);
+                    System.out.println("Lowering Front");
+                } else {
+                    frontLift.set(0);
+                    System.out.println("frontlift.set(0)");
+                }
+
+                if (backLiftLowered.get()) {
+                    backLift.set(backLiftSpeedDown);
+                    System.out.println("Lowering Back");
+                } else {
+                    backLift.set(0);
+                    System.out.println("backlift.set(0)");
+                }
+
+                if (!frontLiftLowered.get() && !backLiftLowered.get()) {
+                    // distance1ToTheWall = sensor1InInches();
+                    // distance2ToTheWall = sensor2InInches();
+                    climbState = climb.MoveForward;
+                    System.out.println("Moving Forward");
+                } else if (Timer.getFPGATimestamp() - startTime >= 5.0) {
+                    frontLift.set(0);
+                    backLift.set(0);
+                    System.out.println("Timeout");
+                    climbState = climb.Error;
+                }
+
                 break;
 
             case MoveForward:
                 if (doManualClimb) {
-                    liftDrive.set(-controls.throttle());
+                    liftDrive.set(-controls.throttle() * 0.25);
                     base.TeleopMove();
                     if (controls.retractLiftDrive()) {
                         System.out.println("Lifting Drive Motor Up-------------------------------------");
@@ -173,7 +192,8 @@ public class Elevator {
                 } else {
                     // if (Math.abs(liftDrive.getSensorPosition()) <= liftDriveEncodersPerRev * 20)
                     // {
-                    if ((distance1ToTheWall - sensor1InInches() < 20) || (distance2ToTheWall - sensor2InInches() < 20)) {
+                    if ((distance1ToTheWall - sensor1InInches() < 20)
+                            || (distance2ToTheWall - sensor2InInches() < 20)) {
                         liftDrive.set(.2);
                         base.moveDriveBaseElevator();
                     } else {
@@ -220,6 +240,10 @@ public class Elevator {
 
                 }
                 break;
+
+            case Error:
+
+                break;
             }
         }
 
@@ -228,11 +252,15 @@ public class Elevator {
     public void raiseElevator() {
         SmartDashboard.putNumber("Elevator Deploy Current", elevatorDeployMotor.getMotorCurrent());
         SmartDashboard.putBoolean("Stall Current Activity", isStallCurrentActive);
-        // if (controls.deployElevator()) {
-        // deploy = true;
-        // }
+        SmartDashboard.putNumber("Back Elevator Current", backLift.getMotorCurrent());
 
-        if (controls.deployElevator()) {
+        if (controls.deployElevator() && !deploy) {
+            deploy = true;
+        } else if (controls.deployElevator() && deploy) {
+            deploy = false;
+        }
+
+        if (deploy) {
 
             if (elevatorDeployMotor.getMotorCurrent() >= 3.5) {
                 isStallCurrentActive = true;
@@ -242,18 +270,25 @@ public class Elevator {
             if (isStallCurrentActive) {
                 elevatorDeployMotor.set(0.15);
                 // deploy = false;
+                System.out.println("Stall Current is on");
             }
 
             else {
                 // if (!elevatorDeploy.get()) {
-                elevatorDeployMotor.set(0.2);
+                elevatorDeployMotor.set(0.3);
+                System.out.println("Stall Current is off");
             }
 
             if (backLiftRaised.get()) {
-                backLift.set(0.2);
+                backLift.set(0.4);
             } else {
                 backLift.set(0);
             }
+
+            if (!backLiftRaised.get() && isStallCurrentActive) {
+                deploy = false;
+            }
+
         }
 
     }
@@ -289,11 +324,11 @@ public class Elevator {
         System.out.println(liftDrive.getSensorPosition());
     }
 
-    private double sensor1InInches(){
+    private double sensor1InInches() {
         return serial.getSensor1Data() * mmToIn;
     }
 
-    private double sensor2InInches(){
+    private double sensor2InInches() {
         return serial.getSensor2Data() * mmToIn;
     }
 
