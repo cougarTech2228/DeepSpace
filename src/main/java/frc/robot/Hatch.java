@@ -41,6 +41,8 @@ public class Hatch {
     private int autotestingtemp = 0;
     private AutoDeploy autoDeployGroup;
     private HatchMove hatchMove;
+    private boolean solenoidExtended = false;
+    private Home home;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -60,6 +62,7 @@ public class Hatch {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
         hatchMove = new HatchMove();
+        home = new Home();
         autoToggle = new Toggler(2, true);
 
     }
@@ -87,31 +90,44 @@ public class Hatch {
     public void teleop() {
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
-        if (controls.hatchExtend()) {
-            // tilt.set(true);
+        if (controls.hatchExtend() && solenoidExtended == false) {
+            solenoidExtended = true;
             extend();
-        } else if (controls.hatchRetract()) {
+        } else if (controls.hatchExtend() && solenoidExtended == true) {
+
+        } else if (!controls.hatchExtend() && solenoidExtended == true) {
+            solenoidExtended = false;
             retract();
-            // tilt.set(false);
         }
+
         if (controls.autoAlign()) {
-            if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
-                double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
-                        - horzOffToIn.getDouble(DEFAULT_VALUE));
-                if ((offset < 6 && offset > 0) && targState.getDouble(DEFAULT_VALUE) == 2) {
-                    System.out.println("Starting auto hatch alignment from button press");
-                    hatchMove.start();
-                } else {
-                    if (!(offset < 6 && offset > 0)) {
-                        System.out.println("offset too great");
-                    } else {
-                        System.out.println("Not locked");
-                    }
-                }
-            } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
-                hatchMove.cancel();
+            if (autoToggle.state == 1 && !home.isRunning()) {
+                System.out.println("Startin the home command");
+                home.start();
+            } else if (autoToggle.state == 0 && home.isRunning()) {
+                System.out.println("Canceling the auto command");
+                home.cancel();
             }
         }
+        // commented because we BORKED our pi :,(
+        // if (controls.autoAlign()) {
+        // if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
+        // // double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
+        // // - horzOffToIn.getDouble(DEFAULT_VALUE));
+        // // if ((offset < 6 && offset > 0) && targState.getDouble(DEFAULT_VALUE) == 2) {
+        // System.out.println("Starting auto hatch alignment from button press");
+        // hatchMove.start();
+        // } else {
+        // // if (!(offset < 6 && offset > 0)) {
+        // // System.out.println("offset too great");
+        // // } else {
+        // // System.out.println("Not locked");
+        // // }
+        // // }
+        // } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
+        // hatchMove.cancel();
+        // }
+        // }
         hatchStrafe();
 
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
@@ -236,10 +252,11 @@ public class Hatch {
 
         @Override
         protected void execute() {
-            System.out.println("Homing" + strafe.getSensorPosition());
+            System.out.println("Homing: " + strafe.getSensorPosition());
             if (!homing) {
                 homing = true;
                 strafe.set(STRAFE_SPEED);
+
             } else if (!rightSwitch.get() && !zeroed) {
                 System.out.println("At right boundary");
                 zeroed = true;
@@ -259,7 +276,6 @@ public class Hatch {
                 strafe.set(0);
                 complete = true;
             }
-            System.out.println("Hatch mtr: " + strafe.getSensorPosition());
         }
 
         @Override

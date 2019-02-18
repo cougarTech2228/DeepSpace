@@ -18,7 +18,7 @@ public class Motor {
 	private int timeout = 10;
 	private boolean invertMotor = false;
 	private boolean invertEncoder = false;
-	private boolean closeLoopEnabled = true;
+	private boolean closeLoopEnabled = false;
 	private int stallAmpsMax = 100;
 	private int stallAmpsAim = 10;
 	private int maxStallTime = 6000;
