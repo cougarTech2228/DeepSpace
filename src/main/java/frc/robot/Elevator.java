@@ -55,7 +55,7 @@ public class Elevator {
     private double frontLiftSpeedUp = 0.5;
     private double frontLiftSpeedDown = -0.5;
     private double backLiftSpeedUp = 0.5;
-    private double backLiftSpeedDown = -0.4;
+    private double backLiftSpeedDown = -0.5;
     private double liftDriveSpeed = 0.2;
 
     private double closedLoopSpeed = 0;
@@ -172,7 +172,7 @@ public class Elevator {
                     // distance2ToTheWall = sensor2InInches();
                     climbState = climb.MoveForward;
                     System.out.println("Moving Forward");
-                } else if (Timer.getFPGATimestamp() - startTime >= 5.0) {
+                } else if (Timer.getFPGATimestamp() - startTime >= 10.0) {
                     frontLift.set(0);
                     backLift.set(0);
                     System.out.println("Timeout");
