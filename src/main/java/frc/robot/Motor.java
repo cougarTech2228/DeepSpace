@@ -253,7 +253,8 @@ public class Motor {
 				running = false;
 				speed = maxSpeed < 0 ? 0.2 : -0.2;
 			}
-			setSpeed(speed);
+			//setSpeed(speed);
+			set(speed);
 		}
 		private double calcSpeed(double value) {
 			double speed = -(Math.abs(2 * value - target + equationConstant) - target + equationConstant) / (2 * slowThreshhold[state]);

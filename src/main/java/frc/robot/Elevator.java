@@ -3,6 +3,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
@@ -80,12 +81,26 @@ public class Elevator {
     public Elevator(DriveBase driver, DriverIF controls) {
         base = driver;
         frontLift = new Motor(RobotMap.ACTION_MOTOR_1);
+        frontLift.invert(true);
         backLift = new Motor(RobotMap.ACTION_MOTOR_2);
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
         elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
+        SmartDashboard.putData("lift front", liftElevator(0.5, 0.0));
+        SmartDashboard.putData("lower front", liftElevator(-0.5, 0.0));
+        SmartDashboard.putData("lift back", liftElevator(0, 0.5));
+        SmartDashboard.putData("lower back", liftElevator(0, -0.5));
+
+        SmartDashboard.putData("raise bot", liftElevator(0.5, 0.5));
+
+        SmartDashboard.putData("drive robot", base.driveToInch(8, 0.4));
+        SmartDashboard.putData("drive elevator", driveElevator(10, 0.2));
+        SmartDashboard.putData("deploy elevator", deployElevator(true));
+        SmartDashboard.putData("retract elevator", deployElevator(false));
     }
 
+
+    /*
     public void teleopRaise() {
         SmartDashboard.putBoolean("Front Raised", frontLiftRaised.get());
         SmartDashboard.putBoolean("Front Lowered", frontLiftLowered.get());
@@ -94,7 +109,7 @@ public class Elevator {
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
 
         raiseElevator();
-        /*
+        
         if (controls.manualClimb() && wasManualButtonPressed == false) {
             if (doManualClimb == true) {
                 doManualClimb = false;
@@ -226,7 +241,7 @@ public class Elevator {
                 }
                 break;
             }
-        }*/
+        }
 
     }
 
@@ -293,6 +308,108 @@ public class Elevator {
 
     public void testLiftDriveEncoder() {
         System.out.println(liftDrive.getSensorPosition());
+    }//*/
+    public ElevatorGroup elevatorGroup() {
+        return elevatorGroup();
     }
+    public class ElevatorGroup extends CommandGroup {
+        public ElevatorGroup() {
+            this.addSequential(deployElevator(true), 3.0);
+            this.addSequential(liftElevator(0.5, 0), 4.5);
+            this.addSequential(base.driveToInch(20, 0.2), 8.0);
+            this.addSequential(liftElevator(-0.5, -0.5), 6.0);
+            this.addSequential(driveElevator(20, 0.2), 5.0);
+            this.addSequential(liftElevator(0, 0.5), 5.0);
+            this.addSequential(base.driveToInch(20, 0.2), 8.0);
 
+        }
+    }
+    public DriveElevator driveElevator(double inches, double speed) {
+        return new DriveElevator(inches, speed);
+    }
+    public class DriveElevator extends CommandGroup {
+        public DriveElevator(double inches, double speed) {
+            this.addSequential(liftDrive.moveToEncoder(35.9 * inches, speed));
+        }
+    }
+    public LiftElevator liftElevator(double speedFront, double speedBack) {
+        return new LiftElevator(speedFront, speedBack);
+    }
+    public class LiftElevator extends Command {
+        double speedFront, speedBack;
+        private boolean frontComplete;
+        private boolean backComplete;
+        private DigitalInput stopSwitchFront;
+        private DigitalInput stopSwitchBack;
+        public LiftElevator(double speedFront, double speedBack) {
+            this.speedBack = speedBack;
+            this.speedFront = speedFront;
+            frontComplete = false;
+            backComplete = false;
+        }
+        @Override
+        public void initialize() {
+            if(speedFront > 0) {stopSwitchFront = frontLiftRaised;}
+            else {stopSwitchFront = frontLiftLowered;}
+            if(speedBack > 0) {stopSwitchBack = backLiftRaised;}
+            else {stopSwitchBack = backLiftLowered;}
+            if(speedFront == 0) frontComplete = true;
+            if(speedBack == 0) backComplete = true;
+        }
+        public void execute() {
+            if(!frontComplete) {
+                if(stopSwitchFront.get()) {
+                    frontComplete = true;
+                    frontLift.set(0);
+                } else {
+                    frontLift.set(speedFront);
+                }
+            }
+            if(!backComplete) {
+                if(stopSwitchBack.get()) {
+                    backComplete = true;
+                    backLift.set(0);
+                } else {
+                    backLift.set(speedBack);
+                }
+            }
+        }
+        @Override
+        protected boolean isFinished() {
+            return frontComplete && backComplete;
+        }
+    }
+    public DeployElevator deployElevator(boolean up) {
+        return new DeployElevator(up);
+    }
+    public class DeployElevator extends Command {
+        private boolean complete = false;
+        private boolean up;
+        public DeployElevator(boolean up) {
+            this.up = up;
+        }
+        public void execute() {
+            if(up) {
+                if(elevatorDeployMotor.getMotorCurrent() >= 3.5) {
+                    complete = true;
+                    elevatorDeployMotor.set(0.15);
+                }
+                else if(!complete) {
+                    elevatorDeployMotor.set(0.3);
+                }
+            }
+            else {
+                complete = true;
+                elevatorDeployMotor.set(0);
+            }
+        }
+        @Override
+        protected boolean isFinished() {
+            return complete;
+        }
+        @Override
+        public void end() {
+
+        }
+    }
 }

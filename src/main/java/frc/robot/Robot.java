@@ -98,19 +98,19 @@ public class Robot extends TimedRobot {
     }
 
     base.TeleopMove();
-    elevator.teleopRaise();
+    //elevator.teleopRaise();
     hatch.teleop();
 
   }
 
   @Override
   public void testInit() {
-    base.autoInit();
+    hatch.teleopInit();
   }
 
   @Override
   public void testPeriodic() {
-    hatch.teleopInit();
+    //hatch.teleopInit();
   }
 
 }

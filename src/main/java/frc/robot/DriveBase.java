@@ -19,6 +19,8 @@ public class DriveBase {
 	private double maxSpeed = 1;
 	private Pigeon pidgey;
 	private boolean zeroPigeon;
+	private double throttleAccel;
+	private double turnAccel;
 
 	private DriveType mode;
 
@@ -32,6 +34,8 @@ public class DriveBase {
 		this.mode = mode;
 		this.pidgey = pidgey;
 		zeroPigeon = false;
+		throttleAccel = 0;
+		turnAccel = 0;
 
 		rightFront = new Motor(RobotMap.RIGHT_FRONT);
 		leftFront = new Motor(RobotMap.LEFT_FRONT);
@@ -176,6 +180,29 @@ public class DriveBase {
 		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
 
+		double SpeedAfter1Sec = 0.75;
+		double num = SpeedAfter1Sec / 50;
+
+		boolean positive = Forward > 0;
+		/*
+		if(!positive) {
+			Forward = -Forward;
+			throttleAccel = -throttleAccel;
+		}
+
+		if(throttleAccel < Forward)
+			throttleAccel += num;
+		if(throttleAccel > Forward) {
+			throttleAccel -= 3 * num;
+		}
+
+		if(!positive) {
+			Forward = -Forward;
+			throttleAccel = -throttleAccel;
+		}
+		Forward = throttleAccel;
+		//*/
+
 		Forward = zeroLimit(Forward);
 		Turn = zeroLimit(Turn);
 
@@ -186,13 +213,14 @@ public class DriveBase {
 
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
-
+			/*
 			if(Turn == 0) {
-				/*
+				
 				//untested
 				double rightE = rightFront.getSensorPosition();
 				double leftE = leftFront.getSensorPosition();
 
+				System.out.println("rightE " + rightE + " leftE " + leftE);
 				double avg = (rightE + leftE) / 2;
 
 				double rightD = rightE - avg;
@@ -202,8 +230,8 @@ public class DriveBase {
 				double leftP = leftD / 50;
 
 				RightF -= rightP;
-				LeftF -= leftP;*/
-			}
+				LeftF -= leftP;
+			}//*/
 
 			//double angle = pidgey.getYaw();
 			// System.out.println("RightF" + RightF);
@@ -418,9 +446,9 @@ public class DriveBase {
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed, rightBack));
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed, leftBack));
 			} else if (mode == DriveType.Tank) {
-				//this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
-				//this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
-				this.addParallel(moveToInches(24, -0.5));
+				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
+				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
+				//this.addParallel(moveToInches(24, -0.5));
 			}
 		}
 	}

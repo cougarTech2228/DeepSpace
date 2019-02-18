@@ -61,8 +61,10 @@ public class Hatch {
         autoToggle = new Toggler(2, true);
 
     }
+
     /**
-     * Method called in teleop of Robot, runs the hatch mechanism through controller input
+     * Method called in teleop of Robot, runs the hatch mechanism through controller
+     * input
      */
 
     public void extend() {
@@ -78,6 +80,7 @@ public class Hatch {
 
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
+        compressor.setClosedLoopControl(true);
         tilt.set(true);
     }
 
@@ -91,17 +94,20 @@ public class Hatch {
             retract();
             // tilt.set(false);
         }
-        if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
-            System.out.println("Starting auto hatch alignment from button press");
-            autoDeployGroup.start();
-        } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
-            autoDeployGroup.cancel();
+        if (controls.autoAlign()) {
+            if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
+                System.out.println("Starting auto hatch alignment from button press");
+                autoDeployGroup.start();
+            } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
+                autoDeployGroup.cancel();
+            }
         }
         hatchStrafe();
 
         // System.out.println("distTargIn" + distTargIn.getDouble(99));
         // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
     }
+
     /**
      * Method called during testPeriodic, runs hatch mechanism in test
      */
@@ -114,6 +120,7 @@ public class Hatch {
             strafe.setEncoderToZero();
         }
     }
+
     /**
      * 
      */
@@ -358,7 +365,8 @@ public class Hatch {
     public HatchMove getHatchMove(double inchesToMove) {
         return new HatchMove();
     }
-    public AutoDeploy getAutoDeploy(){
+
+    public AutoDeploy getAutoDeploy() {
         return new AutoDeploy();
     }
 
