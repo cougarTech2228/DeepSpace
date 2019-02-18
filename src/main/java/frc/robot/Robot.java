@@ -70,7 +70,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right kD", 10);
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
-    visionRelay.set(Relay.Value.kForward);
+    //visionRelay.set(Relay.Value.kForward);
     // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     // m_chooser.addOption("My Auto", kCustomAuto);
     // SmartDashboard.putData("Auto choices", m_chooser);
