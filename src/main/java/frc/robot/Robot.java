@@ -44,14 +44,14 @@ public class Robot extends TimedRobot {
   private Hatch hatch = new Hatch(controller, base);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
-  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
-      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
+      // SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 
   private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  // private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
 
   @Override
   public void robotInit() {
@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
     // auto.start();
     // visionRelay.set(Relay.Value.kForward);
 
-    Hardware.canifier.configFactoryDefault();
+    // Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -87,37 +87,36 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // auto.start();
+    auto.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    // auto.run();
+    auto.run();
   }
 
   @Override
   public void teleopInit() {
     hatch.teleopInit();
+    //SmartDashboard.putData("Move BOEBOT", base.moveToDistancePigeon());
   }
 
   @Override
   public void teleopPeriodic() {
-
+    //serialDataHandler.readPort();
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
     // } else {
     //   visionRelay.set(Relay.Value.kOff);
     // }
-
+    System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
-    hatch.teleop();
+    //hatch.teleop();
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
-
-    // serialDataHandler.readPort();
     // Schedulers.PeriodicTasks.process();
   }
 
@@ -125,10 +124,12 @@ public class Robot extends TimedRobot {
   public void testInit() {
     hatch.teleopInit();
     base.autoInit();
+    
   }
 
   @Override
   public void testPeriodic() {
+    //System.out.println("pidgey " + pigeon.getYaw());
   }
 
 }
