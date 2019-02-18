@@ -41,11 +41,12 @@ public class Robot extends TimedRobot {
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
-  private Hatch hatch = new Hatch(controller, base);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
+      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private Hatch hatch = new Hatch(controller, base, serialDataHandler);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
-  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
-      // SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private int count;
 
   private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
@@ -103,7 +104,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    //serialDataHandler.readPort();
+    if(count == 5){
+      serialDataHandler.readPort();
+      count = 0;
+    }
+    count++;
+    System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
+    System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
+    
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
     // } else {

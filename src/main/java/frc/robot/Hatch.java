@@ -40,8 +40,9 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private AutoDeploy autoDeployGroup;
+    private SerialDataHandler serialDataHandler;
 
-    public Hatch(DriverIF controls, DriveBase dBase) {
+    public Hatch(DriverIF controls, DriveBase dBase, SerialDataHandler serialDataHandler) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
@@ -57,6 +58,7 @@ public class Hatch {
         targState = visionDataTable.getEntry("targState");
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
+        this.serialDataHandler = serialDataHandler;
         this.autoDeployGroup = new AutoDeploy();
         autoToggle = new Toggler(2, true);
 
@@ -252,73 +254,6 @@ public class Hatch {
             return complete;
         }
     }
-
-    // public class HatchMove extends Command {
-    //     private double inchesToMove;
-    //     private boolean movingHatchMechanism = false;
-    //     private double previousPosition = 0;
-    //     private double movedInches = 0;
-    //     private boolean finished = false;
-
-    //     public HatchMove() {
-    //         System.out.println("Constructing a hatchMove");
-    //     }
-
-    //     @Override
-    //     protected void initialize() {
-    //         System.out.println("Initializing HatchMove");
-    //         this.inchesToMove = horzOffToIn.getDouble(DEFAULT_VALUE);
-    //         this.movingHatchMechanism = false;
-    //         previousPosition = 0;
-    //         movedInches = 0;
-    //         finished = false;
-    //     }
-
-    //     @Override
-    //     protected void execute() {
-    //         // System.out.println("Executing Hatch");
-    //         if (!this.movingHatchMechanism) {
-    //             this.movingHatchMechanism = true;
-    //             this.finished = false;
-    //             this.previousPosition = strafe.getSensorPosition();
-    //             System.out.println("Starting auto alignment");
-    //             System.out.println(distTargIn.getDouble(99));
-    //             System.out.println("Inches away from center: " + inchesToMove);
-    //             if (inchesToMove < 0 && leftSwitch.get()) {
-    //                 strafe.set(-STRAFE_SPEED);
-    //                 System.out.println("moving left");
-    //             } else if (inchesToMove > 0 && rightSwitch.get()) {
-    //                 strafe.set(STRAFE_SPEED);
-    //                 System.out.println("Moving right");
-    //             } else {
-    //                 System.out.println("wut");
-    //             }
-
-    //         } else if (this.movingHatchMechanism) {
-    //             this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
-    //             if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
-    //                 strafe.set(0);
-    //                 this.movedInches = 0;
-    //                 this.movingHatchMechanism = false;
-    //                 this.finished = true;
-    //                 System.out.println("GOT EM");
-    //             } else if (this.movedInches > this.inchesToMove && rightSwitch.get()) {
-    //                 strafe.set(STRAFE_SPEED);
-    //                 System.out.println("moving to the right");
-    //             } else if (this.movedInches < this.inchesToMove && leftSwitch.get()) {
-    //                 strafe.set(-STRAFE_SPEED);
-    //                 System.out.println("moving to the left");
-    //             }
-    //         } else {
-    //             System.out.println("If you see this, something is super borked");
-    //         }
-    //     }
-
-    //     @Override
-    //     protected boolean isFinished() {
-    //         return this.finished;
-    //     }
-    // }
 
     public class HatchMoveREE extends Command {
         private boolean finished = false;

@@ -339,11 +339,14 @@ public class DriveBase {
 		leftFront.set(.2);
 	}
 
-	public MoveToDistancePigeon moveToDistancePigeon() {
-		return new MoveToDistancePigeon();
-	}
+	// public MoveToDistancePigeon moveToDistancePigeon() {
+	// 	return new MoveToDistancePigeon();
+	// }
 	public class MoveToDistancePigeon extends Command {
 		private double initialAngle;
+		public MoveToDistancePigeon(int distInches){
+
+		}
 		public void initialize(){
 			this.initialAngle = pidgey.getYaw();
 		}
