@@ -62,11 +62,14 @@ public class Elevator {
     private double liftDriveSpeed = 0.2;
 
     private double closedLoopSpeed = 0;
+    private double backElevatorEncodersPerInch = 0;
+    private double frontElevatorEncodersPerInch = 0;
 
     private double startTime;
     private double distance1ToTheWall;
     private double distance2ToTheWall;
     private Toggler TeleClimb = new Toggler(4);
+    private Toggler level2Climb = new Toggler(4);
     private CommandGroup[] climbSequence = new CommandGroup[4];
 
     private int encoderCount = 0;
@@ -126,13 +129,14 @@ public class Elevator {
         for(int i = 0; i < climbSequence.length; i++) {
             climbSequence[i] = new CommandGroup();
         }
-
+        /*
         climbSequence[0].addSequential(deployElevator(true), 3.0);
         climbSequence[0].addParallel(liftElevator(0, 0.5), 4.5);
 
-        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 6.0);
+       
 
         climbSequence[2].addSequential(liftElevator(0.5, 0));
+        */
     }
     public void teleopPeriodic() {
 
@@ -141,14 +145,53 @@ public class Elevator {
         System.out.println("Driving Front Elevator: " + frontLift.getMotorCurrent());
         System.out.println("Driving Back Elevator: " + backLift.getMotorCurrent());
         int num = TeleClimb.state;
+        boolean level2 = false;
         TeleClimb.toggle(controls.manualClimb());
+        TeleClimb.toggle(controls.level2Climb());
+        if((num == 2 || num == 1) && controls.level2Climb()){
+            level2 = true;
+        }
 
-        if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
+        // if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
+        if(TeleClimb.state == 2) {
             liftDrive.set(controls.throttle());
         }
 
         if(num != TeleClimb.state) {
             switch(TeleClimb.state) {
+                case 1: {
+                    climbSequence[0].addSequential(deployElevator(true), 3.0);
+                    if(!level2){
+                    climbSequence[0].addParallel(liftElevator(0, 0.5), 4.5);
+                    }
+                    else{
+                        climbSequence[0].addParallel(liftElevator(0, 0.5), 1.5);
+                    }
+                    climbSequence[0].start();
+                    base.setMaxSpeed(0.6);
+                } break;
+                case 2: {
+                    if(!level2) {
+                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 6.0);
+                        liftDrive.set(.1);
+                    }
+                    else{
+                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 3.0);
+                    }
+                    climbSequence[1].start();
+                    
+                } break;
+                    case 3: {
+                    liftDrive.set(0);
+                    climbSequence[2].addSequential(liftElevator(0.5, 0));
+                    climbSequence[2].start();
+                    base.setMaxSpeed(1);
+                } break;
+            }
+        }
+
+        if(num != level2Climb.state) {
+            switch(level2Climb.state) {
                 case 1: {
                     climbSequence[0].start();
                     base.setMaxSpeed(0.6);
@@ -196,12 +239,20 @@ public class Elevator {
     public LiftElevator liftElevator(double speedFront, double speedBack) {
         return new LiftElevator(speedFront, speedBack);
     }
-    public class LiftElevator extends Command {
-        double speedFront, speedBack;
+    public class LiftElevator extends CommandGroup {
+        double speedFront, speedBack, frontEncoder, backEncoder;
         private boolean frontComplete;
         private boolean backComplete;
         private DigitalInput stopSwitchFront;
         private DigitalInput stopSwitchBack;
+        public LiftElevator(double speedFront, double speedBack, double frontEncoderDistance, double backEncoderDistance){
+            this.speedBack = speedBack;
+            this.speedFront = speedFront;
+            frontEncoder = frontEncoderDistance;
+            backEncoder = backEncoderDistance;
+            this.addSequential(frontLift.moveToEncoder(frontEncoder, speedFront));
+            this.addParallel(backLift.moveToEncoder(backEncoder, speedBack));
+        }
         public LiftElevator(double speedFront, double speedBack) {
             this.speedBack = speedBack;
             this.speedFront = speedFront;
@@ -219,7 +270,9 @@ public class Elevator {
             if(speedFront == 0) frontComplete = true;
             if(speedBack == 0) backComplete = true;
         }
+        @Override
         public void execute() {
+            super.execute();
             if(!frontComplete) {
                 if(!stopSwitchFront.get()) {
                     frontComplete = true;
@@ -239,7 +292,7 @@ public class Elevator {
         }
         @Override
         protected boolean isFinished() {
-            return frontComplete && backComplete;
+            return (frontComplete && backComplete) || super.isFinished();
         }
     }
     public DeployElevator deployElevator(boolean up) {
@@ -274,12 +327,18 @@ public class Elevator {
         public void end() {}
     }
 
+
     private double sensor1InInches() {
         return serial.getSensor1Data() * mmToIn;
     }
 
     private double sensor2InInches() {
         return serial.getSensor2Data() * mmToIn;
+    }
+
+    public void putElevatorEncoders(){
+        SmartDashboard.putNumber("Front Elevator Encoders", frontLift.getSensorPosition());
+        SmartDashboard.putNumber("Back Elevator Encoders", backLift.getSensorPosition());
     }
 
 }

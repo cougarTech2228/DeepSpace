@@ -130,7 +130,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    elevator.updateSwitches();
+    // elevator.updateSwitches();
+    elevator.putElevatorEncoders();
   }
 
 }
