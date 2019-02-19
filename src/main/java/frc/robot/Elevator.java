@@ -2,8 +2,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
-import frc.robot.DriveBase.DriveToInch;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
@@ -16,7 +15,7 @@ public class Elevator {
     private DriverIF controls;
     private DriveBase base;
 
-    private SerialDataHandler arduino = new SerialDataHandler();
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 
     // Lift Drive encoder math
     private double circumference = 4 * Math.PI;
@@ -164,8 +163,8 @@ public class Elevator {
         }
 
         if (doAutoClimb) {
-            leftDistance = arduino.getSensor1Data() / mmToIn;
-            rightDistance = arduino.getSensor2Data() / mmToIn;
+            leftDistance = serialDataHandler.getSensor1Data() / mmToIn;
+            rightDistance = serialDataHandler.getSensor2Data() / mmToIn;
 
             switch (autoClimbState) {
             case PullRobotUp:
