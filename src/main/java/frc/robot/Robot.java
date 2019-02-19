@@ -98,6 +98,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     hatch.teleopInit();
+    elevator.teleopInit();
   }
 
   @Override
@@ -111,6 +112,7 @@ public class Robot extends TimedRobot {
 
     base.TeleopMove();
     //elevator.teleopRaise();
+    elevator.teleopPeriodic();
     hatch.teleop();
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
@@ -129,6 +131,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
+    elevator.updateSwitches();
   }
 
 }
