@@ -178,6 +178,12 @@ public class Hatch {
         protected void initialize() {
             if (distTargIn.getDouble(DEFAULT_VALUE) > 18 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
                 System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
+                double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
+                        - horzOffToIn.getDouble(DEFAULT_VALUE));
+                if (!(offset < 6 && offset > 0)) {
+                    System.out.println("Offset is too great: " + offset);
+                    this.cancel();
+                }
                 if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
                 } else {
                     System.out.println("Not locked");
@@ -259,6 +265,7 @@ public class Hatch {
     public class HatchMoveREE extends Command {
         private boolean finished = false;
         private boolean running = false;
+        private boolean atBoundary = false;
 
         public HatchMoveREE() {
             System.out.println("Constructing a hatchMove");
@@ -277,19 +284,31 @@ public class Hatch {
                 System.out.println("La vision est borkeed");
             } else {
                 System.out.println(horzOffToIn.getDouble(DEFAULT_VALUE));
-                if (Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE)) < .5) {
+                if (Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE)) < .6) {
                     System.out.println("On target");
                     strafe.set(0);
                     this.finished = true;
-                }
-                if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
-                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5));
                 } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()) {
-                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5));
+                }
+                if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && !leftSwitch.get()) {
+                    this.atBoundary = true;
+                    this.finished = true;
+                    System.out.println("At left boundary");
+                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && !rightSwitch.get()) {
+                    this.atBoundary = true;
+                    this.finished = true;
+                    System.out.println("At right boundary");
                 }
 
             }
 
+        }
+
+        public boolean getAtBoundary() {
+            return this.atBoundary;
         }
 
         @Override
