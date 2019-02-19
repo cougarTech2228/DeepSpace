@@ -98,7 +98,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     hatch.teleopInit();
+<<<<<<< HEAD
+    elevator.teleopInit();
+=======
     //SmartDashboard.putData("Move BOEBOT", base.moveToDistancePigeon());
+>>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
   }
 
   @Override
@@ -112,6 +116,7 @@ public class Robot extends TimedRobot {
     //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
+    elevator.teleopPeriodic();
     hatch.teleop();
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
@@ -129,7 +134,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    //System.out.println("pidgey " + pigeon.getYaw());
+    elevator.updateSwitches();
   }
 
 }
