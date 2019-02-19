@@ -23,7 +23,7 @@ public class AutoMaster {
     private NetworkTableEntry horzOffToIn;
     private CommandGroup autoDeployGroup;
 
-    public AutoMaster(DriveBase base, Navx navx, Hatch hatch) {
+    public AutoMaster(DriveBase base, Hatch hatch) {
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
         targState = visionDataTable.getEntry("targState");
@@ -31,7 +31,8 @@ public class AutoMaster {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.base = base;
         this.hatch = hatch;
-        autoDeployGroup = hatch.getAutoDeploy();
+        autoDeployGroup = new CommandGroup();
+        //autoDeployGroup.addSequential(base.moveToDistancePigeon());//hatch.getAutoDeploy();
         // autoSequence = new CommandGroup();
     }
 
@@ -39,9 +40,9 @@ public class AutoMaster {
 
         if (autoDeployGroup.isRunning()) {
             System.out.println("Already in use");
-            autoDeployGroup.cancel();
+            //autoDeployGroup.cancel();
             // Scheduler.getInstance().removeAll();
-            autoDeployGroup.start();
+            //autoDeployGroup.start();
             // autoSequence.close();
         } else {
             System.out.println("Starting auto");

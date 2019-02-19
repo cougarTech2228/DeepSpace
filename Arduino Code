@@ -1,0 +1,118 @@
+/* This example shows how to use continuous mode to take
+range measurements with the VL53L0X. It is based on
+vl53l0x_ContinuousRanging_Example.c from the VL53L0X API.
+the left sensor.
+The range readings are in units of mm. */
+
+#include <Wire.h>
+#include <VL53L0X.h>
+
+VL53L0X leftSensor;
+VL53L0X rightSensor;
+
+uint16_t range_valueRight = 0;
+uint16_t range_valueLeft = 0;
+int index = 0;
+long accumulatorRight = 0;
+long accumulatorLeft = 0;
+byte out[2];
+
+void setup()
+{
+    pinMode(4, OUTPUT);
+  pinMode(5, OUTPUT);
+  digitalWrite(4, LOW);
+  digitalWrite(5, LOW);
+
+  delay(500);
+  Wire.begin();
+
+  Serial.begin (9600);
+
+  digitalWrite(4, HIGH);
+  delay(150);
+  leftSensor.init(false);
+
+  delay(100);
+  leftSensor.setAddress((uint8_t)21);
+
+  digitalWrite(5, HIGH);
+  delay(150);
+  rightSensor.init(false);
+
+  delay(100);
+  rightSensor.setAddress((uint8_t)22);
+  
+  range_valueRight = 0;
+  range_valueLeft = 0;
+
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  Wire.begin();
+
+
+
+
+
+  rightSensor.setTimeout(500);
+  leftSensor.setTimeout(500);
+  
+  // Start continuous back-to-back mode (take readings as
+  // fast as possible).  To use continuous timed mode
+  // instead, provide a desired inter-measurement period in
+  // ms (e.g. sensor.startContinuous(100)).
+  rightSensor.startContinuous();
+  leftSensor.startContinuous();
+}
+
+void loop()
+{
+  
+range_valueRight = rightSensor.readRangeContinuousMillimeters();
+range_valueLeft = leftSensor.readRangeContinuousMillimeters();
+
+  accumulatorRight += range_valueRight;
+  accumulatorLeft += range_valueLeft;
+  index++;
+
+  if( index >= 16 )
+  {
+    range_valueRight = (int)(accumulatorRight >> 4);
+    range_valueLeft = (int)(accumulatorLeft >> 4);
+    index = 0;
+    accumulatorLeft = 0;
+    accumulatorRight = 0;
+  
+  
+    out[0] = 0xFF;
+    out[1] = 0x01;
+
+  Serial3.write(out,2);
+    out[0] = byte(range_valueLeft >> 8);
+    out[1] = byte(range_valueLeft & 0x00FF);
+    
+    Serial3.write(out,2);
+    Serial.print(range_valueLeft);
+    Serial.println();
+  
+    out[0] = 0xFF;
+    out[1] = 0x02;
+
+  Serial3.write(out,2);
+    out[0] = byte(range_valueRight >> 8);
+    out[1] = byte(range_valueRight & 0x00FF);
+    
+    Serial3.write(out,2);
+    Serial.print(range_valueRight);  
+    Serial.println();
+    
+    if (rightSensor.timeoutOccurred()){ 
+      Serial.print(" TIMEOUT RIGHT SENSOR"); 
+    } 
+    if (leftSensor.timeoutOccurred()){ 
+      Serial.print(" TIMEOUT LEFT SENSOR"); 
+    }    
+    Serial.println();
+  }
+
+}

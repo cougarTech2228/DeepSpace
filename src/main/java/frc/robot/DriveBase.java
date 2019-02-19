@@ -3,6 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SerialPort;
 
 public class DriveBase {
 
@@ -21,6 +22,7 @@ public class DriveBase {
 	private boolean zeroPigeon;
 	private double throttleAccel;
 	private double turnAccel;
+	private SerialDataHandler serial;
 
 	private DriveType mode;
 
@@ -33,6 +35,42 @@ public class DriveBase {
 		this.navx = navx;
 		this.mode = mode;
 		this.pidgey = pidgey;
+		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
+				// SerialPort.StopBits.kOne);
+		zeroPigeon = false;
+		throttleAccel = 0;
+		turnAccel = 0;
+
+		rightFront = new Motor(RobotMap.RIGHT_FRONT);
+		leftFront = new Motor(RobotMap.LEFT_FRONT);
+
+		// Mecanum
+		if (mode == DriveType.Mecanum) {
+			rightBack = new Motor(RobotMap.RIGHT_BACK);
+			leftBack = new Motor(RobotMap.LEFT_BACK);
+
+			rightFront.invert(true);
+			rightBack.invert(true);
+		}
+		// Tank
+		else if (mode == DriveType.Tank) {
+			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
+			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
+
+			leftFront.invert(true);
+			leftBack.invert(true);
+		}
+		rightFront.setBrakeMode(true);
+		rightBack.setBrakeMode(true);
+		leftFront.setBrakeMode(true);
+		leftBack.setBrakeMode(true);
+	}
+	public DriveBase(DriverIF controls, Pigeon pidgey, DriveType mode) {
+		this.controls = controls;
+		this.mode = mode;
+		this.pidgey = pidgey;
+		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
+				// SerialPort.StopBits.kOne);
 		zeroPigeon = false;
 		throttleAccel = 0;
 		turnAccel = 0;
@@ -72,45 +110,39 @@ public class DriveBase {
 		rightFront.teleopInit();
 		leftFront.teleopInit();
 		/*
-		int maxRightVel = 272;
-		int maxLeftVel = 253;
-
-		double right = 111;
-		double left = 106;
-
-		rightFront.setMaxVelocity(272);
-		leftFront.setMaxVelocity(253);
-		
-		//SmartDashboard.putNumber("right kP",  2.6);
-		//SmartDashboard.putNumber("left kP", 2.4);
-		//SmartDashboard.putBoolean("button", false);
-
-		rightFront.motor.configMotionCruiseVelocity(maxRightVel / 2, 10);
-		leftFront.motor.configMotionCruiseVelocity(maxLeftVel / 2, 10);
-
-		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
-		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
-
-		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
-		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
-
-		rightFront.motor.config_kP(0, 0.5, 10);
-		leftFront.motor.config_kP(0, 0.5, 10);
-
-		rightFront.motor.config_kI(0, 0.001, 10);
-		leftFront.motor.config_kI(0, 0.001, 10);
-
-		rightFront.motor.config_IntegralZone(0, 20, 10);
-		leftFront.motor.config_IntegralZone(0, 20, 10);
-
-		rightFront.motor.config_kD(0, 5, 10);
-		leftFront.motor.config_kD(0, 5, 10);
-
-		// init back motors for mecanum
-		if (mode == DriveType.Mecanum) {
-			rightBack.teleopInit();
-			leftBack.teleopInit();
-		}*/
+		 * int maxRightVel = 272; int maxLeftVel = 253;
+		 * 
+		 * double right = 111; double left = 106;
+		 * 
+		 * rightFront.setMaxVelocity(272); leftFront.setMaxVelocity(253);
+		 * 
+		 * //SmartDashboard.putNumber("right kP", 2.6);
+		 * //SmartDashboard.putNumber("left kP", 2.4);
+		 * //SmartDashboard.putBoolean("button", false);
+		 * 
+		 * rightFront.motor.configMotionCruiseVelocity(maxRightVel / 2, 10);
+		 * leftFront.motor.configMotionCruiseVelocity(maxLeftVel / 2, 10);
+		 * 
+		 * rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
+		 * leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
+		 * 
+		 * rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
+		 * leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
+		 * 
+		 * rightFront.motor.config_kP(0, 0.5, 10); leftFront.motor.config_kP(0, 0.5,
+		 * 10);
+		 * 
+		 * rightFront.motor.config_kI(0, 0.001, 10); leftFront.motor.config_kI(0, 0.001,
+		 * 10);
+		 * 
+		 * rightFront.motor.config_IntegralZone(0, 20, 10);
+		 * leftFront.motor.config_IntegralZone(0, 20, 10);
+		 * 
+		 * rightFront.motor.config_kD(0, 5, 10); leftFront.motor.config_kD(0, 5, 10);
+		 * 
+		 * // init back motors for mecanum if (mode == DriveType.Mecanum) {
+		 * rightBack.teleopInit(); leftBack.teleopInit(); }
+		 */
 	}
 
 	public void autoInit() {
@@ -123,18 +155,16 @@ public class DriveBase {
 
 		rightFront.setMaxVelocity(maxRightVel);
 		leftFront.setMaxVelocity(maxLeftVel);
-		
-		//SmartDashboard.putNumber("right kP",  2.6);
-		//SmartDashboard.putNumber("left kP", 2.4);
-		//SmartDashboard.putBoolean("button", false);
+
+		// SmartDashboard.putNumber("right kP", 2.6);
+		// SmartDashboard.putNumber("left kP", 2.4);
+		// SmartDashboard.putBoolean("button", false);
 
 		rightFront.motor.configMotionCruiseVelocity(maxRightVel / 2, 10);
 		leftFront.motor.configMotionCruiseVelocity(maxLeftVel / 2, 10);
 
 		rightFront.motor.configMotionAcceleration(maxRightVel / 2, 10);
 		leftFront.motor.configMotionAcceleration(maxLeftVel / 2, 10);
-
-		
 
 		double rightP = SmartDashboard.getNumber("right kP", 0);
 		double leftP = SmartDashboard.getNumber("left kP", 0);
@@ -144,8 +174,8 @@ public class DriveBase {
 		double b = SmartDashboard.getNumber("left kD", 0);
 		double rightkF = SmartDashboard.getNumber("rightkF", 0);
 		double leftkF = SmartDashboard.getNumber("leftkF", 0);
-		int e = (int)SmartDashboard.getNumber("right Izone", 0);
-		int f = (int)SmartDashboard.getNumber("left Izone", 0);
+		int e = (int) SmartDashboard.getNumber("right Izone", 0);
+		int f = (int) SmartDashboard.getNumber("left Izone", 0);
 
 		rightFront.motor.config_kF(0, 1023.0 / maxRightVel, 10);
 		leftFront.motor.config_kF(0, 1023.0 / maxLeftVel, 10);
@@ -164,7 +194,7 @@ public class DriveBase {
 
 		rightFront.motor.config_kD(0, a, 10);
 		leftFront.motor.config_kD(0, b, 10);
-		//SmartDashboard.putBoolean("button", false);
+		// SmartDashboard.putBoolean("button", false);
 
 	}
 
@@ -175,33 +205,27 @@ public class DriveBase {
 			input = -1;
 		return input;
 	}
+	public void setMaxSpeed(double speed) {
+		maxSpeed = speed;
+	}
 	public void TeleopMove() {
 		double Forward = controls.throttle();
 		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
-
+		/*
 		double SpeedAfter1Sec = 0.75;
 		double num = SpeedAfter1Sec / 50;
 
 		boolean positive = Forward > 0;
-		/*
-		if(!positive) {
-			Forward = -Forward;
-			throttleAccel = -throttleAccel;
-		}
-
-		if(throttleAccel < Forward)
-			throttleAccel += num;
-		if(throttleAccel > Forward) {
-			throttleAccel -= 3 * num;
-		}
-
-		if(!positive) {
-			Forward = -Forward;
-			throttleAccel = -throttleAccel;
-		}
-		Forward = throttleAccel;
-		//*/
+		
+		 * if(!positive) { Forward = -Forward; throttleAccel = -throttleAccel; }
+		 * 
+		 * if(throttleAccel < Forward) throttleAccel += num; if(throttleAccel > Forward)
+		 * { throttleAccel -= 3 * num; }
+		 * 
+		 * if(!positive) { Forward = -Forward; throttleAccel = -throttleAccel; } Forward
+		 * = throttleAccel; //
+		 */
 
 		Forward = zeroLimit(Forward);
 		Turn = zeroLimit(Turn);
@@ -213,32 +237,31 @@ public class DriveBase {
 
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
+
+			//System.out.println("rightF " + RightF);
+			//System.out.println("leftF " + LeftF);
 			/*
-			if(Turn == 0) {
-				
-				//untested
-				double rightE = rightFront.getSensorPosition();
-				double leftE = leftFront.getSensorPosition();
+			 * if(Turn == 0) {
+			 * 
+			 * //untested double rightE = rightFront.getSensorPosition(); double leftE =
+			 * leftFront.getSensorPosition();
+			 * 
+			 * System.out.println("rightE " + rightE + " leftE " + leftE); double avg =
+			 * (rightE + leftE) / 2;
+			 * 
+			 * double rightD = rightE - avg; double leftD = leftE - avg;
+			 * 
+			 * double rightP = rightD / 50; double leftP = leftD / 50;
+			 * 
+			 * RightF -= rightP; LeftF -= leftP; }//
+			 */
 
-				System.out.println("rightE " + rightE + " leftE " + leftE);
-				double avg = (rightE + leftE) / 2;
-
-				double rightD = rightE - avg;
-				double leftD = leftE - avg;
-
-				double rightP = rightD / 50;
-				double leftP = leftD / 50;
-
-				RightF -= rightP;
-				LeftF -= leftP;
-			}//*/
-
-			//double angle = pidgey.getYaw();
+			// double angle = pidgey.getYaw();
 			// System.out.println("RightF" + RightF);
 			// System.out.println("LeftF" + LeftF);
 			RightF *= maxSpeed;
 			LeftF *= maxSpeed;
-			
+
 			rightFront.set(RightF);
 			leftFront.set(LeftF);
 		} else if (mode == DriveType.Mecanum) {
@@ -347,9 +370,42 @@ public class DriveBase {
 		return new MoveToInches(targetEncoderInches, speed);
 	}
 
-	public void moveDriveBaseElevator(){
+	public void moveDriveBaseElevator() {
 		rightFront.set(.2);
 		leftFront.set(.2);
+	}
+
+	public MoveToDistancePigeon moveToDistancePigeon(int distInches) {
+		return new MoveToDistancePigeon(distInches);
+	}
+	public class MoveToDistancePigeon extends Command {
+		private double initialAngle;
+		public MoveToDistancePigeon(int distInches){
+
+		}
+		public void initialize(){
+			this.initialAngle = pidgey.getYaw();
+		}
+		public void execute(){
+			//SmartDashboard.putNumber("Sensor1", serial.getSensor1Data());
+			//SmartDashboard.putNumber("Sensor2", serial.getSensor2Data());
+			double leftSped = 0.3;
+			double rightSped = 0.3;
+			
+			double diff = (pidgey.getYaw() - initialAngle) / 90;
+			leftSped += diff;
+			rightSped -= diff;
+
+			rightFront.set(rightSped);
+			leftFront.set(leftSped);
+			// double angle = pidgey.getYaw();
+			
+		}
+
+
+		protected boolean isFinished() {
+			return false;
+		}
 	}
 
 	public class MoveToInches extends CommandGroup {
@@ -365,10 +421,8 @@ public class DriveBase {
 		public MoveToInches(double targetEncoderInches, double speed) {
 			this.maxSpeed = speed;
 			this.targetEncoderCount = targetEncoderInches * countsPerInch;
-			
-		}
 
-		
+		}
 
 		protected void initialize() {
 			System.out.println("Setting encoders to zero");
@@ -377,6 +431,7 @@ public class DriveBase {
 			equationConstant = threshold * (initialSpeed - endingSpeed) - targetEncoderCount;
 			pidgey.resetYaw();
 		}
+
 		public void execute() {
 			double encoderRight = Math.abs(rightFront.getSensorPosition());
 			double encoderLeft = Math.abs(leftFront.getSensorPosition());
@@ -393,36 +448,40 @@ public class DriveBase {
 			speedRight *= (45 + angle) / 45.0;
 			speedLeft *= (45 - angle) / 45.0;
 
-			if(percentComplete > 0.95) {
+			if (percentComplete > 0.95) {
 				leftRunning = false;
 				rightRunning = false;
 				leftFront.stop();
 				rightFront.stop();
-			}
-			else {
+			} else {
 				leftFront.setSpeed(speedLeft);
 				rightFront.setSpeed(speedRight);
 			}
 
 		}
+
 		private double calcSpeed(double value) {
-			//equation: y = -(|2x+a|+a)/2b + c: where x = speed, a = targetCounts, b = threshold * (initialSpeed - endingSpeed), c = 2*threshold, d = initialSpeed
-			//to see how it works, graph it on desmos
-			double speed = -(Math.abs(2 * value - targetEncoderCount + equationConstant) - targetEncoderCount + equationConstant) / (2 * threshold) + initialSpeed;
+			// equation: y = -(|2x+a|+a)/2b + c: where x = speed, a = targetCounts, b =
+			// threshold * (initialSpeed - endingSpeed), c = 2*threshold, d = initialSpeed
+			// to see how it works, graph it on desmos
+			double speed = -(Math.abs(2 * value - targetEncoderCount + equationConstant) - targetEncoderCount
+					+ equationConstant) / (2 * threshold) + initialSpeed;
 			System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
-			//make sure it starts at a low speed
-			if(speed > Math.abs(maxSpeed)) {
+			// make sure it starts at a low speed
+			if (speed > Math.abs(maxSpeed)) {
 				speed = Math.abs(maxSpeed);
 			}
-			if(maxSpeed < 0) {
+			if (maxSpeed < 0) {
 				speed = -speed;
 			}
 			return speed;
 		}
+
 		@Override
 		protected boolean isFinished() {
 			return !leftRunning && !rightRunning;
 		}
+
 		@Override
 		protected void end() {
 			leftFront.stop();
@@ -438,7 +497,7 @@ public class DriveBase {
 		return leftFront.getSensorPosition();
 	}
 
-	public void stopMoving(){
+	public void stopMoving() {
 		rightFront.set(0);
 		leftFront.set(0);
 	}
@@ -455,7 +514,7 @@ public class DriveBase {
 			} else if (mode == DriveType.Tank) {
 				this.addParallel(leftFront.moveToEncoder(targetInches * countsPerInch, speed));
 				this.addParallel(rightFront.moveToEncoder(targetInches * countsPerInch, speed));
-				//this.addParallel(moveToInches(24, -0.5));
+				// this.addParallel(moveToInches(24, -0.5));
 			}
 		}
 	}
@@ -467,41 +526,24 @@ public class DriveBase {
 
 	// test
 	public void TestEncoders() {
-		//leftFront.set(1);
-		//rightFront.set(1);
+		// leftFront.set(1);
+		// rightFront.set(1);
 		double sped = SmartDashboard.getNumber("speed", 0);
 		leftFront.setSpeed(sped);
 		rightFront.setSpeed(sped);
-		//leftFront.set(1);
-		//rightFront.set(1);
+		// leftFront.set(1);
+		// rightFront.set(1);
 		/*
-		if (controls.encoderTestLeftFront()) {
-			leftFront.set(0.5);
-			System.out.println(leftFront.getSensorPosition());
-		} else {
-			leftFront.stop();
-			leftFront.setEncoderToZero();
-		}
-		if (controls.encoderTestRightFront()) {
-			rightFront.set(0.5);
-			System.out.println(rightFront.getSensorPosition());
-		} else {
-			rightFront.stop();
-			rightFront.setEncoderToZero();
-		}
-		if (controls.encoderTestLeftBack()) {
-			leftBack.set(0.5);
-			System.out.println(leftBack.getSensorPosition());
-		} else {
-			leftBack.stop();
-			leftBack.setEncoderToZero();
-		}
-		if (controls.encoderTestRightBack()) {
-			rightBack.set(0.5);
-			System.out.println(rightBack.getSensorPosition());
-		} else {
-			rightBack.stop();
-			rightBack.setEncoderToZero();
-		}*/
+		 * if (controls.encoderTestLeftFront()) { leftFront.set(0.5);
+		 * System.out.println(leftFront.getSensorPosition()); } else { leftFront.stop();
+		 * leftFront.setEncoderToZero(); } if (controls.encoderTestRightFront()) {
+		 * rightFront.set(0.5); System.out.println(rightFront.getSensorPosition()); }
+		 * else { rightFront.stop(); rightFront.setEncoderToZero(); } if
+		 * (controls.encoderTestLeftBack()) { leftBack.set(0.5);
+		 * System.out.println(leftBack.getSensorPosition()); } else { leftBack.stop();
+		 * leftBack.setEncoderToZero(); } if (controls.encoderTestRightBack()) {
+		 * rightBack.set(0.5); System.out.println(rightBack.getSensorPosition()); } else
+		 * { rightBack.stop(); rightBack.setEncoderToZero(); }
+		 */
 	}
 }

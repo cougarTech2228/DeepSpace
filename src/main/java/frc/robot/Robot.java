@@ -39,13 +39,12 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
 
   private DriverIF controller = new DriverIF();
-  private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
+  private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
   private Hatch hatch = new Hatch(controller, base);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
-  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
-      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private int count;
 
   // private static int pigeonPort = RobotMap.PIGEONIMU;
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
@@ -54,10 +53,11 @@ public class Robot extends TimedRobot {
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
+  private AutoMaster auto = new AutoMaster(base, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  // private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
 
   @Override
   public void robotInit() {
@@ -76,14 +76,14 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right kD", 10);
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
-    visionRelay.set(Relay.Value.kForward);
+    //visionRelay.set(Relay.Value.kForward);
     // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     // m_chooser.addOption("My Auto", kCustomAuto);
     // SmartDashboard.putData("Auto choices", m_chooser);
     // auto.start();
     // visionRelay.set(Relay.Value.kForward);
 
-    Hardware.canifier.configFactoryDefault();
+    // Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -98,16 +98,18 @@ public class Robot extends TimedRobot {
     // System.out.println("Auto selected: " + m_autoSelected);
     // base.teleopInit();
     // auto.start();
+    auto.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    // auto.run();
+    auto.run();
   }
 
   @Override
   public void teleopInit() {
     hatch.teleopInit();
+    elevator.teleopInit();
   }
 
   @Override
@@ -120,14 +122,16 @@ public class Robot extends TimedRobot {
       System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
      }
 
+    
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
     // } else {
     //   visionRelay.set(Relay.Value.kOff);
     // }
-
+    //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
+    elevator.teleopPeriodic();
     hatch.teleop();
     // base.teleopInit();
 
@@ -139,16 +143,28 @@ public class Robot extends TimedRobot {
     }
     // pigeon.resetYaw();
  
+    @Override
+    public void testInit(){
+      hatch.teleopInit();
+      base.autoInit();
+    }
+
 
   @Override
-  public void testPeriodic() {
+  public void testPeriodic(){
     //base.teleopInit();
     //base.rightFront.set(ControlMode.Position, 10000);
     //System.out.println("Counts: " + base.rightFront.getSensorPosition());
     //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
     // base.TestEncoders();
     //hatch.testPeriodic();
+    // elevator.updateSwitches();
     // elevator.testLiftDriveEncoder();
+    // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
+    //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    // }
+    // Schedulers.PeriodicTasks.process();
   }
+
 
 }
