@@ -42,6 +42,7 @@ public class Robot extends TimedRobot {
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
   // private Navx navx = new Navx(Navx.Port.I2C
     private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+    
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
@@ -137,14 +138,14 @@ public class Robot extends TimedRobot {
   
 
   @Override
-  public void teleopPeriodic() {
-    if(loopIterations == 100){
-     serialDataHandler.readPort(); 
-     System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
-     System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
-     loopIterations = 0;
-    }
-    //loopIterations++;
+  public void teleopPeriodic(){ 
+     if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
+      System.out.println("Sensor Data old, == -1");
+     }
+     else{
+      System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
+      System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
+     }
     //if (loopIndex++ == 5) {
      
      //}

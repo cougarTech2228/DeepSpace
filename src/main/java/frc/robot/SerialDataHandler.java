@@ -1,11 +1,13 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.SerialPort;
+import edu.wpi.first.wpilibj.Timer;
 
 public class SerialDataHandler {
     public static final int SEARCHING_FOR_HEADER = 0;
     public static final int SEARCHING_FOR_DATA_1 = 1;
     public static final int SEARCHING_FOR_DATA_2 = 2;
+
 
     private int state = SEARCHING_FOR_HEADER;
     private int sensor1Data = 0;
@@ -15,6 +17,7 @@ public class SerialDataHandler {
 
     public SerialDataHandler(int baudRate, SerialPort.Port serialPort, int numBits, SerialPort.Parity serialParity, SerialPort.StopBits stopBits) {
         port = new SerialPort(baudRate, serialPort, numBits, serialParity, stopBits);
+        port.setTimeout(0.05);
         port.reset();
     }
 
@@ -37,7 +40,8 @@ public class SerialDataHandler {
     }
 
     public void readPort() {
-        
+        sensor1Data = -1;
+        sensor2Data = -1;
         port.setReadBufferSize(2);
         byte[] byteArray = port.read(2);
 
@@ -65,10 +69,12 @@ public class SerialDataHandler {
             case SEARCHING_FOR_DATA_1:
                 sensor1Data = convertData(a, b);
                 state = SEARCHING_FOR_HEADER;
+                System.out.println(Timer.getFPGATimestamp());
                 break;
             case SEARCHING_FOR_DATA_2:
                 sensor2Data = convertData(a, b);
                 state = SEARCHING_FOR_HEADER;
+                System.out.println(Timer.getFPGATimestamp());
                 break;
             default:
                 System.out.println("Unexcepted case");
