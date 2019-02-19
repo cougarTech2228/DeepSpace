@@ -40,6 +40,7 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private boolean solenoidExtended = false;
+    
     private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
@@ -59,6 +60,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
+
         autoToggle = new Toggler(2, true);
 
     }
@@ -82,6 +84,7 @@ public class Hatch {
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
+        
         tilt.set(true);
     }
 
