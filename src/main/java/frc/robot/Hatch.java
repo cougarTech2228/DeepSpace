@@ -39,6 +39,7 @@ public class Hatch {
     private boolean zeroed = false;
     private Toggler autoToggle;
     private int autotestingtemp = 0;
+    private HatchMove hMove;
     private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
@@ -58,6 +59,8 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
+        hMove = new HatchMove();
+
         autoToggle = new Toggler(2, true);
 
     }
@@ -97,10 +100,10 @@ public class Hatch {
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
                 System.out.println("Starting auto hatch alignment from button press");
-                autoDeployGroup.start();
+                hMove.start();
             } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Canceling auto deploy");
-                autoDeployGroup.cancel();
+                hMove.cancel();
             }
         }
         hatchStrafe();
@@ -285,9 +288,13 @@ public class Hatch {
                 else if(horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()){
                     strafe.set(STRAFE_SPEED  * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
                 }
-                if(!rightSwitch.get() || !leftSwitch.get()){
+                if(horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && !leftSwitch.get()){
                     this.finished = true;
-                    System.out.println("Reached boundary");
+                    System.out.println("Reached left boundary");
+                }
+                else if(horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && !rightSwitch.get()){
+                    this.finished = true;
+                    System.out.println("Reached right boundary");
                 }
 
             }
