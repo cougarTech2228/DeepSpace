@@ -8,7 +8,9 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
+import edu.wpi.first.wpilibj.TimedRobot;
+import com.ctre.phoenix.ILoopable;
+//import frc.robot.LEDUtilities.*;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
@@ -17,6 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.SerialPort;
+import com.ctre.phoenix.schedulers.ConcurrentScheduler;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -27,40 +32,36 @@ import edu.wpi.first.wpilibj.Relay;
  */
 
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
+     private int loopIterations = 1;
+  // private static final String kDefaultAuto = "Default";
+  // private static final String kCustomAuto = "My Auto";
 
-  private SerialDataHandler serialDataHandler = new SerialDataHandler();
+  //private SerialDataHandler serialDataHandler = new SerialDataHandler();
 
-  private static int pigeonPort = RobotMap.PIGEONIMU;
-  private static Pigeon pigeon = new Pigeon(pigeonPort);
+  // private static int pigeonPort = RobotMap.PIGEONIMU;
+  // private static Pigeon pigeon = new Pigeon(pigeonPort);
+  // private Navx navx = new Navx(Navx.Port.I2C
+    private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
+  // private Elevator elevator = new Elevator(base, controller);
+  // private Hatch hatch = new Hatch(controller, base);
 
-  private DriverIF controller = new DriverIF();
-  private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
-  private Hatch hatch = new Hatch(controller, base);
-  private proximityEnum proximityState = proximityEnum.LookingForID;
+  // private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
-  private enum proximityEnum {
-    LookingForID, LookingForData, Error
-  }
-
-  private AutoMaster auto = new AutoMaster(base, navx, hatch);
-
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private int loopIndex = 0;
-
-  private Relay visionRelay = new Relay(0);
+  // private String m_autoSelected;
+  //private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  // private Relay visionRelay = new Relay(0);
 
   @Override
   public void robotInit() {
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-    auto.start();
-    visionRelay.set(Relay.Value.kForward);
+    // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    // m_chooser.addOption("My Auto", kCustomAuto);
+    // SmartDashboard.putData("Auto choices", m_chooser);
+    // auto.start();
+    // visionRelay.set(Relay.Value.kForward);
+
+    //Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -106,16 +107,16 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-    base.teleopInit();
-    auto.start();
+    // m_autoSelected = m_chooser.getSelected();
+    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    // System.out.println("Auto selected: " + m_autoSelected);
+    // base.teleopInit();
+    // auto.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    auto.run();
+    // auto.run();
   }
 
   /**
@@ -124,22 +125,36 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     // base.teleopInit();
-    base.teleopInit();
-    pigeon.resetYaw();
 
-  }
+    
+
+         
+  //for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
+  //Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    }//}
+    // pigeon.resetYaw();
+
+  
 
   @Override
   public void teleopPeriodic() {
-    serialDataHandler.readPort();
-    if (loopIndex++ == 5) {
-      System.out.println(String.format("sensor1Data: %04X ", serialDataHandler.getSensor1Data()));
-      System.out.println(String.format("sensor2Data: %04X ", serialDataHandler.getSensor2Data()));
-      loopIndex = 0;
+    if(loopIterations == 100){
+     serialDataHandler.readPort(); 
+     System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
+     System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
+     loopIterations = 0;
     }
-    base.TeleopMove();
+    //loopIterations++;
+    //if (loopIndex++ == 5) {
+     
+     //}
+    // base.TeleopMove();
+
+      // elevator.teleopRaise();
+      // elevator.raiseElevator();
+
     // pixy.read();
-    hatch.teleop();
+    // hatch.teleop();
     // System.out.println(distance.distanceInches());
 
     // pigeon.pigeonCheck();
@@ -153,16 +168,19 @@ public class Robot extends TimedRobot {
      */
 
     // pixy.read();
+    //Schedulers.PeriodicTasks.process();
+
   }
 
   @Override
   public void testPeriodic() {
     //base.teleopInit();
     //base.rightFront.set(ControlMode.Position, 10000);
-    System.out.println("Counts: " + base.rightFront.getSensorPosition());
-    System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
-    //base.TestEncoders();
+    //System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    // base.TestEncoders();
     //hatch.testPeriodic();
+    // elevator.testLiftDriveEncoder();
   }
 
 }
