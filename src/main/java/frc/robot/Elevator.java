@@ -100,13 +100,13 @@ public class Elevator {
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
         elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
-        SmartDashboard.putData("lift front", liftElevator(0.5, 0.0));
-        SmartDashboard.putData("lower front", liftElevator(-0.5, 0.0));
-        SmartDashboard.putData("lift back", liftElevator(0, 0.5));
-        SmartDashboard.putData("lower back", liftElevator(0, -0.5));
+        SmartDashboard.putData("lift front", liftElevator(0.5, 0.0, false));
+        SmartDashboard.putData("lower front", liftElevator(-0.5, 0.0, false));
+        SmartDashboard.putData("lift back", liftElevator(0, 0.5, false));
+        SmartDashboard.putData("lower back", liftElevator(0, -0.5, false));
 
         CommandGroup raise = new CommandGroup();
-        raise.addSequential(liftElevator(-0.6, -0.5));
+        raise.addSequential(liftElevator(-0.6, -0.5, true));
         raise.addParallel(driveElevator(5, 0.1));
 
         SmartDashboard.putData("raise bot", raise);
@@ -140,20 +140,19 @@ public class Elevator {
     }
     public void teleopPeriodic() {
 
-        System.out.println("Driving Drive Motor: " + liftDrive.getMotorCurrent());
-        System.out.println("Driving Deploy: " + elevatorDeployMotor.getMotorCurrent());
-        System.out.println("Driving Front Elevator: " + frontLift.getMotorCurrent());
-        System.out.println("Driving Back Elevator: " + backLift.getMotorCurrent());
+        // System.out.println("Driving Drive Motor: " + liftDrive.getMotorCurrent());
+        // System.out.println("Driving Deploy: " + elevatorDeployMotor.getMotorCurrent());
+        // System.out.println("Driving Front Elevator: " + frontLift.getMotorCurrent());
+        // System.out.println("Driving Back Elevator: " + backLift.getMotorCurrent());
         int num = TeleClimb.state;
         boolean level2 = false;
         TeleClimb.toggle(controls.manualClimb());
-        TeleClimb.toggle(controls.level2Climb());
-        if((num == 2 || num == 1) && controls.level2Climb()){
+        /*if((num == 2 || num == 1) && controls.level2Climb()){
             level2 = true;
-        }
+        }*/
 
         // if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
-        if(TeleClimb.state == 2) {
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
             liftDrive.set(controls.throttle());
         }
 
@@ -162,51 +161,33 @@ public class Elevator {
                 case 1: {
                     climbSequence[0].addSequential(deployElevator(true), 3.0);
                     if(!level2){
-                    climbSequence[0].addParallel(liftElevator(0, 0.5), 4.5);
+                        climbSequence[0].addParallel(liftElevator(0, 0.5, false), 4.5);
                     }
                     else{
-                        climbSequence[0].addParallel(liftElevator(0, 0.5), 1.5);
+                        climbSequence[0].addParallel(liftElevator(0, 0.5, false), 1.5);
                     }
                     climbSequence[0].start();
                     base.setMaxSpeed(0.6);
                 } break;
                 case 2: {
                     if(!level2) {
-                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 6.0);
-                        liftDrive.set(.1);
+                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 6.0);
+                        //liftDrive.set(.1);
                     }
                     else{
-                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 3.0);
+                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 3.0);
                     }
                     climbSequence[1].start();
                     
                 } break;
                     case 3: {
                     liftDrive.set(0);
-                    climbSequence[2].addSequential(liftElevator(0.5, 0));
+                    climbSequence[2].addSequential(liftElevator(0.5, 0, false));
                     climbSequence[2].start();
                     base.setMaxSpeed(1);
                 } break;
             }
         }
-
-        if(num != level2Climb.state) {
-            switch(level2Climb.state) {
-                case 1: {
-                    climbSequence[0].start();
-                    base.setMaxSpeed(0.6);
-                } break;
-                case 2: {
-                    climbSequence[1].start();
-                    liftDrive.set(0);
-                } break;
-                case 3: {
-                    climbSequence[2].start();
-                    base.setMaxSpeed(1);
-                } break;
-            }
-        }
-
     }
     public DriveElevator driveElevator(double time, double speed) {
         return new DriveElevator(time, speed);
@@ -236,10 +217,10 @@ public class Elevator {
             liftDrive.set(0);
         }
     }
-    public LiftElevator liftElevator(double speedFront, double speedBack) {
-        return new LiftElevator(speedFront, speedBack);
+    public LiftElevator liftElevator(double speedFront, double speedBack, boolean stallCurrent) {
+        return new LiftElevator(speedFront, speedBack, stallCurrent);
     }
-    public class LiftElevator extends CommandGroup {
+    public class LiftElevator extends Command {
         double speedFront, speedBack, frontEncoder, backEncoder;
         private boolean frontComplete;
         private boolean backComplete;
@@ -250,10 +231,10 @@ public class Elevator {
             this.speedFront = speedFront;
             frontEncoder = frontEncoderDistance;
             backEncoder = backEncoderDistance;
-            this.addSequential(frontLift.moveToEncoder(frontEncoder, speedFront));
-            this.addParallel(backLift.moveToEncoder(backEncoder, speedBack));
+            //this.addSequential(frontLift.moveToEncoder(frontEncoder, speedFront));
+            //this.addParallel(backLift.moveToEncoder(backEncoder, speedBack));
         }
-        public LiftElevator(double speedFront, double speedBack) {
+        public LiftElevator(double speedFront, double speedBack, boolean stallCurrent) {
             this.speedBack = speedBack;
             this.speedFront = speedFront;
         }
@@ -272,27 +253,34 @@ public class Elevator {
         }
         @Override
         public void execute() {
-            super.execute();
-            if(!frontComplete) {
-                if(!stopSwitchFront.get()) {
-                    frontComplete = true;
-                    frontLift.set(0);
-                } else {
-                    frontLift.set(speedFront);
-                }
+            SmartDashboard.putBoolean("Front Complete", frontComplete);
+            SmartDashboard.putBoolean("Back Complete", backComplete);
+
+            if(!stopSwitchFront.get() || frontComplete) {
+                frontComplete = true;
+                frontLift.set(0);
+            } else {
+                System.out.println("Running Front");
+                frontLift.set(speedFront);
             }
-            if(!backComplete) {
-                if(!stopSwitchBack.get()) {
-                    backComplete = true;
-                    backLift.set(0);
-                } else {
-                    backLift.set(speedBack);
-                }
+            
+            if(!stopSwitchBack.get() || backComplete) {
+                backComplete = true;
+                backLift.set(0);
+            } else {
+                System.out.println("Running Back");
+                backLift.set(speedBack);
             }
         }
         @Override
         protected boolean isFinished() {
-            return (frontComplete && backComplete) || super.isFinished();
+            return (frontComplete && backComplete);
+        }
+        @Override
+        public void end() {
+            super.end();
+            backLift.set(0);
+            frontLift.set(0);
         }
     }
     public DeployElevator deployElevator(boolean up) {

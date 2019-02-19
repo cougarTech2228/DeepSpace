@@ -40,6 +40,7 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private AutoDeploy autoDeployGroup;
+    private HatchMoveREE hMove;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -58,6 +59,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
+        hMove = new HatchMoveREE();
         autoToggle = new Toggler(2, true);
 
     }
@@ -97,10 +99,10 @@ public class Hatch {
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
                 System.out.println("Starting auto hatch alignment from button press");
-                autoDeployGroup.start();
+                hMove.start();
             } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Canceling auto deploy");
-                autoDeployGroup.cancel();
+                hMove.cancel();
             }
         }
         hatchStrafe();
