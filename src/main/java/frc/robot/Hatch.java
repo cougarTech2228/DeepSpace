@@ -39,6 +39,7 @@ public class Hatch {
     private boolean zeroed = false;
     private Toggler autoToggle;
     private int autotestingtemp = 0;
+    private boolean solenoidExtended = false;
     private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
@@ -87,12 +88,14 @@ public class Hatch {
     public void teleop() {
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
-        if (controls.hatchExtend()) {
-            // tilt.set(true);
+        if (controls.hatchExtend() && solenoidExtended == false) {
+            solenoidExtended = true;
             extend();
-        } else if (controls.hatchRetract()) {
+        } else if (controls.hatchExtend() && solenoidExtended == true) {
+
+        } else if (!controls.hatchExtend() && solenoidExtended == true) {
+            solenoidExtended = false;
             retract();
-            // tilt.set(false);
         }
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
@@ -269,26 +272,24 @@ public class Hatch {
 
         @Override
         protected void execute() {
-            if((horzOffToIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE)){
+            if ((horzOffToIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE)) {
                 finished = true;
                 System.out.println("La vision est borkeed");
-            }
-            else{
+            } else {
                 System.out.println(horzOffToIn.getDouble(DEFAULT_VALUE));
-                if(Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE)) < .5){
+                if (Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE)) < .5) {
                     System.out.println("On target");
                     strafe.set(0);
                     this.finished = true;
                 }
-                if(horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()){
-                    strafe.set(-STRAFE_SPEED  * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
-                }
-                else if(horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()){
-                    strafe.set(STRAFE_SPEED  * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
                 }
 
             }
-            
+
         }
 
         @Override
@@ -335,7 +336,7 @@ public class Hatch {
     }
 
     // public HatchMove getHatchMove(double inchesToMove) {
-    //     return new HatchMove();
+    // return new HatchMove();
     // }
 
     public AutoDeploy getAutoDeploy() {
