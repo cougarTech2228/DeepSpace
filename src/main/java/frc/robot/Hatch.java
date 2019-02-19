@@ -25,6 +25,7 @@ public class Hatch {
     private final int ENCODER_COUNTS_TO_IN = 54666;
     private final int ENCODER_COUNT_CENTER = 164000;
     private final int DEFAULT_VALUE = 42069666;
+    private int totalEncoderCounts;
 
     private final String TABLE_KEY = "datatable";
     private NetworkTableInstance visionDataTableInst;
@@ -40,7 +41,7 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private boolean solenoidExtended = false;
-    
+    private Home home;
     private AutoDeploy autoDeployGroup;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
@@ -60,7 +61,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
-
+        home = new Home();
         autoToggle = new Toggler(2, true);
 
     }
@@ -84,7 +85,7 @@ public class Hatch {
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
-        
+        home.start();
         tilt.set(true);
     }
 
