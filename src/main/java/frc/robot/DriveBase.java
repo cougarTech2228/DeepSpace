@@ -171,13 +171,9 @@ public class DriveBase {
 			input = -1;
 		return input;
 	}
-<<<<<<< HEAD
 	public void setMaxSpeed(double speed) {
 		maxSpeed = speed;
 	}
-=======
-
->>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
 	public void TeleopMove() {
 		double Forward = controls.throttle();
 		double Turn = controls.turn();

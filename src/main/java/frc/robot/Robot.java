@@ -142,11 +142,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-<<<<<<< HEAD
     elevator.updateSwitches();
-=======
-    //System.out.println("pidgey " + pigeon.getYaw());
->>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
   }
 
 }
