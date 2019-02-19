@@ -41,17 +41,18 @@ public class Robot extends TimedRobot {
   private DriverIF controller = new DriverIF();
   private Navx navx = new Navx(Navx.Port.I2C);
   private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
-  private Hatch hatch = new Hatch(controller, base);
-  private Relay visionRelay = new Relay(0, Direction.kForward);
-  private Elevator elevator = new Elevator(base, controller);
   private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
       SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private Hatch hatch = new Hatch(controller, base, serialDataHandler);
+  private Relay visionRelay = new Relay(0, Direction.kForward);
+  private Elevator elevator = new Elevator(base, controller);
+  private int count;
 
   private AutoMaster auto = new AutoMaster(base, navx, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  // private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
 
   @Override
   public void robotInit() {
@@ -70,14 +71,14 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("right kD", 10);
     SmartDashboard.putNumber("left kD", 10);
     SmartDashboard.putNumber("speed", 0.5);
-    visionRelay.set(Relay.Value.kForward);
+    //visionRelay.set(Relay.Value.kForward);
     // m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     // m_chooser.addOption("My Auto", kCustomAuto);
     // SmartDashboard.putData("Auto choices", m_chooser);
     // auto.start();
     // visionRelay.set(Relay.Value.kForward);
 
-    Hardware.canifier.configFactoryDefault();
+    // Hardware.canifier.configFactoryDefault();
   }
 
   @Override
@@ -87,29 +88,40 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    // auto.start();
+    auto.start();
   }
 
   @Override
   public void autonomousPeriodic() {
-    // auto.run();
+    auto.run();
   }
 
   @Override
   public void teleopInit() {
     hatch.teleopInit();
+<<<<<<< HEAD
     elevator.teleopInit();
+=======
+    //SmartDashboard.putData("Move BOEBOT", base.moveToDistancePigeon());
+>>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
   }
 
   @Override
   public void teleopPeriodic() {
-
+    if(count == 5){
+      serialDataHandler.readPort();
+      count = 0;
+    }
+    count++;
+    System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
+    System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
+    
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
     // } else {
     //   visionRelay.set(Relay.Value.kOff);
     // }
-
+    //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
     elevator.teleopPeriodic();
@@ -118,8 +130,6 @@ public class Robot extends TimedRobot {
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
-
-    // serialDataHandler.readPort();
     // Schedulers.PeriodicTasks.process();
   }
 
@@ -127,11 +137,16 @@ public class Robot extends TimedRobot {
   public void testInit() {
     hatch.teleopInit();
     base.autoInit();
+    
   }
 
   @Override
   public void testPeriodic() {
+<<<<<<< HEAD
     elevator.updateSwitches();
+=======
+    //System.out.println("pidgey " + pigeon.getYaw());
+>>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
   }
 
 }

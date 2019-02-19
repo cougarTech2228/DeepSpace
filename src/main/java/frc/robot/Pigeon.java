@@ -10,7 +10,6 @@ public class Pigeon{
 
     public Pigeon(int port){
         Pigeon = new PigeonIMU(port);
-
     }
 
     public void resetYaw(){
