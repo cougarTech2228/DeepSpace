@@ -115,13 +115,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    /*
     if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
       System.out.println("Sensor Data old, == -1");
      }
      else{
       System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
       System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
-     }
+     }*/
 
     
     // if (controller.relayTest()) {

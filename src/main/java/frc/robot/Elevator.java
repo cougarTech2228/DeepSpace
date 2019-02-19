@@ -136,10 +136,10 @@ public class Elevator {
     }
     public void teleopPeriodic() {
 
-        System.out.println("Driving Drive Motor: " + liftDrive.getMotorCurrent());
-        System.out.println("Driving Deploy: " + elevatorDeployMotor.getMotorCurrent());
-        System.out.println("Driving Front Elevator: " + frontLift.getMotorCurrent());
-        System.out.println("Driving Back Elevator: " + backLift.getMotorCurrent());
+        // System.out.println("Driving Drive Motor: " + liftDrive.getMotorCurrent());
+        // System.out.println("Driving Deploy: " + elevatorDeployMotor.getMotorCurrent());
+        // System.out.println("Driving Front Elevator: " + frontLift.getMotorCurrent());
+        // System.out.println("Driving Back Elevator: " + backLift.getMotorCurrent());
         int num = TeleClimb.state;
         TeleClimb.toggle(controls.manualClimb());
 

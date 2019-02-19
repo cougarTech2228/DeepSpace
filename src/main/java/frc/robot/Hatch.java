@@ -26,6 +26,8 @@ public class Hatch {
     private final int ENCODER_COUNT_CENTER = 164000;
     private final int DEFAULT_VALUE = 42069666;
 
+    private final double RusHatchStrafe = 0.2;
+
     private final String TABLE_KEY = "datatable";
     private NetworkTableInstance visionDataTableInst;
     private NetworkTable visionDataTable;
@@ -41,6 +43,7 @@ public class Hatch {
     private int autotestingtemp = 0;
     private boolean solenoidExtended = false;
     private AutoDeploy autoDeployGroup;
+    private HatchMoveREE hatchMove;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -59,6 +62,7 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
+        hatchMove = new HatchMoveREE();
         autoToggle = new Toggler(2, true);
 
     }
@@ -86,6 +90,7 @@ public class Hatch {
     }
 
     public void teleop() {
+        System.out.println(strafe.getSensorPosition());
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend() && solenoidExtended == false) {
@@ -100,10 +105,10 @@ public class Hatch {
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
                 System.out.println("Starting auto hatch alignment from button press");
-                autoDeployGroup.start();
+                hatchMove.start();
             } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Canceling auto deploy");
-                autoDeployGroup.cancel();
+                hatchMove.cancel();
             }
         }
         hatchStrafe();
@@ -283,9 +288,10 @@ public class Hatch {
                     this.finished = true;
                 }
                 if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
-                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                    
+                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5) - 0.2);
                 } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()) {
-                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5) + 0.2);
                 }
 
             }
