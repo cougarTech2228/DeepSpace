@@ -99,22 +99,18 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     hatch.teleopInit();
-<<<<<<< HEAD
     elevator.teleopInit();
-=======
-    //SmartDashboard.putData("Move BOEBOT", base.moveToDistancePigeon());
->>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
   }
 
   @Override
   public void teleopPeriodic() {
-    if(count == 5){
-      serialDataHandler.readPort();
-      count = 0;
-    }
-    count++;
-    System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
-    System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
+    // if(count == 5){
+    //   serialDataHandler.readPort();
+    //   count = 0;
+    // }
+    // count++;
+    // System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
+    // System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
     
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);

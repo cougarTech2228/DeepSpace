@@ -1,6 +1,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Counter;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
@@ -129,9 +130,9 @@ public class Elevator {
         climbSequence[0].addSequential(deployElevator(true), 3.0);
         climbSequence[0].addParallel(liftElevator(0, 0.5), 4.5);
 
-        climbSequence[1].addSequential(liftElevator(-0.55, -0.5), 6.0);
+        climbSequence[1].addSequential(liftElevator(-0.7, -0.5), 6.0);
 
-        climbSequence[2].addSequential(liftElevator(0.4, 0), 5.0);
+        climbSequence[2].addSequential(liftElevator(0.5, 0));
     }
     public void teleopPeriodic() {
 
@@ -204,15 +205,17 @@ public class Elevator {
         public LiftElevator(double speedFront, double speedBack) {
             this.speedBack = speedBack;
             this.speedFront = speedFront;
-            frontComplete = false;
-            backComplete = false;
         }
         @Override
         public void initialize() {
+            frontComplete = false;
+            backComplete = false;
             if(speedFront > 0) {stopSwitchFront = frontLiftRaised;}
             else {stopSwitchFront = frontLiftLowered;}
+
             if(speedBack > 0) {stopSwitchBack = backLiftRaised;}
             else {stopSwitchBack = backLiftLowered;}
+
             if(speedFront == 0) frontComplete = true;
             if(speedBack == 0) backComplete = true;
         }
@@ -255,7 +258,7 @@ public class Elevator {
                     elevatorDeployMotor.set(0.15);
                 }
                 else if(!complete) {
-                    elevatorDeployMotor.set(0.3);
+                    elevatorDeployMotor.set(0.5);
                 }
             }
             else {

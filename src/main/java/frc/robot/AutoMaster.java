@@ -32,7 +32,7 @@ public class AutoMaster {
         this.base = base;
         this.hatch = hatch;
         autoDeployGroup = new CommandGroup();
-        autoDeployGroup.addSequential(base.moveToDistancePigeon());//hatch.getAutoDeploy();
+        //autoDeployGroup.addSequential(base.moveToDistancePigeon());//hatch.getAutoDeploy();
         // autoSequence = new CommandGroup();
     }
 
