@@ -165,10 +165,10 @@ public class Hatch {
     public class AutoDeploy extends CommandGroup {
 
         public AutoDeploy() {
-            this.addSequential(new HatchMoveREE());
-            this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
+            this.addSequential(new HatchMove());
+            this.addSequential(dBase.moveToDistancePigeon(distTargIn.getDouble(0)));
             this.addSequential(new HatchDeploy(.1));
-            this.addSequential(dBase.driveToInch(-3, 0.4));
+            
         }
 
         @Override
@@ -253,11 +253,11 @@ public class Hatch {
         }
     }
 
-    public class HatchMoveREE extends Command {
+    public class HatchMove extends Command {
         private boolean finished = false;
         private boolean running = false;
 
-        public HatchMoveREE() {
+        public HatchMove() {
             System.out.println("Constructing a hatchMove");
         }
 
@@ -270,7 +270,6 @@ public class Hatch {
         @Override
         protected void execute() {
             if((horzOffToIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE)){
-                finished = true;
                 System.out.println("La vision est borkeed");
             }
             else{
@@ -285,6 +284,10 @@ public class Hatch {
                 }
                 else if(horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()){
                     strafe.set(STRAFE_SPEED  * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 6));
+                }
+                if(!rightSwitch.get() || !leftSwitch.get()){
+                    this.finished = true;
+                    System.out.println("Reached boundary");
                 }
 
             }

@@ -83,6 +83,7 @@ public class RobotMap {
     
     //Misc devices
     public static int PIGEONIMU = 61;
+    public static int PIGEONIMU_MULE = 0;
     public static int CANIFIER = 62;
     public static int LEFT_DISTANCE_SENSOR = 1;
     public static int RIGHT_DISTANCE_SENSOR = 2;

@@ -33,7 +33,7 @@ import com.ctre.phoenix.schedulers.ConcurrentScheduler;
  */
 
 public class Robot extends TimedRobot {
-  private static int pigeonPort = RobotMap.PIGEONIMU;
+  private static int pigeonPort = RobotMap.PIGEONIMU_MULE;
   private static Pigeon pigeon = new Pigeon(pigeonPort);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -98,11 +98,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     hatch.teleopInit();
-<<<<<<< HEAD
-    elevator.teleopInit();
-=======
-    //SmartDashboard.putData("Move BOEBOT", base.moveToDistancePigeon());
->>>>>>> 12288be2d0f3b8b1d2416854f2ee63a432e5aaf3
+    // elevator.teleopInit();
   }
 
   @Override
@@ -116,7 +112,7 @@ public class Robot extends TimedRobot {
     //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
-    elevator.teleopPeriodic();
+    // elevator.teleopPeriodic();
     hatch.teleop();
 
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {

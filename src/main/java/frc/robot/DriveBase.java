@@ -375,20 +375,20 @@ public class DriveBase {
 		leftFront.set(.2);
 	}
 
-	public MoveToDistancePigeon moveToDistancePigeon(int distInches) {
+	public MoveToDistancePigeon moveToDistancePigeon(double distInches) {
 		return new MoveToDistancePigeon(distInches);
 	}
 	public class MoveToDistancePigeon extends Command {
 		private double initialAngle;
-		public MoveToDistancePigeon(int distInches){
-
+		private double distInches;
+		public MoveToDistancePigeon(double distInches){
+			this.distInches = distInches;
 		}
 		public void initialize(){
 			this.initialAngle = pidgey.getYaw();
 		}
 		public void execute(){
-			//SmartDashboard.putNumber("Sensor1", serial.getSensor1Data());
-			//SmartDashboard.putNumber("Sensor2", serial.getSensor2Data());
+
 			double leftSped = 0.3;
 			double rightSped = 0.3;
 			
@@ -401,7 +401,6 @@ public class DriveBase {
 			// double angle = pidgey.getYaw();
 			
 		}
-
 
 		protected boolean isFinished() {
 			return false;
