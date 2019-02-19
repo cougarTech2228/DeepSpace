@@ -23,7 +23,7 @@ public class AutoMaster {
     private NetworkTableEntry horzOffToIn;
     private CommandGroup autoDeployGroup;
 
-    public AutoMaster(DriveBase base, Navx navx, Hatch hatch) {
+    public AutoMaster(DriveBase base, Hatch hatch) {
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
         targState = visionDataTable.getEntry("targState");
@@ -32,7 +32,7 @@ public class AutoMaster {
         this.base = base;
         this.hatch = hatch;
         autoDeployGroup = new CommandGroup();
-        autoDeployGroup.addSequential(base.moveToDistancePigeon());//hatch.getAutoDeploy();
+        autoDeployGroup.addSequential(base.moveToDistancePigeon(10));//hatch.getAutoDeploy();
         // autoSequence = new CommandGroup();
     }
 

@@ -65,6 +65,40 @@ public class DriveBase {
 		leftFront.setBrakeMode(true);
 		leftBack.setBrakeMode(true);
 	}
+	public DriveBase(DriverIF controls, Pigeon pidgey, DriveType mode) {
+		this.controls = controls;
+		this.mode = mode;
+		this.pidgey = pidgey;
+		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
+				// SerialPort.StopBits.kOne);
+		zeroPigeon = false;
+		throttleAccel = 0;
+		turnAccel = 0;
+
+		rightFront = new Motor(RobotMap.RIGHT_FRONT);
+		leftFront = new Motor(RobotMap.LEFT_FRONT);
+
+		// Mecanum
+		if (mode == DriveType.Mecanum) {
+			rightBack = new Motor(RobotMap.RIGHT_BACK);
+			leftBack = new Motor(RobotMap.LEFT_BACK);
+
+			rightFront.invert(true);
+			rightBack.invert(true);
+		}
+		// Tank
+		else if (mode == DriveType.Tank) {
+			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
+			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
+
+			leftFront.invert(true);
+			leftBack.invert(true);
+		}
+		rightFront.setBrakeMode(true);
+		rightBack.setBrakeMode(true);
+		leftFront.setBrakeMode(true);
+		leftBack.setBrakeMode(true);
+	}
 
 	private double zeroLimit(double input) {
 		if (Math.abs(input) < 0.1)
@@ -339,9 +373,9 @@ public class DriveBase {
 		leftFront.set(.2);
 	}
 
-	// public MoveToDistancePigeon moveToDistancePigeon() {
-	// 	return new MoveToDistancePigeon();
-	// }
+	public MoveToDistancePigeon moveToDistancePigeon(int distInches) {
+		return new MoveToDistancePigeon(distInches);
+	}
 	public class MoveToDistancePigeon extends Command {
 		private double initialAngle;
 		public MoveToDistancePigeon(int distInches){
