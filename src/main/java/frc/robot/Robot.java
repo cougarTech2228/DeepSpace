@@ -40,13 +40,19 @@ public class Robot extends TimedRobot {
 
   private DriverIF controller = new DriverIF();
   private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
-  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
-      // SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
   private Hatch hatch = new Hatch(controller, base);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
   private int count;
 
+  // private static int pigeonPort = RobotMap.PIGEONIMU;
+  // private static Pigeon pigeon = new Pigeon(pigeonPort);
+  // private Navx navx = new Navx(Navx.Port.I2C);
+    
+  // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
+  // private Elevator elevator = new Elevator(base, controller);
+  // private Hatch hatch = new Hatch(controller, base);
   private AutoMaster auto = new AutoMaster(base, hatch);
 
   private String m_autoSelected;
@@ -87,6 +93,11 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
+    // m_autoSelected = m_chooser.getSelected();
+    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    // System.out.println("Auto selected: " + m_autoSelected);
+    // base.teleopInit();
+    // auto.start();
     auto.start();
   }
 
@@ -103,6 +114,14 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
+      System.out.println("Sensor Data old, == -1");
+     }
+     else{
+      System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
+      System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
+     }
+
     
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
@@ -114,23 +133,38 @@ public class Robot extends TimedRobot {
     //elevator.teleopRaise();
     elevator.teleopPeriodic();
     hatch.teleop();
+    // base.teleopInit();
 
+    
+
+         
+  //for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
+  //Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    }
+    // pigeon.resetYaw();
+ 
+    @Override
+    public void testInit(){
+      hatch.teleopInit();
+      base.autoInit();
+    }
+
+
+  @Override
+  public void testPeriodic(){
+    //base.teleopInit();
+    //base.rightFront.set(ControlMode.Position, 10000);
+    //System.out.println("Counts: " + base.rightFront.getSensorPosition());
+    //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
+    // base.TestEncoders();
+    //hatch.testPeriodic();
+    // elevator.updateSwitches();
+    // elevator.testLiftDriveEncoder();
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
     // Schedulers.PeriodicTasks.process();
   }
 
-  @Override
-  public void testInit() {
-    hatch.teleopInit();
-    base.autoInit();
-    
-  }
-
-  @Override
-  public void testPeriodic() {
-    elevator.updateSwitches();
-  }
 
 }
