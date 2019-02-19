@@ -103,16 +103,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-<<<<<<< HEAD
-    // if(count == 5){
-    //   serialDataHandler.readPort();
-    //   count = 0;
-    // }
-    // count++;
-    // System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
-    // System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
-=======
->>>>>>> a495fd17820bc29019c413de31d8b5b3a956c9ab
     
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);
