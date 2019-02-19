@@ -87,22 +87,22 @@ range_valueLeft = leftSensor.readRangeContinuousMillimeters();
     out[0] = 0xFF;
     out[1] = 0x01;
 
-  Serial1.write(out,2);
+  Serial3.write(out,2);
     out[0] = byte(range_valueLeft >> 8);
     out[1] = byte(range_valueLeft & 0x00FF);
     
-    Serial1.write(out,2);
+    Serial3.write(out,2);
     Serial.print(range_valueLeft);
     Serial.println();
   
     out[0] = 0xFF;
     out[1] = 0x02;
 
-  Serial1.write(out,2);
+  Serial3.write(out,2);
     out[0] = byte(range_valueRight >> 8);
     out[1] = byte(range_valueRight & 0x00FF);
     
-    Serial1.write(out,2);
+    Serial3.write(out,2);
     Serial.print(range_valueRight);  
     Serial.println();
     
