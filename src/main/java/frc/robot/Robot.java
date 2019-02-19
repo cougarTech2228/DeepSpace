@@ -39,16 +39,15 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
 
   private DriverIF controller = new DriverIF();
-  private Navx navx = new Navx(Navx.Port.I2C);
-  private DriveBase base = new DriveBase(controller, navx, pigeon, DriveType.Tank);
-  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
-      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
-  private Hatch hatch = new Hatch(controller, base, serialDataHandler);
+  private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
+  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
+      // SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private Hatch hatch = new Hatch(controller, base);
   private Relay visionRelay = new Relay(0, Direction.kForward);
   private Elevator elevator = new Elevator(base, controller);
   private int count;
 
-  private AutoMaster auto = new AutoMaster(base, navx, hatch);
+  private AutoMaster auto = new AutoMaster(base, hatch);
 
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -104,6 +103,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+<<<<<<< HEAD
     // if(count == 5){
     //   serialDataHandler.readPort();
     //   count = 0;
@@ -111,6 +111,8 @@ public class Robot extends TimedRobot {
     // count++;
     // System.out.println("Sensor1: " + serialDataHandler.getSensor1Data());
     // System.out.println("Sensor2: " + serialDataHandler.getSensor2Data());
+=======
+>>>>>>> a495fd17820bc29019c413de31d8b5b3a956c9ab
     
     // if (controller.relayTest()) {
     //   visionRelay.set(Relay.Value.kOn);

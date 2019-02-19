@@ -40,9 +40,8 @@ public class Hatch {
     private Toggler autoToggle;
     private int autotestingtemp = 0;
     private AutoDeploy autoDeployGroup;
-    private SerialDataHandler serialDataHandler;
 
-    public Hatch(DriverIF controls, DriveBase dBase, SerialDataHandler serialDataHandler) {
+    public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
@@ -58,7 +57,6 @@ public class Hatch {
         targState = visionDataTable.getEntry("targState");
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
-        this.serialDataHandler = serialDataHandler;
         this.autoDeployGroup = new AutoDeploy();
         autoToggle = new Toggler(2, true);
 
