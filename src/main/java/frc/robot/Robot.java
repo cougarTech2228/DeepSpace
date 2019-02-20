@@ -34,8 +34,7 @@ import com.ctre.phoenix.schedulers.ConcurrentScheduler;
  */
 
 public class Robot extends TimedRobot {
-  private static int pigeonPort = RobotMap.PIGEONIMU;
-  private static Pigeon pigeon = new Pigeon(pigeonPort);
+  private static Pigeon pigeon = new Pigeon(RobotMap.PIGEONIMU);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
 
@@ -108,6 +107,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    //base.teleopInit();
     hatch.teleopInit();
     elevator.teleopInit();
     visionRelay.set(Value.kOn);
@@ -115,7 +115,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    System.out.println("pidgey: " + pigeon.getYaw());
+    //System.out.println("pidgey: " + pigeon.getYaw());
     /*
     if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
       System.out.println("Sensor Data old, == -1");
@@ -153,25 +153,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-<<<<<<< HEAD
   public void testPeriodic() {
     // elevator.updateSwitches();
-    elevator.putElevatorEncoders();
-=======
-  public void testPeriodic(){
-    //base.teleopInit();
-    //base.rightFront.set(ControlMode.Position, 10000);
-    //System.out.println("Counts: " + base.rightFront.getSensorPosition());
-    //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
-    // base.TestEncoders();
-    //hatch.testPeriodic();
-    //elevator.updateSwitches();
-    //  elevator.testLiftDriveEncoder();
-    // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
-    //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
-    // }
-    // Schedulers.PeriodicTasks.process();
->>>>>>> 0defcc4d4219554c33b6b31fb03b09c4c45b8f59
+    //elevator.putElevatorEncoders();
   }
 
 }

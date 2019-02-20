@@ -16,15 +16,15 @@ public class DriverIF {
     }
 
     public double throttle() {
-        return xbox.LEFT_JOYSTICK_Y();
+        return -xbox.LEFT_JOYSTICK_Y();
     }
 
     public double strafe() {
-        return xbox.LEFT_JOYSTICK_X();
+        return -xbox.LEFT_JOYSTICK_X();
     }
 
     public double turn() {
-        return xbox.RIGHT_JOYSTICK_X();
+        return -xbox.RIGHT_JOYSTICK_X();
     }
 
     public boolean hatchExtend() {

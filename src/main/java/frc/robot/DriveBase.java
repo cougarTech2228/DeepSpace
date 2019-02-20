@@ -27,6 +27,8 @@ public class DriveBase {
 	private double wheelCircumfrence = Math.PI * 7;
 	private double gearRatio = 9.479;
 	private double encoderCountRevolution = 80;
+	private Command bob;
+	private boolean disableDrive = false;
 	//private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
 	//for new
 	private SerialDataHandler serial;
@@ -42,6 +44,7 @@ public class DriveBase {
 		this.navx = navx;
 		this.mode = mode;
 		this.pidgey = pidgey;
+		//SmartDashboard.putData("DRIV STRAIGT ROBUT", this.moveToInches(20, 0.4));
 		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
 				// SerialPort.StopBits.kOne);
 		zeroPigeon = false;
@@ -64,8 +67,8 @@ public class DriveBase {
 			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
 			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
 
-			leftFront.invert(true);
-			leftBack.invert(true);
+			rightFront.invert(true);
+			rightBack.invert(true);
 		}
 		rightFront.setBrakeMode(true);
 		rightBack.setBrakeMode(true);
@@ -73,6 +76,8 @@ public class DriveBase {
 		leftBack.setBrakeMode(true);
 	}
 	public DriveBase(DriverIF controls, Pigeon pidgey, DriveType mode) {
+		bob = moveToInches(20, 0.4);
+		SmartDashboard.putData("DRIV STRAIGT ROBUT", moveToInches(20, 0.4));
 		this.controls = controls;
 		this.mode = mode;
 		this.pidgey = pidgey;
@@ -98,8 +103,8 @@ public class DriveBase {
 			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
 			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
 
-			leftFront.invert(true);
-			leftBack.invert(true);
+			rightFront.invert(true);
+			rightBack.invert(true);
 		}
 		rightFront.setBrakeMode(true);
 		rightBack.setBrakeMode(true);
@@ -115,7 +120,6 @@ public class DriveBase {
 
 	public void teleopInit() {
 		Scheduler.getInstance().removeAll();
-		SmartDashboard.putData(this.moveToInches(20, 0.4));
 		rightFront.teleopInit();
 		leftFront.teleopInit();
 		/*
@@ -217,10 +221,21 @@ public class DriveBase {
 	public void setMaxSpeed(double speed) {
 		maxSpeed = speed;
 	}
+	public void disableDrive() {
+		disableDrive = true;
+	}
+	public void enableDrive() {
+		disableDrive = false;
+	}
 	public void TeleopMove() {
 		double Forward = controls.throttle();
 		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
+
+		// if(controls.xbox.BACK_BUTTON() && !bob.isRunning()) {
+		// 	bob = moveToInches(48, 0.4);
+		// 	bob.start();
+		// }
 		/*
 		double SpeedAfter1Sec = 0.75;
 		double num = SpeedAfter1Sec / 50;
@@ -242,7 +257,7 @@ public class DriveBase {
 		Forward *= driveSpeedPercentage;
 		Turn *= turnSpeedPercentage;
 
-		if (mode == DriveType.Tank) {
+		if (mode == DriveType.Tank && !disableDrive) {
 
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
@@ -273,6 +288,7 @@ public class DriveBase {
 
 			rightFront.set(RightF);
 			leftFront.set(LeftF);
+
 		} else if (mode == DriveType.Mecanum) {
 
 			double Strafe = controls.strafe();
@@ -424,20 +440,27 @@ public class DriveBase {
 		private double threshold = 430;
 		private double initialSpeed = 0.25;
 		private double endingSpeed = 0.15;
+		private double percentComplete = 0;
 		private boolean leftRunning = true;
 		private boolean rightRunning = true;
 
 		public MoveToInches(double targetEncoderInches, double speed) {
+			System.out.println("TargetInches" + targetEncoderInches);
 			this.maxSpeed = speed;
 			this.targetEncoderCount = targetEncoderInches * countsPerInch;
 
 		}
 
 		protected void initialize() {
+			disableDrive();
 			System.out.println("Setting encoders to zero");
 			rightFront.setEncoderToZero();
 			leftFront.setEncoderToZero();
 			equationConstant = threshold * (initialSpeed - endingSpeed) - targetEncoderCount;
+			rightFront.setBrakeMode(false);
+			rightBack.setBrakeMode(false);
+			leftFront.setBrakeMode(false);
+			leftBack.setBrakeMode(false);
 			pidgey.resetYaw();
 		}
 
@@ -445,15 +468,17 @@ public class DriveBase {
 			double encoderRight = Math.abs(rightFront.getSensorPosition());
 			double encoderLeft = Math.abs(leftFront.getSensorPosition());
 
-			double percentComplete = (encoderLeft + encoderRight) / (2 * targetEncoderCount);
+			double avg = (encoderLeft + encoderRight) / 2;
+			
+			percentComplete = Math.abs(avg / targetEncoderCount);
 
-			double speedRight = calcSpeed(encoderRight);
-			double speedLeft = calcSpeed(encoderLeft);
+			double speedRight = calcSpeed(avg);
+			double speedLeft = calcSpeed(avg);
 
 			double angle = pidgey.getYaw();
 
-			speedRight *= (45 + angle) / 45.0;
-			speedLeft *= (45 - angle) / 45.0;
+			speedRight *= (15 - angle) / 15.0;
+			speedLeft *= (15 + angle) / 15.0;
 
 			speedRight = Limit(speedRight);
 			speedLeft = Limit(speedLeft);
@@ -461,13 +486,15 @@ public class DriveBase {
 			if (percentComplete > 0.95) {
 				leftRunning = false;
 				rightRunning = false;
-				leftFront.stop();
-				rightFront.stop();
+				leftFront.set(0);
+				rightFront.set(0);
 			} else {
-				leftFront.setSpeed(speedLeft);
-				rightFront.setSpeed(speedRight);
+				leftFront.set(speedLeft);
+				rightFront.set(speedRight);
 			}
-
+			// System.out.println("percent complete: " + percentComplete);
+			// System.out.println("sped monkey left: " + speedLeft);
+			// System.out.println("sped monkey right: " + speedRight);
 		}
 
 		private double calcSpeed(double value) {
@@ -478,6 +505,7 @@ public class DriveBase {
 					+ equationConstant) / (2 * threshold) + initialSpeed;
 			//System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
 			// make sure it starts at a low speed
+			// System.out.println("sped: " + speed);
 			if (speed > Math.abs(maxSpeed)) {
 				speed = Math.abs(maxSpeed);
 			}
@@ -489,13 +517,18 @@ public class DriveBase {
 
 		@Override
 		protected boolean isFinished() {
-			return !leftRunning && !rightRunning;
+			return percentComplete > 0.95;
 		}
 
 		@Override
 		protected void end() {
+			enableDrive();
 			leftFront.stop();
 			rightFront.stop();
+			rightFront.setBrakeMode(true);
+			rightBack.setBrakeMode(true);
+			leftFront.setBrakeMode(true);
+			leftBack.setBrakeMode(true);
 		}
 	}
 

@@ -44,7 +44,7 @@ public class Hatch {
     private boolean solenoidExtended = false;
     private Home home;
     private AutoDeploy autoDeployGroup;
-    private HatchMoveCurrent hatchMove;Bro
+    private HatchMoveCurrent hatchMove;
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -94,12 +94,13 @@ public class Hatch {
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
-        home.start();
+        //home.start();
         tilt.set(true);
     }
 
     public void teleop() {
-        System.out.println(strafe.getSensorPosition());
+        //System.out.println(strafe.getSensorPosition());
+        tilt.set(controls.elevatorToggle());
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend() && solenoidExtended == false) {
@@ -114,10 +115,10 @@ public class Hatch {
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
                 System.out.println("Starting auto hatch alignment from button press");
-                hatchMove.start();
+                autoDeployGroup.start();
             } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Canceling auto deploy");
-                hatchMove.cancel();
+                autoDeployGroup.cancel();
             }
         }
         hatchStrafe();
@@ -183,9 +184,9 @@ public class Hatch {
 
         public AutoDeploy() {
             this.addSequential(new HatchMoveCurrent());
-            this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
+            this.addSequential(dBase.moveToInches(distTargIn.getDouble(0) - 1, 0.4), 4);
             this.addSequential(new HatchDeploy(.1));
-            this.addSequential(dBase.driveToInch(-3, 0.4));
+            this.addSequential(dBase.moveToInches(-3, 0.4));
         }
 
         @Override
@@ -306,6 +307,10 @@ public class Hatch {
         @Override
         protected void execute() {
             // System.out.println("Executing Hatch");
+            if(distTargIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE){
+                System.out.println("No data");
+                this.finished = true;
+            }
             if (!this.movingHatchMechanism) {
                 this.movingHatchMechanism = true;
                 this.finished = false;
@@ -381,9 +386,9 @@ public class Hatch {
                     strafe.set(0);
                     this.finished = true;
                 } else if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
-                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5));
+                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 4) - 0.2);
                 } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()) {
-                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 5));
+                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 4) + 0.2);
                 }
                 if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && !leftSwitch.get()) {
                     this.atBoundary = true;

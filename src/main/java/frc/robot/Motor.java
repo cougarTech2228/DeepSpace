@@ -112,9 +112,9 @@ public class Motor {
 		closeLoopEnabled = false;
 		motor.selectProfileSlot(SLOT_IDx, PID_IDx);
 		motor.configAllowableClosedloopError(PID_IDx, 0, timeout);
-		motor.config_kF(PID_IDx, 0, timeout);
+		motor.config_kF(PID_IDx, 3.5, timeout);
 		
-		motor.config_kP(PID_IDx, 0, timeout);
+		motor.config_kP(PID_IDx, 0.5, timeout);
 		motor.config_kI(PID_IDx, 0, timeout); 
 		motor.config_kD(PID_IDx, 0, timeout);
 	}
