@@ -143,16 +143,20 @@ public class Robot extends TimedRobot {
   //for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
   //Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     }
-    // pigeon.resetYaw();
- 
-    @Override
-    public void testInit(){
-      hatch.teleopInit();
-      base.autoInit();
-    }
-
 
   @Override
+  public void testInit() {
+    hatch.teleopInit();
+    base.autoInit();
+    
+  }
+
+  @Override
+<<<<<<< HEAD
+  public void testPeriodic() {
+    // elevator.updateSwitches();
+    elevator.putElevatorEncoders();
+=======
   public void testPeriodic(){
     //base.teleopInit();
     //base.rightFront.set(ControlMode.Position, 10000);
@@ -166,7 +170,7 @@ public class Robot extends TimedRobot {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
     // Schedulers.PeriodicTasks.process();
+>>>>>>> 0defcc4d4219554c33b6b31fb03b09c4c45b8f59
   }
-
 
 }
