@@ -3,14 +3,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Timer;
 
 public class DriverIF {
-    private XboxIF xbox;
-    private double hatchTimer;
+    public XboxIF xbox;
     private Toggler elevatorExtendToggle;
     private Toggler lightsToggle;
 
     public DriverIF() {
         xbox = new XboxIF(1);
-        hatchTimer = 0;
         lightsToggle = new Toggler(2, true);
         elevatorExtendToggle = new Toggler(2, true);
         
@@ -30,10 +28,7 @@ public class DriverIF {
     }
 
     public boolean hatchExtend() {
-        if(xbox.RIGHT_BUMPER()) {
-            hatchTimer = Timer.getFPGATimestamp();
-        }
-        return hatchTimer + 1 >= Timer.getFPGATimestamp();
+        return xbox.RIGHT_BUMPER();
     }
     public boolean elevatorToggle() {
         elevatorExtendToggle.toggle(xbox.X_BUTTON());

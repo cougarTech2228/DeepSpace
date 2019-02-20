@@ -2,12 +2,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
+import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SerialPort;
 
 public class DriveBase {
 
-	private static double countsPerInch = 35.899;
+	//private static double countsPerInch = 35.899;
+	private static double countsPerInch = 34.451;
 	private Navx navx;
 	private DriverIF controls;
 	public Motor rightFront;
@@ -107,6 +109,8 @@ public class DriveBase {
 	}
 
 	public void teleopInit() {
+		Scheduler.getInstance().removeAll();
+		SmartDashboard.putData(this.moveToInches(20, 0.4));
 		rightFront.teleopInit();
 		leftFront.teleopInit();
 		/*
@@ -443,10 +447,11 @@ public class DriveBase {
 
 			double angle = pidgey.getYaw();
 
-			System.out.println("angle: " + angle);
-
 			speedRight *= (45 + angle) / 45.0;
 			speedLeft *= (45 - angle) / 45.0;
+
+			speedRight = Limit(speedRight);
+			speedLeft = Limit(speedLeft);
 
 			if (percentComplete > 0.95) {
 				leftRunning = false;
@@ -466,7 +471,7 @@ public class DriveBase {
 			// to see how it works, graph it on desmos
 			double speed = -(Math.abs(2 * value - targetEncoderCount + equationConstant) - targetEncoderCount
 					+ equationConstant) / (2 * threshold) + initialSpeed;
-			System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
+			//System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
 			// make sure it starts at a low speed
 			if (speed > Math.abs(maxSpeed)) {
 				speed = Math.abs(maxSpeed);

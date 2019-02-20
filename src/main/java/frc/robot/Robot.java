@@ -114,6 +114,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    System.out.println("pidgey: " + pigeon.getYaw());
     /*
     if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
       System.out.println("Sensor Data old, == -1");
