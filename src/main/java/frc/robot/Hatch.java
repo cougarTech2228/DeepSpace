@@ -26,6 +26,8 @@ public class Hatch {
     private final int DEFAULT_VALUE = 10000;
     private int ENCODER_COUNTS_TO_IN;
     private int ENCODER_COUNT_CENTER;
+    private final double RusHatchStrafe = 0.2;
+
     private final String TABLE_KEY = "datatable";
     private NetworkTableInstance visionDataTableInst;
     private NetworkTable visionDataTable;
@@ -42,6 +44,7 @@ public class Hatch {
     private boolean solenoidExtended = false;
     private Home home;
     private AutoDeploy autoDeployGroup;
+    private HatchMoveCurrent hatchMove;Bro
 
     public Hatch(DriverIF controls, DriveBase dBase) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
@@ -60,16 +63,16 @@ public class Hatch {
         distTargIn = visionDataTable.getEntry("distTargetIn");
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         this.autoDeployGroup = new AutoDeploy();
-        home = new Home();
-        autoToggle = new Toggler(2, true);
-        if(IS_COMP_BOT){
+        if (IS_COMP_BOT) {
             this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_PER_IN_RUSS;
             this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_TOTAL_RUSS / 2;
-        }
-        else{
+        } else {
             this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_TO_IN_MULE;
             this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_CENTER_MULE;
         }
+        home = new Home();
+        autoToggle = new Toggler(2, true);
+
     }
 
     /**
@@ -91,13 +94,12 @@ public class Hatch {
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
-        // home.start();
+        home.start();
         tilt.set(true);
     }
 
     public void teleop() {
-        tilt.set(controls.elevatorToggle());
-
+        System.out.println(strafe.getSensorPosition());
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend() && solenoidExtended == false) {
@@ -112,10 +114,10 @@ public class Hatch {
         if (controls.autoAlign()) {
             if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
                 System.out.println("Starting auto hatch alignment from button press");
-                autoDeployGroup.start();
+                hatchMove.start();
             } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Canceling auto deploy");
-                autoDeployGroup.cancel();
+                hatchMove.cancel();
             }
         }
         hatchStrafe();

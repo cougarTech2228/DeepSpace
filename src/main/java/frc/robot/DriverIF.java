@@ -76,7 +76,7 @@ public class DriverIF {
         return xbox.A_BUTTON();
     }
 
-    public boolean deployElevator() {
+    public boolean level2Climb() {
         return xbox.LEFT_BUMPER();
     }
 

@@ -14,6 +14,7 @@ import frc.robot.LEDUtilities.*;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Relay.Direction;
+import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -51,7 +52,6 @@ public class Robot extends TimedRobot {
   // private Navx navx = new Navx(Navx.Port.I2C);
     
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
-  // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
   private AutoMaster auto = new AutoMaster(base, hatch);
 
@@ -110,6 +110,7 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     hatch.teleopInit();
     elevator.teleopInit();
+    visionRelay.set(Value.kOn);
   }
 
   @Override
@@ -143,16 +144,20 @@ public class Robot extends TimedRobot {
   //for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
   //Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     }
-    // pigeon.resetYaw();
- 
-    @Override
-    public void testInit(){
-      hatch.teleopInit();
-      base.autoInit();
-    }
-
 
   @Override
+  public void testInit() {
+    hatch.teleopInit();
+    base.autoInit();
+    
+  }
+
+  @Override
+<<<<<<< HEAD
+  public void testPeriodic() {
+    // elevator.updateSwitches();
+    elevator.putElevatorEncoders();
+=======
   public void testPeriodic(){
     //base.teleopInit();
     //base.rightFront.set(ControlMode.Position, 10000);
@@ -160,13 +165,13 @@ public class Robot extends TimedRobot {
     //System.out.println("hello fam: " + base.rightFront.getSensorVelocity());
     // base.TestEncoders();
     //hatch.testPeriodic();
-    // elevator.updateSwitches();
-    // elevator.testLiftDriveEncoder();
+    //elevator.updateSwitches();
+    //  elevator.testLiftDriveEncoder();
     // for (ILoopable taskAnimateLEDStrip : Tasks.FullList) {
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
     // Schedulers.PeriodicTasks.process();
+>>>>>>> 0defcc4d4219554c33b6b31fb03b09c4c45b8f59
   }
-
 
 }
