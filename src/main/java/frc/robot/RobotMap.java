@@ -87,4 +87,10 @@ public class RobotMap {
     public static int LEFT_DISTANCE_SENSOR = 1;
     public static int RIGHT_DISTANCE_SENSOR = 2;
 
+    //Constants between bots
+    public static final int ENCODER_COUNTS_TO_IN_MULE = 54666;
+    public static final int ENCODER_COUNT_CENTER_MULE = 164000;
+    public static final int ENCODER_COUNT_TOTAL_RUSS = 1924;
+    public static final int ENCODER_COUNTS_PER_IN_RUSS = 320;
+
 }

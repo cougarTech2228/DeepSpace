@@ -125,15 +125,15 @@ public class Robot extends TimedRobot {
      }*/
 
     
-    // if (controller.relayTest()) {
-    //   visionRelay.set(Relay.Value.kOn);
-    // } else {
-    //   visionRelay.set(Relay.Value.kOff);
-    // }
+    if (controller.toggleLights()) {
+      visionRelay.set(Relay.Value.kOn);
+    } else {
+      visionRelay.set(Relay.Value.kOff);
+    }
     //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
-    elevator.teleopPeriodic();
+    //elevator.teleopPeriodic();
     hatch.teleop();
     // base.teleopInit();
 

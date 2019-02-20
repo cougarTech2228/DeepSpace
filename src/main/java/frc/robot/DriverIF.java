@@ -1,10 +1,20 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Timer;
+
 public class DriverIF {
     private XboxIF xbox;
+    private double hatchTimer;
+    private Toggler elevatorExtendToggle;
+    private Toggler lightsToggle;
 
     public DriverIF() {
         xbox = new XboxIF(1);
+        hatchTimer = 0;
+        lightsToggle = new Toggler(2, true);
+        elevatorExtendToggle = new Toggler(2, true);
+        
+        elevatorExtendToggle.state = 1;
     }
 
     public double throttle() {
@@ -20,15 +30,14 @@ public class DriverIF {
     }
 
     public boolean hatchExtend() {
-        return xbox.Y_BUTTON();
+        if(xbox.RIGHT_BUMPER()) {
+            hatchTimer = Timer.getFPGATimestamp();
+        }
+        return hatchTimer + 1 >= Timer.getFPGATimestamp();
     }
-
-    public boolean retractLiftDrive() {
-        return xbox.B_BUTTON();
-    }
-
-    public boolean hatchRetract() {
-        return xbox.X_BUTTON();
+    public boolean elevatorToggle() {
+        elevatorExtendToggle.toggle(xbox.X_BUTTON());
+        return elevatorExtendToggle.state == 1;
     }
 
     public boolean hatchStrafeLeft() {
@@ -39,8 +48,9 @@ public class DriverIF {
         return xbox.RIGHT_TRIGGER() > 0;
     }
 
-    public boolean autoClimb() {
-        return xbox.START_BUTTON();
+    public boolean toggleLights() {
+        lightsToggle.toggle(xbox.START_BUTTON());
+        return lightsToggle.state == 1;
     }
 
     public boolean encoderTestLeftFront() {
