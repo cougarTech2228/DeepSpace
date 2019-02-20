@@ -21,12 +21,11 @@ public class Hatch {
     private DigitalInput rightSwitch;
     private Motor strafe;
     private Compressor compressor;
-    private final double STRAFE_SPEED = .60;
-    private final int ENCODER_COUNTS_TO_IN = 54666;
-    private final int ENCODER_COUNT_CENTER = 164000;
-    private final int DEFAULT_VALUE = 42069666;
-    private int totalEncoderCounts;
-
+    private final double STRAFE_SPEED = .80;
+    private final boolean IS_COMP_BOT = true;
+    private final int DEFAULT_VALUE = 10000;
+    private int ENCODER_COUNTS_TO_IN;
+    private int ENCODER_COUNT_CENTER;
     private final String TABLE_KEY = "datatable";
     private NetworkTableInstance visionDataTableInst;
     private NetworkTable visionDataTable;
@@ -63,7 +62,14 @@ public class Hatch {
         this.autoDeployGroup = new AutoDeploy();
         home = new Home();
         autoToggle = new Toggler(2, true);
-
+        if(IS_COMP_BOT){
+            this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_PER_IN_RUSS;
+            this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_TOTAL_RUSS / 2;
+        }
+        else{
+            this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_TO_IN_MULE;
+            this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_CENTER_MULE;
+        }
     }
 
     /**
@@ -85,11 +91,13 @@ public class Hatch {
     public void teleopInit() {
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
-        home.start();
+        // home.start();
         tilt.set(true);
     }
 
     public void teleop() {
+        tilt.set(controls.elevatorToggle());
+
         autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         if (controls.hatchExtend() && solenoidExtended == false) {
@@ -172,7 +180,7 @@ public class Hatch {
     public class AutoDeploy extends CommandGroup {
 
         public AutoDeploy() {
-            this.addSequential(new HatchMoveREE());
+            this.addSequential(new HatchMoveCurrent());
             this.addSequential(dBase.driveToInch(distTargIn.getDouble(0), 0.4));
             this.addSequential(new HatchDeploy(.1));
             this.addSequential(dBase.driveToInch(-3, 0.4));
@@ -266,12 +274,90 @@ public class Hatch {
         }
     }
 
-    public class HatchMoveREE extends Command {
+    /**
+     * Command written to move hatch autonomously based on a distance in inches,
+     * which is converted to encoder counts. This command CAN be run parallel with a
+     * drive command because it takes an initial snapshot of the vision offset, and
+     * runs the hatch motor until that number of encoder counts is reached.
+     */
+    public class HatchMoveSnapshot extends Command {
+        private double inchesToMove;
+        private boolean movingHatchMechanism = false;
+        private double previousPosition = 0;
+        private double movedInches = 0;
+        private boolean finished = false;
+
+        public HatchMoveSnapshot() {
+            System.out.println("Constructing a hatchMove");
+        }
+
+        @Override
+        protected void initialize() {
+            System.out.println("Initializing HatchMove");
+            this.inchesToMove = horzOffToIn.getDouble(DEFAULT_VALUE);
+            this.movingHatchMechanism = false;
+            previousPosition = 0;
+            movedInches = 0;
+            finished = false;
+        }
+
+        @Override
+        protected void execute() {
+            // System.out.println("Executing Hatch");
+            if (!this.movingHatchMechanism) {
+                this.movingHatchMechanism = true;
+                this.finished = false;
+                this.previousPosition = strafe.getSensorPosition();
+                System.out.println("Starting auto alignment");
+                System.out.println(distTargIn.getDouble(99));
+                System.out.println("Inches away from center: " + inchesToMove);
+                if (inchesToMove < 0 && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED);
+                    System.out.println("moving left");
+                } else if (inchesToMove > 0 && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED);
+                    System.out.println("Moving right");
+                } else {
+                    System.out.println("wut");
+                }
+
+            } else if (this.movingHatchMechanism) {
+                this.movedInches = (strafe.getSensorPosition() - this.previousPosition) / ENCODER_COUNTS_TO_IN;
+                if (this.inchesToMove - this.movedInches > -.1 && this.inchesToMove - this.movedInches < .1) {
+                    strafe.set(0);
+                    this.movedInches = 0;
+                    this.movingHatchMechanism = false;
+                    this.finished = true;
+                    System.out.println("GOT EM");
+                } else if (this.movedInches > this.inchesToMove && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED);
+                    System.out.println("moving to the right");
+                } else if (this.movedInches < this.inchesToMove && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED);
+                    System.out.println("moving to the left");
+                }
+            } else {
+                System.out.println("If you see this, something is super borked");
+            }
+        }
+
+        @Override
+        protected boolean isFinished() {
+            return this.finished;
+        }
+    }
+
+    /**
+     * Command written to autonomously move hatch mechanism based on the current
+     * state of vision. Not possible to be run parallel with a drive command because
+     * we lose vision after 18 inches.
+     */
+    public class HatchMoveCurrent extends Command {
         private boolean finished = false;
         private boolean running = false;
         private boolean atBoundary = false;
 
-        public HatchMoveREE() {
+        public HatchMoveCurrent() {
             System.out.println("Constructing a hatchMove");
         }
 

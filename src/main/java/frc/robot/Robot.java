@@ -114,24 +114,25 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    /*
     if(serialDataHandler.getSensor1Data() == -1 || serialDataHandler.getSensor2Data() == -1){
       System.out.println("Sensor Data old, == -1");
      }
      else{
       System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
       System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
-     }
+     }*/
 
     
-    // if (controller.relayTest()) {
-    //   visionRelay.set(Relay.Value.kOn);
-    // } else {
-    //   visionRelay.set(Relay.Value.kOff);
-    // }
+    if (controller.toggleLights()) {
+      visionRelay.set(Relay.Value.kOn);
+    } else {
+      visionRelay.set(Relay.Value.kOff);
+    }
     //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
-    elevator.teleopPeriodic();
+    //elevator.teleopPeriodic();
     hatch.teleop();
     // base.teleopInit();
 
