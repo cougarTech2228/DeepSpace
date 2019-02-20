@@ -9,11 +9,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 public class DriveBase {
 
 	//private static double countsPerInch = 35.899;
-<<<<<<< HEAD
 	private static double countsPerInch = 34.451;
-=======
-	//old, for practice bot
->>>>>>> 950cfc2aaf10dcf92dfd4b90a686af3cba4228b9
 	private Navx navx;
 	private DriverIF controls;
 	public Motor rightFront;
@@ -31,7 +27,7 @@ public class DriveBase {
 	private double wheelCircumfrence = Math.PI * 7;
 	private double gearRatio = 9.479;
 	private double encoderCountRevolution = 80;
-	private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
+	//private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
 	//for new
 	private SerialDataHandler serial;
 
