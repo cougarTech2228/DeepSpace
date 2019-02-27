@@ -7,23 +7,13 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.TimedRobot;
-import com.ctre.phoenix.ILoopable;
-import frc.robot.LEDUtilities.*;
-import edu.wpi.first.wpilibj.I2C;
-import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.Relay.Direction;
-import edu.wpi.first.wpilibj.Relay.Value;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.*;
-import edu.wpi.first.wpilibj.Relay;
 import frc.robot.DriveBase.DriveType;
-import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.SerialPort;
-import com.ctre.phoenix.schedulers.ConcurrentScheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -41,29 +31,20 @@ public class Robot extends TimedRobot {
   private DriverIF controller = new DriverIF();
   private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
   private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
-  private Hatch hatch = new Hatch(controller, base);
-  private Relay visionRelay = new Relay(0, Direction.kForward);
+  private Vision vision = new Vision();
+  private Hatch hatch = new Hatch(controller, vision);
   private Elevator elevator = new Elevator(base, controller);
-  private int count;
 
-  // private static int pigeonPort = RobotMap.PIGEONIMU;
-  // private static Pigeon pigeon = new Pigeon(pigeonPort);
-  // private Navx navx = new Navx(Navx.Port.I2C);
-    
-  // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
-  // private Hatch hatch = new Hatch(controller, base);
-  private AutoMaster auto = new AutoMaster(base, hatch);
-
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
+  //private final SendableChooser<String> m_chooser = new SendableChooser<>();
   // private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
 
   @Override
   public void robotInit() {
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    //m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    //m_chooser.addOption("My Auto", kCustomAuto);
+    //SmartDashboard.putData("Auto choices", m_chooser);
     SmartDashboard.putNumber("rightkF", 0);
     SmartDashboard.putNumber("leftkF", 0);
     SmartDashboard.putNumber("right kP", 0.01);
@@ -97,20 +78,20 @@ public class Robot extends TimedRobot {
     // System.out.println("Auto selected: " + m_autoSelected);
     // base.teleopInit();
     // auto.start();
-    auto.start();
+    auto.init();
   }
 
   @Override
   public void autonomousPeriodic() {
-    auto.run();
+    //auto.run();
   }
 
   @Override
   public void teleopInit() {
     //base.teleopInit();
+    auto.teleop();
     hatch.teleopInit();
     elevator.teleopInit();
-    visionRelay.set(Value.kOn);
   }
 
   @Override
@@ -125,12 +106,8 @@ public class Robot extends TimedRobot {
       System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
      }*/
 
-    
-    if (controller.toggleLights()) {
-      visionRelay.set(Relay.Value.kOn);
-    } else {
-      visionRelay.set(Relay.Value.kOff);
-    }
+    auto.teleop();
+    vision.setRelay(controller.toggleLights());
     //System.out.println("pidgey: " + pigeon.getYaw());
     base.TeleopMove();
     //elevator.teleopRaise();
@@ -140,10 +117,12 @@ public class Robot extends TimedRobot {
 
     
 
-         
-  //for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
-  //Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    /*
+    for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
+      Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     }
+    */
+  }
 
   @Override
   public void testInit() {
@@ -154,8 +133,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testPeriodic() {
-    // elevator.updateSwitches();
-    //elevator.putElevatorEncoders();
-  }
 
+  }
 }

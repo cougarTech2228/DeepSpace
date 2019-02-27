@@ -57,6 +57,9 @@ public class Toggler {
 	public int toggle(boolean button) {
 		return toggle(button, false);
 	}
+	public boolean detectChange(boolean button) {
+		return state != toggle(button);
+	}
 	@Override
 	public String toString() {
 		return "state: " + state + " max: " + states;

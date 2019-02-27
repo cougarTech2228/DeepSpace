@@ -11,12 +11,6 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Elevator {
-    private boolean doAutoClimb = false;
-    private boolean deploy = false;
-    private boolean wasAutoButtonPressed = false;
-    private boolean doManualClimb = false;
-    private boolean wasManualButtonPressed = false;
-    private boolean isStallCurrentActive = false;
 
     private DriverIF controls;
     private DriveBase base;
@@ -30,15 +24,6 @@ public class Elevator {
     private double liftDriveMovePerRev = 0.1994;
     private double liftDriveEncodersPerRev = circumference * gearRatio / liftDriveMovePerRev;
 
-    // Drive Motor encoder math
-    private double driveCircumference = 6 * Math.PI;
-    private double driveGearRatio = (12.0 * 34.0) / (50.0 * 50.0);
-    private double driveMovePerRev = 0.1994;
-    // ^^^ Copied from the liftDrive cuz I'm lazy ^^^
-    private double driveEncodersPerRev = driveCircumference * driveGearRatio / driveMovePerRev;
-
-    private double leftDistance = 0;
-    private double rightDistance = 0;
     private double mmToIn = 0.0393701;
     private double maxDistanceToPlatform = 0;
 
@@ -65,32 +50,8 @@ public class Elevator {
     private double backElevatorEncodersPerInch = 0;
     private double frontElevatorEncodersPerInch = 0;
 
-    private double startTime;
-    private double distance1ToTheWall;
-    private double distance2ToTheWall;
     private Toggler TeleClimb = new Toggler(4);
-    private Toggler level2Climb = new Toggler(4);
     private CommandGroup[] climbSequence = new CommandGroup[4];
-
-    private int encoderCount = 0;
-
-    private autoClimb autoClimbState = autoClimb.PullRobotUp;
-
-    private enum autoClimb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
-    }
-
-    private manualClimb manualClimbState = manualClimb.PullRobotUp;
-
-    private enum manualClimb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward
-    }
-
-    private climb climbState = climb.PullRobotUp;
-
-    private enum climb {
-        PullRobotUp, MoveForward, LiftDriveMotorUp, MoveFullyForward, Error
-    }
 
     public Elevator(DriveBase driver, DriverIF controls) {
         base = driver;
@@ -129,14 +90,6 @@ public class Elevator {
         for(int i = 0; i < climbSequence.length; i++) {
             climbSequence[i] = new CommandGroup();
         }
-        /*
-        climbSequence[0].addSequential(deployElevator(true), 3.0);
-        climbSequence[0].addParallel(liftElevator(0, 0.5), 4.5);
-
-       
-
-        climbSequence[2].addSequential(liftElevator(0.5, 0));
-        */
     }
     public void teleopPeriodic() {
 
@@ -151,7 +104,6 @@ public class Elevator {
             level2 = true;
         }*/
 
-        // if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
         if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
             liftDrive.set(controls.throttle());
         }
@@ -172,7 +124,6 @@ public class Elevator {
                 case 2: {
                     if(!level2) {
                         climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 6.0);
-                        //liftDrive.set(.1);
                     }
                     else{
                         climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 3.0);
@@ -231,8 +182,6 @@ public class Elevator {
             this.speedFront = speedFront;
             frontEncoder = frontEncoderDistance;
             backEncoder = backEncoderDistance;
-            //this.addSequential(frontLift.moveToEncoder(frontEncoder, speedFront));
-            //this.addParallel(backLift.moveToEncoder(backEncoder, speedBack));
         }
         public LiftElevator(double speedFront, double speedBack, boolean stallCurrent) {
             this.speedBack = speedBack;

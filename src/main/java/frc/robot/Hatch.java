@@ -16,37 +16,20 @@ public class Hatch {
     private Solenoid right;
     private Solenoid tilt;
     private DriverIF controls;
-    private DriveBase dBase;
+    //private DriveBase dBase;
     private DigitalInput leftSwitch;
     private DigitalInput rightSwitch;
     private Motor strafe;
     private Compressor compressor;
     private final double STRAFE_SPEED = .80;
     private final boolean IS_COMP_BOT = true;
-    private final int DEFAULT_VALUE = 10000;
     private int ENCODER_COUNTS_TO_IN;
     private int ENCODER_COUNT_CENTER;
     private final double RusHatchStrafe = 0.2;
-
-    private final String TABLE_KEY = "datatable";
-    private NetworkTableInstance visionDataTableInst;
-    private NetworkTable visionDataTable;
-    // state, 0 for searching, 1 for acquiring, or 2 for locked
-    private NetworkTableEntry targState;
-    // distance to target in inches,
-    private NetworkTableEntry distTargIn;
-    // horizontal distance from center of target, positive being to the right
-    private NetworkTableEntry horzOffToIn;
-    private boolean homing = false;
-    private boolean zeroed = false;
+    private Vision vision;
     private Toggler autoToggle;
-    private int autotestingtemp = 0;
-    private boolean solenoidExtended = false;
-    private Home home;
-    private AutoDeploy autoDeployGroup;
-    private HatchMoveCurrent hatchMove;
 
-    public Hatch(DriverIF controls, DriveBase dBase) {
+    public Hatch(DriverIF controls, Vision vision/*, DriveBase dBase*/) {
         left = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_0);
         right = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_1);
         tilt = new Solenoid(RobotMap.PCM, RobotMap.PCM_PORT_2);
@@ -56,13 +39,7 @@ public class Hatch {
         leftSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_0);
         rightSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_1);
         this.controls = controls;
-        this.dBase = dBase;
-        visionDataTableInst = NetworkTableInstance.getDefault();
-        visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
-        targState = visionDataTable.getEntry("targState");
-        distTargIn = visionDataTable.getEntry("distTargetIn");
-        horzOffToIn = visionDataTable.getEntry("horzOffToIn");
-        this.autoDeployGroup = new AutoDeploy();
+        //this.dBase = dBase;
         if (IS_COMP_BOT) {
             this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_PER_IN_RUSS;
             this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_TOTAL_RUSS / 2;
@@ -70,7 +47,6 @@ public class Hatch {
             this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_TO_IN_MULE;
             this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_CENTER_MULE;
         }
-        home = new Home();
         autoToggle = new Toggler(2, true);
 
     }
@@ -101,30 +77,17 @@ public class Hatch {
     public void teleop() {
         //System.out.println(strafe.getSensorPosition());
         tilt.set(controls.elevatorToggle());
-        autoToggle.toggle(controls.autoAlign());
-        compressor.setClosedLoopControl(true);
-        if (controls.hatchExtend() && solenoidExtended == false) {
-            solenoidExtended = true;
-            extend();
-        } else if (controls.hatchExtend() && solenoidExtended == true) {
 
-        } else if (!controls.hatchExtend() && solenoidExtended == true) {
-            solenoidExtended = false;
+        if(controls.hatchExtend()) {
+            extend();
+        }
+        else {
             retract();
         }
-        if (controls.autoAlign()) {
-            if (autoToggle.state == 1 && !autoDeployGroup.isRunning()) {
-                System.out.println("Starting auto hatch alignment from button press");
-                autoDeployGroup.start();
-            } else if (autoToggle.state == 0 && autoDeployGroup.isRunning()) {
-                System.out.println("Canceling auto deploy");
-                autoDeployGroup.cancel();
-            }
-        }
-        hatchStrafe();
 
-        // System.out.println("distTargIn" + distTargIn.getDouble(99));
-        // System.out.println("horzOffToIn" + horzOffToIn.getDouble(99));
+        autoToggle.toggle(controls.autoAlign());
+        compressor.setClosedLoopControl(true);
+        hatchStrafe();
     }
 
     /**
@@ -143,6 +106,9 @@ public class Hatch {
     /**
      * 
      */
+    public double getOffset() {
+        return ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) - vision.getStrafeFromTarget());
+    }
     public void hatchStrafe() {
         if (!rightSwitch.get()) {
             strafe.setEncoderToZero();
@@ -154,24 +120,6 @@ public class Hatch {
         } else {
             strafe.set(0);
         }
-        // System.out.println(strafe.getSensorPosition());
-    }
-
-    public void home() {
-        if (!homing) {
-            strafe.set(STRAFE_SPEED);
-            homing = true;
-        }
-        if (!rightSwitch.get() && !zeroed) {
-            strafe.setEncoderToZero();
-            zeroed = true;
-        }
-        strafe.set(-STRAFE_SPEED);
-        if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 100) {
-            strafe.set(0);
-            homing = false;
-            zeroed = false;
-        }
     }
 
     // Auto Commands
@@ -180,50 +128,6 @@ public class Hatch {
      * Freakin' cool method to automatically align the hatch to the station with
      * vision. Welcome to the future.
      */
-    public class AutoDeploy extends CommandGroup {
-
-        public AutoDeploy() {
-            this.addSequential(new HatchMoveCurrent());
-            this.addSequential(dBase.moveToInches(distTargIn.getDouble(0) - 1, 0.4), 4);
-            this.addSequential(new HatchDeploy(.1));
-            this.addSequential(dBase.moveToInches(-3, 0.4));
-        }
-
-        @Override
-        protected void initialize() {
-            if (distTargIn.getDouble(DEFAULT_VALUE) > 18 && distTargIn.getDouble(DEFAULT_VALUE) < 48) {
-                System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
-                double offset = ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN)
-                        - horzOffToIn.getDouble(DEFAULT_VALUE));
-                if (!(offset < 6 && offset > 0)) {
-                    System.out.println("Offset is too great: " + offset);
-                    this.cancel();
-                }
-                if (targState.getDouble(DEFAULT_VALUE) == 2.0) {
-                } else {
-                    System.out.println("Not locked");
-                    this.cancel();
-                }
-            } else {
-                System.out.println("Not in specified distance");
-                System.out.println(distTargIn.getDouble(DEFAULT_VALUE));
-                this.cancel();
-            }
-
-        }
-
-        @Override
-        protected void interrupted() {
-            Scheduler.getInstance().removeAll();
-        }
-
-        @Override
-        public void end() {
-            autoToggle.state = 0;
-            super.end();
-        }
-    }
-
     public class Home extends Command {
         private boolean homing;
         private boolean zeroed;
@@ -297,7 +201,7 @@ public class Hatch {
         @Override
         protected void initialize() {
             System.out.println("Initializing HatchMove");
-            this.inchesToMove = horzOffToIn.getDouble(DEFAULT_VALUE);
+            this.inchesToMove = vision.getDistanceFromTarget();
             this.movingHatchMechanism = false;
             previousPosition = 0;
             movedInches = 0;
@@ -307,7 +211,7 @@ public class Hatch {
         @Override
         protected void execute() {
             // System.out.println("Executing Hatch");
-            if(distTargIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE){
+            if(vision.getDistanceFromTarget() == vision.DEFAULT_VALUE){
                 System.out.println("No data");
                 this.finished = true;
             }
@@ -316,7 +220,7 @@ public class Hatch {
                 this.finished = false;
                 this.previousPosition = strafe.getSensorPosition();
                 System.out.println("Starting auto alignment");
-                System.out.println(distTargIn.getDouble(99));
+                System.out.println(vision.getDistanceFromTarget());
                 System.out.println("Inches away from center: " + inchesToMove);
                 if (inchesToMove < 0 && leftSwitch.get()) {
                     strafe.set(-STRAFE_SPEED);
@@ -359,6 +263,9 @@ public class Hatch {
      * state of vision. Not possible to be run parallel with a drive command because
      * we lose vision after 18 inches.
      */
+    public HatchMoveCurrent hatchMoveCurrent() {
+        return new HatchMoveCurrent();
+    }
     public class HatchMoveCurrent extends Command {
         private boolean finished = false;
         private boolean running = false;
@@ -376,25 +283,26 @@ public class Hatch {
 
         @Override
         protected void execute() {
-            if ((horzOffToIn.getDouble(DEFAULT_VALUE) == DEFAULT_VALUE)) {
+            double horzDistFromTarget = vision.getStrafeFromTarget();
+            if (horzDistFromTarget == vision.DEFAULT_VALUE) {
                 finished = true;
                 System.out.println("La vision est borkeed");
             } else {
-                System.out.println(horzOffToIn.getDouble(DEFAULT_VALUE));
-                if (Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE)) < .6) {
+                System.out.println(horzDistFromTarget);
+                if (Math.abs(horzDistFromTarget) < .6) {
                     System.out.println("On target");
                     strafe.set(0);
                     this.finished = true;
-                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && leftSwitch.get()) {
-                    strafe.set(-STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 4) - 0.2);
-                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && rightSwitch.get()) {
-                    strafe.set(STRAFE_SPEED * Math.abs(horzOffToIn.getDouble(DEFAULT_VALUE) / 4) + 0.2);
+                } else if (horzDistFromTarget < 0 && leftSwitch.get()) {
+                    strafe.set(-STRAFE_SPEED * Math.abs(horzDistFromTarget / 4) - 0.2);
+                } else if (horzDistFromTarget > 0 && rightSwitch.get()) {
+                    strafe.set(STRAFE_SPEED * Math.abs(horzDistFromTarget / 4) + 0.2);
                 }
-                if (horzOffToIn.getDouble(DEFAULT_VALUE) < 0 && !leftSwitch.get()) {
+                if (horzDistFromTarget < 0 && !leftSwitch.get()) {
                     this.atBoundary = true;
                     this.finished = true;
                     System.out.println("At left boundary");
-                } else if (horzOffToIn.getDouble(DEFAULT_VALUE) > 0 && !rightSwitch.get()) {
+                } else if (horzDistFromTarget > 0 && !rightSwitch.get()) {
                     this.atBoundary = true;
                     this.finished = true;
                     System.out.println("At right boundary");
@@ -414,6 +322,10 @@ public class Hatch {
         }
     }
 
+    /**
+     * Command written to autonomously deploy the hatch and retract
+     * after a specified period of time
+     */
     public class HatchDeploy extends Command {
         public HatchDeploy(double time) {
             super(time);
@@ -429,21 +341,21 @@ public class Hatch {
         protected boolean isFinished() {
             return isTimedOut();
         }
-
+        @Override
         protected void execute() {
             left.set(true);
             right.set(true);
         }
-
+        @Override
         protected void end() {
-            // left.set(false);
-            // right.set(false);
+            left.set(false);
+            right.set(false);
         }
 
     }
 
     // Getter methods for commands
-    public HatchDeploy getHatchDeploy(double time) {
+    public HatchDeploy hatchDeploy(double time) {
         return new HatchDeploy(time);
     }
 
@@ -454,9 +366,4 @@ public class Hatch {
     // public HatchMove getHatchMove(double inchesToMove) {
     // return new HatchMove();
     // }
-
-    public AutoDeploy getAutoDeploy() {
-        return new AutoDeploy();
-    }
-
 }
