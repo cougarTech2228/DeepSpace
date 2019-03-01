@@ -89,6 +89,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     //base.teleopInit();
+    vision.visionInit();
     auto.teleop();
     hatch.teleopInit();
     elevator.teleopInit();
@@ -112,7 +113,9 @@ public class Robot extends TimedRobot {
     base.TeleopMove();
     //elevator.teleopRaise();
     //elevator.teleopPeriodic();
+    vision.teleop();
     hatch.teleop();
+    
     // base.teleopInit();
 
     

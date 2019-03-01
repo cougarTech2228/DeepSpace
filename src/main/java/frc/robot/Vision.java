@@ -4,6 +4,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Vision {
     private final String TABLE_KEY = "datatable";
@@ -17,6 +18,7 @@ public class Vision {
     private NetworkTableEntry distTargIn;
     // horizontal distance from center of target, positive being to the right
     private NetworkTableEntry horzOffToIn;
+    private boolean inRange = false;
     public Vision() {
         visionDataTableInst = NetworkTableInstance.getDefault();
         visionDataTable = visionDataTableInst.getTable(TABLE_KEY);
@@ -25,6 +27,23 @@ public class Vision {
         horzOffToIn = visionDataTable.getEntry("horzOffToIn");
         visionRelay = new Relay(0, Relay.Direction.kForward);
         visionRelay.set(Relay.Value.kOn);
+        
+    }
+    public void visionInit(){
+        SmartDashboard.putBoolean("In Range", inRange);
+    }
+    public void teleop(){
+        if(getDistanceFromTarget() < 48 && getDistanceFromTarget() > 18){
+            if(getCameraState() == 2){
+                inRange = true;
+            }
+            else{
+                inRange = false;
+            }
+        }
+        else{
+            inRange = false;
+        }
     }
     public double getDistanceFromTarget() {
         return distTargIn.getDouble(DEFAULT_VALUE);

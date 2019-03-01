@@ -38,6 +38,7 @@ public class Hatch {
         compressor = new Compressor(RobotMap.PCM);
         leftSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_0);
         rightSwitch = new DigitalInput(RobotMap.DIGITAL_INPUT_1);
+        this.vision =  vision;
         this.controls = controls;
         //this.dBase = dBase;
         if (IS_COMP_BOT) {
