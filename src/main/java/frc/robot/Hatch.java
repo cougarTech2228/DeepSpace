@@ -86,7 +86,6 @@ public class Hatch {
             retract();
         }
 
-        autoToggle.toggle(controls.autoAlign());
         compressor.setClosedLoopControl(true);
         hatchStrafe();
     }

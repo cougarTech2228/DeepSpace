@@ -30,7 +30,7 @@ public class Vision {
         
     }
     public void visionInit(){
-        SmartDashboard.putBoolean("In Range", inRange);
+        
     }
     public void teleop(){
         if(getDistanceFromTarget() < 48 && getDistanceFromTarget() > 18){
@@ -44,6 +44,7 @@ public class Vision {
         else{
             inRange = false;
         }
+        SmartDashboard.putBoolean("In Range", inRange);
     }
     public double getDistanceFromTarget() {
         return distTargIn.getDouble(DEFAULT_VALUE);

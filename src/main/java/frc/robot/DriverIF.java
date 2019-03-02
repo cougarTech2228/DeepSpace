@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Timer;
 
 public class DriverIF {
-    public XboxIF xbox;
+    private XboxIF xbox;
     private Toggler elevatorExtendToggle;
     private Toggler lightsToggle;
 
@@ -72,8 +72,11 @@ public class DriverIF {
         return xbox.RIGHT_JOYSTICK_X();
     }
 
-    public boolean autoAlign() {
+    public boolean autoDeploy() {
         return xbox.A_BUTTON();
+    }
+    public boolean autoRetrieve(){
+        return xbox.B_BUTTON();
     }
 
     public boolean level2Climb() {
