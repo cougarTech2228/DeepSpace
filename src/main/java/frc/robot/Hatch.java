@@ -180,6 +180,9 @@ public class Hatch {
             return complete;
         }
     }
+    public HatchMoveSnapshot getHatchMoveSnapshot(){
+        return new HatchMoveSnapshot();
+    }
 
     /**
      * Command written to move hatch autonomously based on a distance in inches,

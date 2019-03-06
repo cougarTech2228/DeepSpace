@@ -9,11 +9,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.shuffleboard.*;
 import frc.robot.DriveBase.DriveType;
-import edu.wpi.first.wpilibj.SerialPort;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -61,9 +57,9 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     //base.teleopInit();
     vision.visionInit();
-    auto.teleop();
     hatch.teleopInit();
     elevator.teleopInit();
+    base.teleopInit();
   }
 
   @Override

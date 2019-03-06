@@ -78,6 +78,9 @@ public class DriverIF {
     public boolean autoRetrieve(){
         return xbox.B_BUTTON();
     }
+    public boolean btHome(){
+        return xbox.Y_BUTTON();
+    }
 
     public boolean level2Climb() {
         return xbox.LEFT_BUMPER();

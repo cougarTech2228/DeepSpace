@@ -4,6 +4,7 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SerialPort;
 
 public class DriveBase {
@@ -29,6 +30,7 @@ public class DriveBase {
 	private double encoderCountRevolution = 80;
 	private Command bob;
 	private boolean disableDrive = false;
+	private PowerDistributionPanel pdp;
 	//private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
 	//for new
 	private SerialDataHandler serial;
@@ -39,48 +41,14 @@ public class DriveBase {
 		Mecanum, Tank
 	}
 
-	public DriveBase(DriverIF controls, Navx navx, Pigeon pidgey, DriveType mode) {
-		this.controls = controls;
-		this.navx = navx;
-		this.mode = mode;
-		this.pidgey = pidgey;
-		//SmartDashboard.putData("DRIV STRAIGT ROBUT", this.moveToInches(20, 0.4));
-		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
-				// SerialPort.StopBits.kOne);
-		zeroPigeon = false;
-		throttleAccel = 0;
-		turnAccel = 0;
-
-		rightFront = new Motor(RobotMap.RIGHT_FRONT);
-		leftFront = new Motor(RobotMap.LEFT_FRONT);
-
-		// Mecanum
-		if (mode == DriveType.Mecanum) {
-			rightBack = new Motor(RobotMap.RIGHT_BACK);
-			leftBack = new Motor(RobotMap.LEFT_BACK);
-
-			rightFront.invert(true);
-			rightBack.invert(true);
-		}
-		// Tank
-		else if (mode == DriveType.Tank) {
-			rightBack = new Motor(RobotMap.RIGHT_BACK, rightFront);
-			leftBack = new Motor(RobotMap.LEFT_BACK, leftFront);
-
-			rightFront.invert(true);
-			rightBack.invert(true);
-		}
-		rightFront.setBrakeMode(true);
-		rightBack.setBrakeMode(true);
-		leftFront.setBrakeMode(true);
-		leftBack.setBrakeMode(true);
-	}
+	
 	public DriveBase(DriverIF controls, Pigeon pidgey, DriveType mode) {
 		bob = moveToInches(20, 0.4);
 		SmartDashboard.putData("DRIV STRAIGT ROBUT", moveToInches(20, 0.4));
 		this.controls = controls;
 		this.mode = mode;
 		this.pidgey = pidgey;
+		this.pdp = new PowerDistributionPanel(RobotMap.PDP);
 		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
 				// SerialPort.StopBits.kOne);
 		zeroPigeon = false;
@@ -122,6 +90,10 @@ public class DriveBase {
 		Scheduler.getInstance().removeAll();
 		rightFront.teleopInit();
 		leftFront.teleopInit();
+		SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
+		SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
+		SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
+		SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
 		/*
 		 * int maxRightVel = 272; int maxLeftVel = 253;
 		 * 
@@ -228,6 +200,10 @@ public class DriveBase {
 		disableDrive = false;
 	}
 	public void TeleopMove() {
+		SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
+		SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
+		SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
+		SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
 		double Forward = controls.throttle();
 		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
