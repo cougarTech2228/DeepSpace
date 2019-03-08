@@ -282,6 +282,7 @@ public class Hatch {
         protected void initialize() {
             System.out.println("Initializing HatchMove");
             finished = false;
+            atBoundary = false;
         }
 
         @Override
@@ -305,10 +306,14 @@ public class Hatch {
                     this.atBoundary = true;
                     this.finished = true;
                     System.out.println("At left boundary");
+                    this.getGroup().cancel();
+                    System.out.println("Cancelling due to being at left bound");
                 } else if (horzDistFromTarget > 0 && !rightSwitch.get()) {
                     this.atBoundary = true;
                     this.finished = true;
                     System.out.println("At right boundary");
+                    this.getGroup().cancel();
+                    System.out.println("Cancelling due to being at right bound");
                 }
 
             }

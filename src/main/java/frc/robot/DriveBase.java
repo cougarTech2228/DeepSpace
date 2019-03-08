@@ -419,6 +419,7 @@ public class DriveBase {
 		private double percentComplete = 0;
 		private double previousEncoderCount = 0;
 		private double sameEncoderCountCount = 0;
+		private double sameCountThreshold = 6;
 		private boolean leftRunning = true;
 		private boolean rightRunning = true;
 
@@ -471,7 +472,7 @@ public class DriveBase {
 			speedRight = Limit(speedRight);
 			speedLeft = Limit(speedLeft);
 
-			if (percentComplete > 0.95 || sameEncoderCountCount == 10)  {
+			if (percentComplete > 0.95 || sameEncoderCountCount == sameCountThreshold)  {
 				leftRunning = false;
 				rightRunning = false;
 				leftFront.set(0);
@@ -505,10 +506,10 @@ public class DriveBase {
 
 		@Override
 		protected boolean isFinished() {
-			if(sameEncoderCountCount == 10){
+			if(sameEncoderCountCount == sameCountThreshold){
 				System.out.println("Finished because of same encoder count");
 			}
-			return (percentComplete > 0.95 || sameEncoderCountCount == 10);
+			return (percentComplete > 0.95 || sameEncoderCountCount == sameCountThreshold);
 		}
 		@Override
 		protected void interrupted() {

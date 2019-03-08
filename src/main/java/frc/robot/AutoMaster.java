@@ -124,7 +124,7 @@ public class AutoMaster {
 
         @Override
         public void end() {
-            hatchDeployAutoToggler.state = 0;
+            hatchRetrieveAutoToggler.state = 0;
             super.end();
         }
     }
@@ -132,10 +132,27 @@ public class AutoMaster {
     public class AutoDeploy extends CommandGroup {
 
         public AutoDeploy() {
-            this.addSequential(hatch.hatchMoveCurrent());
-            this.addSequential(base.moveToInches(vision.getDistanceFromTarget() - 1, 0.4), 3);
-            this.addSequential(hatch.hatchDeploy(0.5));
-            this.addSequential(base.moveToInches(-3, 0.4));
+            if (vision.getCameraState() == 2) {
+                if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
+                    System.out.println(vision.getDistanceFromTarget());
+                    double offset = hatch.getOffset();
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("Offset is too great: " + offset);
+                        this.cancel();
+                    } else {
+                        this.addSequential(hatch.hatchMoveCurrent());
+                        this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
+                        this.addSequential(hatch.hatchDeploy(.5));
+                        this.addSequential(base.moveToInches(-3, 0.4));
+                    }
+                } else {
+                    System.out.println("Not in specified distance");
+                    this.cancel();
+                }
+            } else {
+                System.out.println("Not locked");
+                this.cancel();
+            }
         }
 
         @Override
@@ -157,7 +174,6 @@ public class AutoMaster {
                 System.out.println("Not locked");
                 this.cancel();
             }
-
         }
 
         @Override
