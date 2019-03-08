@@ -42,7 +42,7 @@ public class AutoMaster {
                 autoDeployGroup = new AutoDeploy();
                 System.out.println("Starting auto hatch alignment from button press");
                 autoDeployGroup.start();
-            } else if (hatchDeployAutoToggler.state == 0) {
+            } else if (hatchDeployAutoToggler.state == 0 && autoDeployGroup.isRunning()) {
                 System.out.println("Cancelling auto deploy");
                 autoDeployGroup.cancel();
             }
@@ -52,7 +52,7 @@ public class AutoMaster {
                 autoRetrieveGroup = new AutoRetrieve();
                 System.out.println("Starting autoRetrieve");
                 autoRetrieveGroup.start();
-            } else if (hatchRetrieveAutoToggler.state == 0) {
+            } else if (hatchRetrieveAutoToggler.state == 0 && autoRetrieveGroup.isRunning()) {
                 System.out.println("Cancelling autoRetrieve");
                 autoRetrieveGroup.cancel();
             }
@@ -73,27 +73,45 @@ public class AutoMaster {
 
     public class AutoRetrieve extends CommandGroup {
         public AutoRetrieve() {
-            this.addSequential(hatch.hatchMoveCurrent());
-            this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
-            this.addSequential(base.moveToInches(-3, 0.4));
+            if (vision.getCameraState() == 2) {
+                if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
+                    System.out.println(vision.getDistanceFromTarget());
+                    double offset = hatch.getOffset();
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("Offset is too great: " + offset);
+                        this.cancel();
+                    } else {
+                        this.addSequential(hatch.hatchMoveCurrent());
+                        this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
+                        this.addSequential(base.moveToInches(-3, 0.4));
+                    }
+                } else {
+                    System.out.println("Not in specified distance");
+                    this.cancel();
+                }
+            } else {
+                System.out.println("Not locked");
+                this.cancel();
+            }
         }
 
         @Override
         protected void initialize() {
-            if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                System.out.println(vision.getDistanceFromTarget());
-                double offset = hatch.getOffset();
-                if (!(offset < 6 && offset > 0)) {
-                    System.out.println("Offset is too great: " + offset);
-                    this.cancel();
-                }
-                if (vision.getCameraState() == 2) {
+            if (vision.getCameraState() == 2) {
+                if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
+                    System.out.println(vision.getDistanceFromTarget());
+                    double offset = hatch.getOffset();
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("Offset is too great: " + offset);
+                        this.cancel();
+                    }
+
                 } else {
-                    System.out.println("Not locked");
+                    System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not in specified distance");
+                System.out.println("Not locked");
                 this.cancel();
             }
 

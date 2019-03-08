@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 public class DriveBase {
 
 	//private static double countsPerInch = 35.899;
-	private static double countsPerInch = 34.451;
+	// private static double countsPerInch = 34.451;
 	private Navx navx;
 	private DriverIF controls;
 	public Motor rightFront;
@@ -31,7 +31,7 @@ public class DriveBase {
 	private Command bob;
 	private boolean disableDrive = false;
 	// private PowerDistributionPanel pdp;
-	//private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
+	private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
 	//for new
 	private SerialDataHandler serial;
 
@@ -417,6 +417,8 @@ public class DriveBase {
 		private double initialSpeed = 0.25;
 		private double endingSpeed = 0.15;
 		private double percentComplete = 0;
+		private double previousEncoderCount = 0;
+		private double sameEncoderCountCount = 0;
 		private boolean leftRunning = true;
 		private boolean rightRunning = true;
 
@@ -430,6 +432,7 @@ public class DriveBase {
 		protected void initialize() {
 			disableDrive();
 			System.out.println("Setting encoders to zero");
+			System.out.println("Target encoder count: " + this.targetEncoderCount);
 			rightFront.setEncoderToZero();
 			leftFront.setEncoderToZero();
 			equationConstant = threshold * (initialSpeed - endingSpeed) - targetEncoderCount;
@@ -438,6 +441,8 @@ public class DriveBase {
 			leftFront.setBrakeMode(false);
 			leftBack.setBrakeMode(false);
 			pidgey.resetYaw();
+			this.previousEncoderCount = 0;
+			this.sameEncoderCountCount = 0;
 		}
 
 		public void execute() {
@@ -448,6 +453,13 @@ public class DriveBase {
 			
 			percentComplete = Math.abs(avg / targetEncoderCount);
 
+			if(avg == previousEncoderCount){
+				sameEncoderCountCount++;
+			}
+			else{
+				previousEncoderCount = avg;
+				sameEncoderCountCount = 0;
+			}
 			double speedRight = calcSpeed(avg);
 			double speedLeft = calcSpeed(avg);
 
@@ -459,7 +471,7 @@ public class DriveBase {
 			speedRight = Limit(speedRight);
 			speedLeft = Limit(speedLeft);
 
-			if (percentComplete > 0.95) {
+			if (percentComplete > 0.95 || sameEncoderCountCount == 10)  {
 				leftRunning = false;
 				rightRunning = false;
 				leftFront.set(0);
@@ -493,7 +505,15 @@ public class DriveBase {
 
 		@Override
 		protected boolean isFinished() {
-			return percentComplete > 0.95;
+			if(sameEncoderCountCount == 10){
+				System.out.println("Finished because of same encoder count");
+			}
+			return (percentComplete > 0.95 || sameEncoderCountCount == 10);
+		}
+		@Override
+		protected void interrupted() {
+			super.interrupted();
+			end();
 		}
 
 		@Override

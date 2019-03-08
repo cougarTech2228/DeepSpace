@@ -45,6 +45,7 @@ public class Vision {
             inRange = false;
         }
         SmartDashboard.putBoolean("In Range", inRange);
+        SmartDashboard.putNumber("Target State", getCameraState());
     }
     public double getDistanceFromTarget() {
         return distTargIn.getDouble(DEFAULT_VALUE);
