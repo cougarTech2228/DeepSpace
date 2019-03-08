@@ -31,7 +31,6 @@ public class AutoMaster {
 
     public void init() {
 
-        
     }
 
     public void teleop() {
@@ -43,7 +42,7 @@ public class AutoMaster {
                 autoDeployGroup = new AutoDeploy();
                 System.out.println("Starting auto hatch alignment from button press");
                 autoDeployGroup.start();
-            } else if (hatchDeployAutoToggler.state == 0 && autoDeployGroup.isRunning()) {
+            } else if (hatchDeployAutoToggler.state == 0) {
                 System.out.println("Cancelling auto deploy");
                 autoDeployGroup.cancel();
             }
@@ -53,17 +52,18 @@ public class AutoMaster {
                 autoRetrieveGroup = new AutoRetrieve();
                 System.out.println("Starting autoRetrieve");
                 autoRetrieveGroup.start();
-            } else if (hatchRetrieveAutoToggler.state == 0 && autoRetrieveGroup.isRunning()) {
+            } else if (hatchRetrieveAutoToggler.state == 0) {
                 System.out.println("Cancelling autoRetrieve");
                 autoRetrieveGroup.cancel();
             }
         }
-        if(controller.btHome()){
-            if (homeAutoToggler.state == 1 && !autoRetrieveGroup.isRunning() && !autoDeployGroup.isRunning() && !autoHome.isRunning()) {
+        if (controller.btHome()) {
+            if (homeAutoToggler.state == 1 && !autoRetrieveGroup.isRunning() && !autoDeployGroup.isRunning()
+                    && !autoHome.isRunning()) {
                 autoHome = hatch.getHome();
                 System.out.println("Starting autoHome");
                 autoHome.start();
-            } else if (homeAutoToggler.state == 0 && autoHome.isRunning()) {
+            } else if (homeAutoToggler.state == 0) {
                 System.out.println("Cancelling autoHome");
                 autoHome.cancel();
             }
@@ -74,7 +74,7 @@ public class AutoMaster {
     public class AutoRetrieve extends CommandGroup {
         public AutoRetrieve() {
             this.addSequential(hatch.hatchMoveCurrent());
-            this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.4), 3);
+            this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
             this.addSequential(base.moveToInches(-3, 0.4));
         }
 
@@ -114,29 +114,29 @@ public class AutoMaster {
     public class AutoDeploy extends CommandGroup {
 
         public AutoDeploy() {
-            this.addSequential(hatch.getHatchMoveSnapshot());
-            this.addSequential(base.moveToInches(vision.getDistanceFromTarget() - 1,
-            0.4), 3);
-            this.addSequential(hatch.hatchDeploy(0.1));
+            this.addSequential(hatch.hatchMoveCurrent());
+            this.addSequential(base.moveToInches(vision.getDistanceFromTarget() - 1, 0.4), 3);
+            this.addSequential(hatch.hatchDeploy(0.5));
             this.addSequential(base.moveToInches(-3, 0.4));
         }
 
         @Override
         protected void initialize() {
-            if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                System.out.println(vision.getDistanceFromTarget());
-                double offset = hatch.getOffset();
-                if (!(offset < 6 && offset > 0)) {
-                    System.out.println("Offset is too great: " + offset);
-                    this.cancel();
-                }
-                if (vision.getCameraState() == 2) {
+            if (vision.getCameraState() == 2) {
+                if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
+                    System.out.println(vision.getDistanceFromTarget());
+                    double offset = hatch.getOffset();
+                    if (!(offset < 6 && offset > 0)) {
+                        System.out.println("Offset is too great: " + offset);
+                        this.cancel();
+                    }
+
                 } else {
-                    System.out.println("Not locked");
+                    System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not in specified distance");
+                System.out.println("Not locked");
                 this.cancel();
             }
 

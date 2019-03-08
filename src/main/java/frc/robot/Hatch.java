@@ -107,7 +107,7 @@ public class Hatch {
      * 
      */
     public double getOffset() {
-        return ((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) - vision.getStrafeFromTarget());
+        return Math.abs((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) - vision.getStrafeFromTarget());
     }
     public void hatchStrafe() {
         if (!rightSwitch.get()) {
@@ -167,7 +167,7 @@ public class Hatch {
                     waiting = false;
                     strafe.set(-STRAFE_SPEED);
                 }
-            } else if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 10000 && !waiting && zeroed) {
+            } else if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 100 && !waiting && zeroed) {
                 System.out.println("At center");
                 strafe.set(0);
                 complete = true;

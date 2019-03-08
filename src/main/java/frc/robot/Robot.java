@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
   // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
   private Vision vision = new Vision();
   private Hatch hatch = new Hatch(controller, vision);
-  private Elevator elevator = new Elevator(base, controller);
+  // private Elevator elevator = new Elevator(base, controller);
 
   private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
   //private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -46,19 +46,21 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    auto.init();
+    teleopInit();
   }
 
   @Override
   public void autonomousPeriodic() {
+    teleopPeriodic();
   }
 
   @Override
   public void teleopInit() {
+    auto.init();
     //base.teleopInit();
     vision.visionInit();
     hatch.teleopInit();
-    elevator.teleopInit();
+    // elevator.teleopInit();
     base.teleopInit();
   }
 

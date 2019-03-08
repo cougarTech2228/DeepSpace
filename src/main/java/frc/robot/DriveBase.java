@@ -25,12 +25,12 @@ public class DriveBase {
 	private boolean zeroPigeon;
 	private double throttleAccel;
 	private double turnAccel;
-	private double wheelCircumfrence = Math.PI * 7;
+	private double wheelCircumfrence = Math.PI * 8;
 	private double gearRatio = 9.479;
 	private double encoderCountRevolution = 80;
 	private Command bob;
 	private boolean disableDrive = false;
-	private PowerDistributionPanel pdp;
+	// private PowerDistributionPanel pdp;
 	//private double countsPerInch = (gearRatio * encoderCountRevolution) / wheelCircumfrence;
 	//for new
 	private SerialDataHandler serial;
@@ -48,7 +48,7 @@ public class DriveBase {
 		this.controls = controls;
 		this.mode = mode;
 		this.pidgey = pidgey;
-		this.pdp = new PowerDistributionPanel(RobotMap.PDP);
+		// this.pdp = new PowerDistributionPanel(RobotMap.PDP);
 		// serial = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone,
 				// SerialPort.StopBits.kOne);
 		zeroPigeon = false;
@@ -90,10 +90,10 @@ public class DriveBase {
 		Scheduler.getInstance().removeAll();
 		rightFront.teleopInit();
 		leftFront.teleopInit();
-		SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
-		SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
-		SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
-		SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
+		// SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
+		// SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
+		// SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
+		// SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
 		/*
 		 * int maxRightVel = 272; int maxLeftVel = 253;
 		 * 
@@ -200,10 +200,10 @@ public class DriveBase {
 		disableDrive = false;
 	}
 	public void TeleopMove() {
-		SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
-		SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
-		SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
-		SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
+		// SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
+		// SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
+		// SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
+		// SmartDashboard.putNumber("DriveMotorCurrent4", pdp.getCurrent(12));
 		double Forward = controls.throttle();
 		double Turn = controls.turn();
 		double RightF, LeftF, RightB, LeftB;
