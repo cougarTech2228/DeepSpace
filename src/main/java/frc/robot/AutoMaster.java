@@ -81,7 +81,7 @@ public class AutoMaster {
                         System.out.println("Offset is too great: " + offset);
                         this.cancel();
                     } else {
-                        this.addSequential(hatch.hatchMoveCurrent());
+                        this.addSequential(hatch.hatchMoveCurrent(false));
                         this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
                         this.addSequential(base.moveToInches(-3, 0.4));
                     }
@@ -140,7 +140,7 @@ public class AutoMaster {
                         System.out.println("Offset is too great: " + offset);
                         this.cancel();
                     } else {
-                        this.addSequential(hatch.hatchMoveCurrent());
+                        this.addSequential(hatch.hatchMoveCurrent(true));
                         this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
                         this.addSequential(hatch.hatchDeploy(.5));
                         this.addSequential(base.moveToInches(-3, 0.4));
