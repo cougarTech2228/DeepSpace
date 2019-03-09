@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.CommandGroup;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Hatch {
     private Solenoid left;
@@ -22,6 +23,7 @@ public class Hatch {
     private Motor strafe;
     private Compressor compressor;
     private final double STRAFE_SPEED = .80;
+    private final double VISION_LEEWAY = .4;
     private final boolean IS_COMP_BOT = true;
     private int ENCODER_COUNTS_TO_IN;
     private int ENCODER_COUNT_CENTER;
@@ -80,7 +82,7 @@ public class Hatch {
     public void teleop() {
         // System.out.println(strafe.getSensorPosition());
         tilt.set(controls.elevatorToggle());
-
+        SmartDashboard.putNumber("Strafe Encoders", strafe.getSensorPosition());
         if (controls.hatchExtend()) {
             extend();
         } else {
@@ -89,8 +91,8 @@ public class Hatch {
 
         compressor.setClosedLoopControl(true);
         hatchStrafe();
+    
     }
-
     /**
      * Method called during testPeriodic, runs hatch mechanism in test
      */
@@ -103,10 +105,13 @@ public class Hatch {
             strafe.setEncoderToZero();
         }
     }
+    public void compressorOff(){
+        compressor.stop();
+    }
+    public void compressorOn(){
+        compressor.start();                                                                                                                                                             Z
+    }
 
-    /**
-     * 
-     */
     public double getOffset() {
         return Math.abs((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) - vision.getStrafeFromTarget());
     }
@@ -328,7 +333,8 @@ public class Hatch {
                 System.out.println("La vision est borkeed");
             } else {
                 System.out.println(horzDistFromTarget);
-                if (Math.abs(horzDistFromTarget) < .6) {
+                System.out.println("Strafe encoders: " + strafe.getSensorPosition());
+                if (Math.abs(horzDistFromTarget) < VISION_LEEWAY) {
                     System.out.println("On target");
                     strafe.set(0);
                     this.finished = true;

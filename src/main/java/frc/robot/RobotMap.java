@@ -90,7 +90,7 @@ public class RobotMap {
     //Constants between bots
     public static final int ENCODER_COUNTS_TO_IN_MULE = 54666;
     public static final int ENCODER_COUNT_CENTER_MULE = 164000;
-    public static final int ENCODER_COUNT_TOTAL_RUSS = 440000;
+    public static final int ENCODER_COUNT_TOTAL_RUSS = 432498;
     public static final int ENCODER_COUNTS_PER_IN_RUSS = 73333;
 
 }

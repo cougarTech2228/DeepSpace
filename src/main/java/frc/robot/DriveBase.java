@@ -19,13 +19,13 @@ public class DriveBase {
 	private Motor leftBack;
 	private double driveSpeedPercentage = 1;
 	private double strafeSpeedPercentage = 1;
-	private double turnSpeedPercentage = 0.5;
+	private double turnSpeedPercentage = 0.35;
 	private double maxSpeed = 1;
 	private Pigeon pidgey;
 	private boolean zeroPigeon;
 	private double throttleAccel;
 	private double turnAccel;
-	private double wheelCircumfrence = Math.PI * 8;
+	private double wheelCircumfrence = Math.PI * 6;
 	private double gearRatio = 9.479;
 	private double encoderCountRevolution = 80;
 	private Command bob;
