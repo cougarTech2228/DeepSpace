@@ -51,6 +51,7 @@ public class Hatch {
             this.ENCODER_COUNTS_TO_IN = RobotMap.ENCODER_COUNTS_TO_IN_MULE;
             this.ENCODER_COUNT_CENTER = RobotMap.ENCODER_COUNT_CENTER_MULE;
         }
+        firstHoming = true;
         autoToggle = new Toggler(2, true);
 
     }
@@ -75,7 +76,8 @@ public class Hatch {
         firstHoming = true;
         System.out.println("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
-        // home.start();
+        Home tempHome = new Home();
+        tempHome.start();
         tilt.set(true);
     }
 
@@ -160,13 +162,13 @@ public class Hatch {
         protected void execute() {
 
             if (firstHoming) {
-
+                System.out.println("This is first homing");
                 if (!homing) {
                     homing = true;
-                    strafe.set(STRAFE_SPEED);
+                    strafe.set(STRAFE_SPEED / 1.5);
                     System.out.println("Homing" + strafe.getSensorPosition());
                 } else if (homing && !zeroed) {
-                    strafe.set(STRAFE_SPEED);
+                    strafe.set(STRAFE_SPEED / 1.5);
                     System.out.println("Homing" + strafe.getSensorPosition());
                 }
                 if (!rightSwitch.get() && !zeroed) {
@@ -184,28 +186,32 @@ public class Hatch {
                         System.out.println("Ending wait");
                         waiting = false;
                         postWait = true;
-                        strafe.set(-STRAFE_SPEED);
+                        strafe.set(-STRAFE_SPEED / 1.5);
                     }
                 } else if (postWait) {
-                    if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 100 && !waiting && zeroed) {
+                    if (strafe.getSensorPosition() > ENCODER_COUNT_CENTER && !waiting && zeroed) {
                         System.out.println("At center");
                         strafe.set(0);
                         complete = true;
                         firstHoming = false;
                     } else {
-                        strafe.set(-STRAFE_SPEED);
+                        strafe.set(-STRAFE_SPEED / 1.5);
+                        System.out.println("Encoder cts: " + strafe.getSensorPosition());
+
                     }
                 }
 
             } else {
-                if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 100) {
+                if (Math.abs(strafe.getSensorPosition() - ENCODER_COUNT_CENTER) < 10000) {
                     System.out.println("At center");
                     strafe.set(0);
                     complete = true;
                 } else if ((strafe.getSensorPosition() - ENCODER_COUNT_CENTER) > 0) {
-                    strafe.set(STRAFE_SPEED);
+                    System.out.println("Encoder cts: " + strafe.getSensorPosition());
+                    strafe.set(STRAFE_SPEED / 1.5);
                 } else {
-                    strafe.set(-STRAFE_SPEED);
+                    System.out.println("Encoder cts: " + strafe.getSensorPosition());
+                    strafe.set(-STRAFE_SPEED / 1.5);
                 }
             }
 
@@ -288,6 +294,11 @@ public class Hatch {
                 } else if (this.movedCts < this.encoderCtsToMove && leftSwitch.get()) {
                     strafe.set(moveSpeed);
                     System.out.println("moving to the left");
+                }
+                else if(strafe.getSensorPosition() < 0){
+                    strafe.set(0);
+                    this.finished = true;
+                    System.out.println("GOT EM");
                 }
             } else {
                 System.out.println("If you see this, something is super borked");
