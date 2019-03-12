@@ -76,7 +76,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
+                    if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
                         this.addSequential(hatch.getHatchMoveSnapshot());
@@ -99,7 +99,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
+                    if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
@@ -132,7 +132,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
+                    if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
                         this.addSequential(hatch.getHatchMoveSnapshot());
@@ -156,7 +156,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
+                    if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
