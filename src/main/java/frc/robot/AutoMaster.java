@@ -76,12 +76,11 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    double offset = hatch.getOffset();
-                    if (!(offset < 6 && offset > 0)) {
-                        System.out.println("Offset is too great: " + offset);
+                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
-                        this.addSequential(hatch.hatchMoveCurrent(false));
+                        this.addSequential(hatch.getHatchMoveSnapshot());
+                        // this.addSequential(hatch.hatchMoveCurrent(false));
                         this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
                         this.addSequential(base.moveToInches(-3, 0.4));
                     }
@@ -100,9 +99,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    double offset = hatch.getOffset();
-                    if (!(offset < 6 && offset > 0)) {
-                        System.out.println("Offset is too great: " + offset);
+                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
@@ -135,12 +132,11 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    double offset = hatch.getOffset();
-                    if (!(offset < 6 && offset > 0)) {
-                        System.out.println("Offset is too great: " + offset);
+                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
-                        this.addSequential(hatch.hatchMoveCurrent(true));
+                        this.addSequential(hatch.getHatchMoveSnapshot());
+                        // this.addSequential(hatch.hatchMoveCurrent(true));
                         this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
                         this.addSequential(hatch.hatchDeploy(.5));
                         this.addSequential(base.moveToInches(-3, 0.4));
@@ -160,9 +156,7 @@ public class AutoMaster {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
                     System.out.println(vision.getDistanceFromTarget());
-                    double offset = hatch.getOffset();
-                    if (!(offset < 6 && offset > 0)) {
-                        System.out.println("Offset is too great: " + offset);
+                    if (hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
