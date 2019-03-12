@@ -262,7 +262,6 @@ public class Hatch {
             System.out.println("Constructing a hatchMove");
             this.visionInches = vision.getStrafeFromTarget();
             this.encoderCtsToMove = (this.visionInches * ENCODER_COUNTS_TO_IN);
-            System.out.println("previousPos at constructor: " + strafe.getSensorPosition());
             this.previousPosition = strafe.getSensorPosition();
             this.movingHatchMechanism = false;
             movedCts = 0;
@@ -277,9 +276,7 @@ public class Hatch {
             System.out.println("Initializing HatchMove");
             this.visionInches = vision.getStrafeFromTarget();
             this.encoderCtsToMove = (this.visionInches * ENCODER_COUNTS_TO_IN);
-            System.out.println("previousPos at initialize: " + strafe.getSensorPosition());
             this.previousPosition = strafe.getSensorPosition();
-            System.out.println("previousPos at initialize # 2: " + this.previousPosition);
             this.movingHatchMechanism = false;
             movedCts = 0;
             moveSpeed = STRAFE_SPEED;
@@ -297,14 +294,13 @@ public class Hatch {
                 this.finished = true;
             }
             if (!this.movingHatchMechanism) {
-                System.out.println("First Section");
                 this.movingHatchMechanism = true;
                 this.finished = false;
-                System.out.println("Starting auto alignment");
-                System.out.println("Starting Position: " + this.previousPosition);
-                System.out.println("Inches away from center: " + this.encoderCtsToMove / ENCODER_COUNTS_TO_IN);
+                // System.out.println("Starting auto alignment");
+                // System.out.println("Starting Position: " + this.previousPosition);
+                // System.out.println("Inches away from center: " + this.encoderCtsToMove / ENCODER_COUNTS_TO_IN);
 
-                System.out.println("Encoder Counts to move" + this.encoderCtsToMove);
+                // System.out.println("Encoder Counts to move" + this.encoderCtsToMove);
                 if (this.visionInches < 0 && leftSwitch.get()) {
                     strafe.set(-STRAFE_SPEED);
                     movingLeft = true;
@@ -320,13 +316,10 @@ public class Hatch {
 
             } else if (this.movingHatchMechanism) {
                 if (movingLeft) {
-                    System.out.println("previousPosition at movedCts set: " + this.previousPosition);
                     this.movedCts = (strafe.getSensorPosition() - this.previousPosition);
                 } else if (movingRight) {
-                    System.out.println("previousPosition at movedCts set: " + this.previousPosition);
                     this.movedCts = (this.previousPosition - strafe.getSensorPosition());
                 }
-                System.out.println("moved counts: " + this.movedCts);
                 moveSpeed = (AUTO_STRAFE_SPEED - (Math.abs(this.movedCts / this.encoderCtsToMove) * AUTO_STRAFE_SPEED)) + .2;
                 if (this.movedCts > this.encoderCtsToMove) {
                     strafe.set(0);
@@ -334,10 +327,10 @@ public class Hatch {
                     System.out.println("GOT EM");
                 } else if (movingRight && rightSwitch.get()) {
                     strafe.set(moveSpeed);
-                    System.out.println("moving to the right");
+                    // System.out.println("moving to the right");
                 } else if (movingLeft && leftSwitch.get()) {
                     strafe.set(-moveSpeed);
-                    System.out.println("moving to the left");
+                    // System.out.println("moving to the left");
                 } else if (strafe.getSensorPosition() < 0) {
                     strafe.set(0);
                     this.finished = true;
