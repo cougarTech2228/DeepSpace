@@ -19,7 +19,7 @@ public class DriveBase {
 	private Motor leftBack;
 	private double driveSpeedPercentage = 1;
 	private double strafeSpeedPercentage = 1;
-	private double turnSpeedPercentage = 0.35;
+	private double turnSpeedPercentage = 0.6;
 	private double maxSpeed = 1;
 	private Pigeon pidgey;
 	private boolean zeroPigeon;
