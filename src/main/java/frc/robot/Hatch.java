@@ -253,7 +253,8 @@ public class Hatch {
         private boolean movingHatchMechanism = false;
         private double previousPosition;
         private double movedCts = 0;
-        private final double AUTO_STRAFE_SPEED = STRAFE_SPEED - .2;
+        private final double AUTO_HATCH_FLOOR = .075;
+        private final double AUTO_STRAFE_SPEED = STRAFE_SPEED - AUTO_HATCH_FLOOR;
         private double moveSpeed = 0;
         private boolean finished = false;
         private boolean movingLeft, movingRight;
@@ -320,7 +321,7 @@ public class Hatch {
                 } else if (movingRight) {
                     this.movedCts = (this.previousPosition - strafe.getSensorPosition());
                 }
-                moveSpeed = (AUTO_STRAFE_SPEED - (Math.abs(this.movedCts / this.encoderCtsToMove) * AUTO_STRAFE_SPEED)) + .2;
+                moveSpeed = (AUTO_STRAFE_SPEED - (Math.abs(this.movedCts / this.encoderCtsToMove) * AUTO_STRAFE_SPEED)) + AUTO_HATCH_FLOOR;
                 if (this.movedCts > this.encoderCtsToMove) {
                     strafe.set(0);
                     this.finished = true;

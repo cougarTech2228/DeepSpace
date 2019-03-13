@@ -34,7 +34,8 @@ public class Vision {
     }
     public void teleop(){
         if(getDistanceFromTarget() < 48 && getDistanceFromTarget() > 18){
-            if(getCameraState() == 2){
+            if(getCameraState() == 2 ){
+                
                 inRange = true;
             }
             else{

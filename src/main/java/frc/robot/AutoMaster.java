@@ -135,7 +135,7 @@ public class AutoMaster {
                     if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
-                        this.addSequential(hatch.getHatchMoveSnapshot());
+                        this.addParallel(hatch.getHatchMoveSnapshot());
                         // this.addSequential(hatch.hatchMoveCurrent(true));
                         this.addSequential(base.moveToInches(vision.getDistanceFromTarget(), 0.3), 3);
                         this.addSequential(hatch.hatchDeploy(.5));
