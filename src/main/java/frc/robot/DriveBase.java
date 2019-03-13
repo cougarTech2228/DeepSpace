@@ -238,15 +238,15 @@ public class DriveBase {
 			RightF = Limit(Forward + Turn);
 			LeftF = Limit(Forward - Turn);
 
-			//System.out.println("rightF " + RightF);
-			//System.out.println("leftF " + LeftF);
+			////System.out.printlnln("rightF " + RightF);
+			////System.out.printlnln("leftF " + LeftF);
 			/*
 			 * if(Turn == 0) {
 			 * 
 			 * //untested double rightE = rightFront.getSensorPosition(); double leftE =
 			 * leftFront.getSensorPosition();
 			 * 
-			 * System.out.println("rightE " + rightE + " leftE " + leftE); double avg =
+			 * //System.out.printlnln("rightE " + rightE + " leftE " + leftE); double avg =
 			 * (rightE + leftE) / 2;
 			 * 
 			 * double rightD = rightE - avg; double leftD = leftE - avg;
@@ -257,8 +257,8 @@ public class DriveBase {
 			 */
 
 			// double angle = pidgey.getYaw();
-			// System.out.println("RightF" + RightF);
-			// System.out.println("LeftF" + LeftF);
+			// //System.out.printlnln("RightF" + RightF);
+			// //System.out.printlnln("LeftF" + LeftF);
 			RightF *= maxSpeed;
 			LeftF *= maxSpeed;
 
@@ -424,7 +424,7 @@ public class DriveBase {
 		private boolean rightRunning = true;
 
 		public MoveToInches(double targetEncoderInches, double speed) {
-			System.out.println("TargetInches" + targetEncoderInches);
+			//System.out.printlnln("TargetInches" + targetEncoderInches);
 			this.maxSpeed = speed;
 			this.targetEncoderCount = targetEncoderInches * countsPerInch;
 
@@ -432,8 +432,8 @@ public class DriveBase {
 
 		protected void initialize() {
 			disableDrive();
-			System.out.println("Setting encoders to zero");
-			System.out.println("Target encoder count: " + this.targetEncoderCount);
+			//System.out.printlnln("Setting encoders to zero");
+			//System.out.printlnln("Target encoder count: " + this.targetEncoderCount);
 			rightFront.setEncoderToZero();
 			leftFront.setEncoderToZero();
 			equationConstant = threshold * (initialSpeed - endingSpeed) - targetEncoderCount;
@@ -481,9 +481,9 @@ public class DriveBase {
 				leftFront.set(speedLeft);
 				rightFront.set(speedRight);
 			}
-			// System.out.println("percent complete: " + percentComplete);
-			// System.out.println("sped monkey left: " + speedLeft);
-			// System.out.println("sped monkey right: " + speedRight);
+			// //System.out.printlnln("percent complete: " + percentComplete);
+			// //System.out.printlnln("sped monkey left: " + speedLeft);
+			// //System.out.printlnln("sped monkey right: " + speedRight);
 		}
 
 		private double calcSpeed(double value) {
@@ -492,9 +492,9 @@ public class DriveBase {
 			// to see how it works, graph it on desmos
 			double speed = -(Math.abs(2 * value - targetEncoderCount + equationConstant) - targetEncoderCount
 					+ equationConstant) / (2 * threshold) + initialSpeed;
-			//System.out.println("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
+			////System.out.printlnln("Data: " + value + ", " + targetEncoderCount + ", " + threshold + ", " + speed);
 			// make sure it starts at a low speed
-			// System.out.println("sped: " + speed);
+			// //System.out.printlnln("sped: " + speed);
 			if (speed > Math.abs(maxSpeed)) {
 				speed = Math.abs(maxSpeed);
 			}
@@ -507,7 +507,7 @@ public class DriveBase {
 		@Override
 		protected boolean isFinished() {
 			if(sameEncoderCountCount == sameCountThreshold){
-				System.out.println("Finished because of same encoder count");
+				//System.out.printlnln("Finished because of same encoder count");
 			}
 			return (percentComplete > 0.95 || sameEncoderCountCount == sameCountThreshold);
 		}
@@ -575,14 +575,14 @@ public class DriveBase {
 		// rightFront.set(1);
 		/*
 		 * if (controls.encoderTestLeftFront()) { leftFront.set(0.5);
-		 * System.out.println(leftFront.getSensorPosition()); } else { leftFront.stop();
+		 * //System.out.printlnln(leftFront.getSensorPosition()); } else { leftFront.stop();
 		 * leftFront.setEncoderToZero(); } if (controls.encoderTestRightFront()) {
-		 * rightFront.set(0.5); System.out.println(rightFront.getSensorPosition()); }
+		 * rightFront.set(0.5); //System.out.printlnln(rightFront.getSensorPosition()); }
 		 * else { rightFront.stop(); rightFront.setEncoderToZero(); } if
 		 * (controls.encoderTestLeftBack()) { leftBack.set(0.5);
-		 * System.out.println(leftBack.getSensorPosition()); } else { leftBack.stop();
+		 * //System.out.printlnln(leftBack.getSensorPosition()); } else { leftBack.stop();
 		 * leftBack.setEncoderToZero(); } if (controls.encoderTestRightBack()) {
-		 * rightBack.set(0.5); System.out.println(rightBack.getSensorPosition()); } else
+		 * rightBack.set(0.5); //System.out.printlnln(rightBack.getSensorPosition()); } else
 		 * { rightBack.stop(); rightBack.setEncoderToZero(); }
 		 */
 	}

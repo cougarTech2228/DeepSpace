@@ -40,20 +40,20 @@ public class AutoMaster {
         if (controller.autoDeploy()) {
             if (hatchDeployAutoToggler.state == 1 && !autoDeployGroup.isRunning() && !autoRetrieveGroup.isRunning()) {
                 autoDeployGroup = new AutoDeploy();
-                System.out.println("Starting auto hatch alignment from button press");
+                //System.out.println("Starting auto hatch alignment from button press");
                 autoDeployGroup.start();
             } else if (hatchDeployAutoToggler.state == 0 && autoDeployGroup.isRunning()) {
-                System.out.println("Cancelling auto deploy");
+                //System.out.println("Cancelling auto deploy");
                 autoDeployGroup.cancel();
             }
         }
         if (controller.autoRetrieve()) {
             if (hatchRetrieveAutoToggler.state == 1 && !autoRetrieveGroup.isRunning() && !autoDeployGroup.isRunning()) {
                 autoRetrieveGroup = new AutoRetrieve();
-                System.out.println("Starting autoRetrieve");
+                //System.out.println("Starting autoRetrieve");
                 autoRetrieveGroup.start();
             } else if (hatchRetrieveAutoToggler.state == 0 && autoRetrieveGroup.isRunning()) {
-                System.out.println("Cancelling autoRetrieve");
+                //System.out.println("Cancelling autoRetrieve");
                 autoRetrieveGroup.cancel();
             }
         }
@@ -61,10 +61,10 @@ public class AutoMaster {
             if (homeAutoToggler.state == 1 && !autoRetrieveGroup.isRunning() && !autoDeployGroup.isRunning()
                     && !autoHome.isRunning()) {
                 autoHome = hatch.getHome();
-                System.out.println("Starting autoHome");
+                //System.out.println("Starting autoHome");
                 autoHome.start();
             } else if (homeAutoToggler.state == 0) {
-                System.out.println("Cancelling autoHome");
+                //System.out.println("Cancelling autoHome");
                 autoHome.cancel();
             }
         }
@@ -75,7 +75,7 @@ public class AutoMaster {
         public AutoRetrieve() {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                    System.out.println(vision.getDistanceFromTarget());
+                    //System.out.println(vision.getDistanceFromTarget());
                     if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
@@ -85,11 +85,11 @@ public class AutoMaster {
                         this.addSequential(base.moveToInches(-3, 0.4));
                     }
                 } else {
-                    System.out.println("Not in specified distance");
+                    //System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not locked");
+                //System.out.println("Not locked");
                 this.cancel();
             }
         }
@@ -98,17 +98,17 @@ public class AutoMaster {
         protected void initialize() {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                    System.out.println(vision.getDistanceFromTarget());
+                    //System.out.println(vision.getDistanceFromTarget());
                     if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
                 } else {
-                    System.out.println("Not in specified distance");
+                    //System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not locked");
+                //System.out.println("Not locked");
                 this.cancel();
             }
 
@@ -131,7 +131,7 @@ public class AutoMaster {
         public AutoDeploy() {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                    System.out.println(vision.getDistanceFromTarget());
+                    //System.out.println(vision.getDistanceFromTarget());
                     if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     } else {
@@ -142,11 +142,11 @@ public class AutoMaster {
                         this.addSequential(base.moveToInches(-3, 0.4));
                     }
                 } else {
-                    System.out.println("Not in specified distance");
+                    //System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not locked");
+                //System.out.println("Not locked");
                 this.cancel();
             }
         }
@@ -155,17 +155,17 @@ public class AutoMaster {
         protected void initialize() {
             if (vision.getCameraState() == 2) {
                 if (vision.getDistanceFromTarget() > 18 && vision.getDistanceFromTarget() < 48) {
-                    System.out.println(vision.getDistanceFromTarget());
+                    //System.out.println(vision.getDistanceFromTarget());
                     if (!hatch.getOffset(vision.getStrafeFromTarget())) {
                         this.cancel();
                     }
 
                 } else {
-                    System.out.println("Not in specified distance");
+                    //System.out.println("Not in specified distance");
                     this.cancel();
                 }
             } else {
-                System.out.println("Not locked");
+                //System.out.println("Not locked");
                 this.cancel();
             }
         }

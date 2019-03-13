@@ -21,7 +21,7 @@ public class Pigeon{
     }
 
     public void pigeonCheck(){
-        System.out.println("Yaw: " +  getYaw() + "  Pitch: " + getPitch() + "  Roll: " + getRoll());
+        //System.out.printlnln("Yaw: " +  getYaw() + "  Pitch: " + getPitch() + "  Roll: " + getRoll());
     }
 
     public double getYaw(){

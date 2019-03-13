@@ -50,8 +50,8 @@ public class SerialDataHandler {
             byte upperbyte = byteArray[0]; //b
             byte lowerbyte = byteArray[1];
 
-            //System.out.println(String.format("byteA: %02X ", a));
-            //System.out.println(String.format("byteB: %02X ", b));
+            ////System.out.printlnln(String.format("byteA: %02X ", a));
+            ////System.out.printlnln(String.format("byteB: %02X ", b));
 
             switch (state) {
             case SEARCHING_FOR_HEADER:
@@ -62,28 +62,28 @@ public class SerialDataHandler {
                     } else if ((int)(Byte.toUnsignedInt(lowerbyte)) == 0x02) {
                         state = SEARCHING_FOR_DATA_2;
                     } else {
-                        System.out.println("Invalid ID");
+                        //System.out.printlnln("Invalid ID");
                     }
                 }
                 break;
             case SEARCHING_FOR_DATA_1:
                 sensor1Data = convertData(lowerbyte, upperbyte);
                 state = SEARCHING_FOR_HEADER;
-                System.out.println(String.format("byteA: %02X ", lowerbyte));
-            System.out.println(String.format("byteB: %02X ", upperbyte));
+                //System.out.printlnln(String.format("byteA: %02X ", lowerbyte));
+            //System.out.printlnln(String.format("byteB: %02X ", upperbyte));
 
                 break;
             case SEARCHING_FOR_DATA_2:
                 sensor2Data = convertData(lowerbyte, upperbyte);
                 state = SEARCHING_FOR_HEADER;
-                System.out.println(Timer.getFPGATimestamp());
+                //System.out.printlnln(Timer.getFPGATimestamp());
                 break;
             default:
-                System.out.println("Unexcepted case");
+                //System.out.printlnln("Unexcepted case");
                 break;
             }
         } else {
-            System.out.println("Nothing on port");
+            //System.out.printlnln("Nothing on port");
         }
     }
 }

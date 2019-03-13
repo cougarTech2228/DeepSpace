@@ -166,7 +166,7 @@ public class Motor {
 		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
 	}
 	public MoveTo moveToEncoder(double targetEncoderCount, double speed, Motor...pairedMotors) {
-		// System.out.println("Returning new moveTo");
+		// //System.out.printlnln("Returning new moveTo");
 		return new MoveTo(targetEncoderCount, speed, pairedMotors);
 	}
 	public class MoveTo extends Command {
@@ -217,10 +217,10 @@ public class Motor {
 			slowThreshhold[state] = value;
 		}
 		protected void initialize() {
-			System.out.println("Initializing MoveTo");
+			//System.out.printlnln("Initializing MoveTo");
 			running = true;
 			percentComplete = 0;
-			System.out.println("Setting encoders to zero");
+			//System.out.printlnln("Setting encoders to zero");
 			slowThreshhold[state] *= Math.abs(maxSpeed);
 			equationConstant = slowThreshhold[state] * (initialSpeed - endingSpeed);
 			setEncoderToZero();
@@ -245,11 +245,11 @@ public class Motor {
 			//Ex: if slowThreshold[0] == 430, then the robot will speed up for the first 430 counts until max speed is reached, then it will slow down for the last 430 counts
 			double speed = calcSpeed(value);
 
-			System.out.println("enc: " + getSensorPosition());
-			System.out.println("Sped: " + speed);
+			//System.out.printlnln("enc: " + getSensorPosition());
+			//System.out.printlnln("Sped: " + speed);
 			
 			if(1 - percentComplete < 0.005) {
-				System.out.println("Finished");
+				//System.out.printlnln("Finished");
 				running = false;
 				speed = maxSpeed < 0 ? 0.2 : -0.2;
 			}
@@ -258,7 +258,7 @@ public class Motor {
 		}
 		private double calcSpeed(double value) {
 			double speed = -(Math.abs(2 * value - target + equationConstant) - target + equationConstant) / (2 * slowThreshhold[state]);
-			System.out.println("Data: " + value + ", " + target + ", " + slowThreshhold[state]);
+			//System.out.printlnln("Data: " + value + ", " + target + ", " + slowThreshhold[state]);
 			//make sure it starts at a low speed
 			speed += initialSpeed;
 			if(speed > Math.abs(maxSpeed)) {
@@ -277,7 +277,7 @@ public class Motor {
 		}
 		@Override
 		protected void end() {
-			System.out.println("Actually finished");
+			//System.out.printlnln("Actually finished");
 			stop();
 			for(Motor m : pairedMotors) {
 				m.stop();

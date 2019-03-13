@@ -27,7 +27,7 @@ public class Navx implements PIDOutput {
 			else if(_port == Port.USB) ahrs = new AHRS(SerialPort.Port.kUSB);
 
 		} catch (RuntimeException ex) {
-			System.out.println("Error starting the navx");
+			//System.out.printlnln("Error starting the navx");
 		}
     }
 
@@ -54,7 +54,7 @@ public class Navx implements PIDOutput {
 	}
 	public void zeroYaw() {
 		ahrs.zeroYaw();
-		System.out.println("ZEROED THE YAW!");
+		//System.out.printlnln("ZEROED THE YAW!");
 	}
 
 	public double _PIDCorrection(double angle) {
@@ -68,7 +68,7 @@ public class Navx implements PIDOutput {
 		double Yaw = Math.floor(getYaw()*10000)/10000;
 		error = AngleSP - Yaw;
 		double correction = 1 *((kP * error) - (kD * rate));
-		System.out.println("Yaw " + Yaw + "; correction " + correction);
+		//System.out.printlnln("Yaw " + Yaw + "; correction " + correction);
 		if (Math.abs(Yaw) < 0.07) {
 			correction = 0.0;
 		}
