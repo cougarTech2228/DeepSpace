@@ -119,7 +119,7 @@ public class Elevator {
                         climbSequence[0].addParallel(liftElevator(0, 0.5, false), 1.5);
                     }
                     climbSequence[0].start();
-                    base.setMaxSpeed(0.6);
+                    base.setMaxSpeed(0.5);
                 } break;
                 case 2: {
                     climbSequence[0].cancel();
