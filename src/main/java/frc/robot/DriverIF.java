@@ -1,16 +1,16 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Timer;
-
 public class DriverIF {
     private XboxIF xbox;
     private Toggler elevatorExtendToggle;
     private Toggler lightsToggle;
+    private Toggler slowRobot;
 
     public DriverIF() {
         xbox = new XboxIF(1);
         lightsToggle = new Toggler(2, true);
         elevatorExtendToggle = new Toggler(2, true);
+        slowRobot = new Toggler(2, true);
         
         elevatorExtendToggle.state = 1;
     }
@@ -31,7 +31,7 @@ public class DriverIF {
         return xbox.RIGHT_BUMPER();
     }
     public boolean elevatorToggle() {
-        elevatorExtendToggle.toggle(xbox.X_BUTTON());
+        elevatorExtendToggle.toggle(xbox.START_BUTTON());
         return elevatorExtendToggle.state == 1;
     }
 
@@ -87,6 +87,9 @@ public class DriverIF {
     }
 
     public boolean manualClimb() {
-        return xbox.RIGHT_BUMPER();
+        return xbox.LEFT_BUMPER();
+    }
+    public boolean slowRuss() {
+        return slowRobot.toggle(xbox.X_BUTTON()) == 1;
     }
 }

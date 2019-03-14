@@ -19,7 +19,7 @@ public class DriveBase {
 	private Motor leftBack;
 	private double driveSpeedPercentage = 1;
 	private double strafeSpeedPercentage = 1;
-	private double turnSpeedPercentage = 0.6;
+	private double turnSpeedPercentage = 0.5;
 	private double maxSpeed = 1;
 	private Pigeon pidgey;
 	private boolean zeroPigeon;
@@ -200,6 +200,12 @@ public class DriveBase {
 		disableDrive = false;
 	}
 	public void TeleopMove() {
+		if(controls.slowRuss()) {
+			setMaxSpeed(0.5);
+		}
+		else {
+			setMaxSpeed(1.0);
+		}
 		// SmartDashboard.putNumber("DriveMotorCurrent1", pdp.getCurrent(1));
 		// SmartDashboard.putNumber("DriveMotorCurrent2", pdp.getCurrent(2));
 		// SmartDashboard.putNumber("DriveMotorCurrent3", pdp.getCurrent(3));
@@ -259,6 +265,7 @@ public class DriveBase {
 			// double angle = pidgey.getYaw();
 			// //System.out.printlnln("RightF" + RightF);
 			// //System.out.printlnln("LeftF" + LeftF);
+
 			RightF *= maxSpeed;
 			LeftF *= maxSpeed;
 

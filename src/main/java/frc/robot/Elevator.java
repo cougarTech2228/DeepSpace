@@ -122,6 +122,7 @@ public class Elevator {
                     base.setMaxSpeed(0.6);
                 } break;
                 case 2: {
+                    climbSequence[0].cancel();
                     if(!level2) {
                         climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 6.0);
                     }
@@ -132,6 +133,7 @@ public class Elevator {
                     
                 } break;
                     case 3: {
+                    climbSequence[1].cancel();
                     liftDrive.set(0);
                     climbSequence[2].addSequential(liftElevator(0.5, 0, false));
                     climbSequence[2].start();
