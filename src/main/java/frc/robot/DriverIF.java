@@ -44,7 +44,7 @@ public class DriverIF {
     }
 
     public boolean toggleLights() {
-        lightsToggle.toggle(xbox.START_BUTTON());
+        lightsToggle.toggle(xbox.BACK_BUTTON());
         return lightsToggle.state == 1;
     }
 
@@ -91,5 +91,11 @@ public class DriverIF {
     }
     public boolean slowRuss() {
         return slowRobot.toggle(xbox.X_BUTTON()) == 1;
+    }
+    public boolean climb3ndLvl() {
+        return xbox.DPAD_UP();
+    }
+    public boolean climb2ndLvl() {
+        return xbox.DPAD_RIGHT();
     }
 }

@@ -82,22 +82,22 @@ public class XboxIF {
 
 	public boolean DPAD_UP() {
 		int i = xbox.getPOV(0);
-		return (i >= 0 && i <= 45) || (i >= 315 && i <= 360);
+		return i == 0;
 	}
 
 	public boolean DPAD_RIGHT() {
 		int i = xbox.getPOV(0);
-		return (i >= 45 && i <= 135);
+		return i == 90;
 	}
 
 	public boolean DPAD_DOWN() {
 		int i = xbox.getPOV(0);
-		return (i >= 135 && i <= 225);
+		return i == 180;
 	}
 
 	public boolean DPAD_LEFT() {
 		int i = xbox.getPOV(0);
-		return (i >= 225 && i <= 315);
+		return i == 270;
 	}
 
 	public void RUMBLE(double rumbleSpeed) {

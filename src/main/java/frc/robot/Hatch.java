@@ -176,17 +176,17 @@ public class Hatch {
         protected void execute() {
 
             if (firstHoming) {
-                // //System.out.printlnln("This is first homing");
+                //System.out.println("This is first homing");
                 if (!homing) {
                     homing = true;
                     strafe.set(STRAFE_SPEED / 1.5);
-                    // //System.out.printlnln("Homing" + strafe.getSensorPosition());
+                    //System.out.println("Homing" + strafe.getSensorPosition());
                 } else if (homing && !zeroed) {
                     strafe.set(STRAFE_SPEED / 1.5);
-                    // //System.out.printlnln("Homing" + strafe.getSensorPosition());
+                    //System.out.println("Homing" + strafe.getSensorPosition());
                 }
                 if (!rightSwitch.get() && !zeroed) {
-                    // //System.out.printlnln("At right boundary");
+                    //System.out.println("At right boundary");
                     zeroed = true;
                     waiting = true;
                     homing = false;
@@ -194,6 +194,7 @@ public class Hatch {
                     strafe.set(0);
                     waitTime = Timer.getFPGATimestamp();
                 }
+         
                 if (waiting) {
                     // //System.out.printlnln("Waiting: " + (Timer.getFPGATimestamp() - waitTime));
                     if (Timer.getFPGATimestamp() - waitTime > .3) {
@@ -210,7 +211,7 @@ public class Hatch {
                         firstHoming = false;
                     } else {
                         strafe.set(-STRAFE_SPEED / 1.5);
-                        // //System.out.printlnln("Encoder cts: " + strafe.getSensorPosition());
+                        //System.out.println("Encoder cts moving left: " + strafe.getSensorPosition());
 
                     }
                 }
@@ -223,9 +224,13 @@ public class Hatch {
                 } else if ((strafe.getSensorPosition() - ENCODER_COUNT_CENTER) > 0) {
                     // //System.out.printlnln("Encoder cts: " + strafe.getSensorPosition());
                     strafe.set(STRAFE_SPEED / 1.5);
-                } else {
+                } else if(leftSwitch.get()) {
                     // //System.out.printlnln("Encoder cts: " + strafe.getSensorPosition());
                     strafe.set(-STRAFE_SPEED / 1.5);
+                }
+                else{
+                    complete = true;
+                    System.out.println("Reached left bound");
                 }
             }
 

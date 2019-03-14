@@ -50,7 +50,9 @@ public class Elevator {
     private double backElevatorEncodersPerInch = 0;
     private double frontElevatorEncodersPerInch = 0;
 
-    private Toggler TeleClimb = new Toggler(4);
+    private int climbLevel = 0;
+
+    private Toggler TeleClimb = new Toggler(5);
     private CommandGroup[] climbSequence = new CommandGroup[4];
 
     public Elevator(DriveBase driver, DriverIF controls) {
@@ -59,6 +61,7 @@ public class Elevator {
         //frontLift.invert(true);
         backLift = new Motor(RobotMap.ACTION_MOTOR_2);
         liftDrive = new Motor(RobotMap.ACTION_MOTOR_3);
+        liftDrive.invert(true);
         elevatorDeployMotor = new Motor(RobotMap.ACTION_MOTOR_4);
         this.controls = controls;
         SmartDashboard.putData("lift front", liftElevator(0.5, 0.0, false));
@@ -92,52 +95,58 @@ public class Elevator {
         }
     }
     public void teleopPeriodic() {
-
+        if(controls.climb3ndLvl() && climbLevel == 0) {
+            climbLevel = 3;
+        } else if(controls.climb2ndLvl() && climbLevel == 0) {
+            climbLevel = 2;
+        }
         // //System.out.printlnln("Driving Drive Motor: " + liftDrive.getMotorCurrent());
         // //System.out.printlnln("Driving Deploy: " + elevatorDeployMotor.getMotorCurrent());
         // //System.out.printlnln("Driving Front Elevator: " + frontLift.getMotorCurrent());
         // //System.out.printlnln("Driving Back Elevator: " + backLift.getMotorCurrent());
         int num = TeleClimb.state;
-        boolean level2 = false;
-        TeleClimb.toggle(controls.manualClimb());
-        /*if((num == 2 || num == 1) && controls.level2Climb()){
-            level2 = true;
-        }*/
+        TeleClimb.toggle(controls.climb2ndLvl() || controls.climb3ndLvl());
 
-        if(TeleClimb.state >= 1 && TeleClimb.state <= 2) {
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 1) {
             liftDrive.set(controls.throttle());
         }
-
         if(num != TeleClimb.state) {
             switch(TeleClimb.state) {
                 case 1: {
                     climbSequence[0].addSequential(deployElevator(true), 3.0);
-                    if(!level2){
+                    if(climbLevel == 3 || climbLevel == 2){
                         climbSequence[0].addParallel(liftElevator(0, 0.5, false), 4.5);
-                    }
-                    else{
-                        climbSequence[0].addParallel(liftElevator(0, 0.5, false), 1.5);
                     }
                     climbSequence[0].start();
                     base.setMaxSpeed(0.5);
                 } break;
                 case 2: {
                     climbSequence[0].cancel();
-                    if(!level2) {
-                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 6.0);
+                    liftDrive.set(0);
+                    elevatorDeployMotor.set(0);
+                    if(climbLevel == 3) {
+                        climbSequence[1].addSequential(liftElevator(-0.9, -0.5, true), 6.0);
                     }
-                    else{
-                        climbSequence[1].addSequential(liftElevator(-0.7, -0.5, true), 3.0);
+                    else if (climbLevel == 2){
+                        climbSequence[1].addSequential(liftElevator(0, -0.5, true), 3.0);
+                        climbSequence[1].addSequential(liftElevator(-0.9, 0, true), 3.0);
                     }
                     climbSequence[1].start();
                     
                 } break;
                     case 3: {
-                    climbSequence[1].cancel();
-                    liftDrive.set(0);
-                    climbSequence[2].addSequential(liftElevator(0.5, 0, false));
-                    climbSequence[2].start();
+                        climbSequence[1].cancel();
+                        if(climbLevel == 3 || climbLevel == 2) {
+                            climbSequence[2].addSequential(liftElevator(0.5, 0, false));
+                            climbSequence[2].start();
+                        }
                     base.setMaxSpeed(1);
+                } break;
+                    case 4: {
+
+                        climbSequence[2].cancel();
+                        frontLift.set(0);
+
                 } break;
             }
         }
@@ -245,7 +254,7 @@ public class Elevator {
         }
         public void execute() {
             if(up) {
-                if(elevatorDeployMotor.getMotorCurrent() >= 3.5) {
+                if(elevatorDeployMotor.getMotorCurrent() >= 4.0) {
                     complete = true;
                     elevatorDeployMotor.set(0.15);
                 }
