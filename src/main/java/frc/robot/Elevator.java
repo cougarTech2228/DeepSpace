@@ -107,15 +107,22 @@ public class Elevator {
         int num = TeleClimb.state;
         TeleClimb.toggle(controls.climb2ndLvl() || controls.climb3ndLvl());
 
-        if(TeleClimb.state >= 1 && TeleClimb.state <= 1) {
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 1 && climbLevel == 3) {
+            liftDrive.set(controls.throttle());
+        }
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 2 && climbLevel == 2) {
             liftDrive.set(controls.throttle());
         }
         if(num != TeleClimb.state) {
             switch(TeleClimb.state) {
                 case 1: {
-                    climbSequence[0].addSequential(deployElevator(true), 3.0);
-                    if(climbLevel == 3 || climbLevel == 2){
+                    
+                    if(climbLevel == 3) {
+                        climbSequence[0].addSequential(deployElevator(true), 3.0);
                         climbSequence[0].addParallel(liftElevator(0, 0.5, false), 4.5);
+                    }
+                    else if (climbLevel == 2) {
+                        climbSequence[0].addSequential(deployElevator(true), 3.0);
                     }
                     climbSequence[0].start();
                     base.setMaxSpeed(0.5);
@@ -123,7 +130,6 @@ public class Elevator {
                 case 2: {
                     climbSequence[0].cancel();
                     liftDrive.set(0);
-                    elevatorDeployMotor.set(0);
                     if(climbLevel == 3) {
                         climbSequence[1].addSequential(liftElevator(-0.9, -0.5, true), 6.0);
                     }
@@ -135,15 +141,19 @@ public class Elevator {
                     
                 } break;
                     case 3: {
+                        elevatorDeployMotor.set(0);
                         climbSequence[1].cancel();
-                        if(climbLevel == 3 || climbLevel == 2) {
+                        if(climbLevel == 3) {
                             climbSequence[2].addSequential(liftElevator(0.5, 0, false));
                             climbSequence[2].start();
                         }
                     base.setMaxSpeed(1);
                 } break;
                     case 4: {
-
+                        if(climbLevel == 2) {
+                            climbSequence[2].addSequential(liftElevator(0.5, 0, false));
+                            climbSequence[2].start();
+                        }
                         climbSequence[2].cancel();
                         frontLift.set(0);
 

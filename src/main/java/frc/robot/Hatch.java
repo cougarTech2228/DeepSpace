@@ -76,7 +76,7 @@ public class Hatch {
 
     public void teleopInit() {
         firstHoming = true;
-        //System.out.printlnln("Hatch teleopInit");
+        // System.out.printlnln("Hatch teleopInit");
         compressor.setClosedLoopControl(true);
         Home tempHome = new Home();
         tempHome.start();
@@ -104,7 +104,7 @@ public class Hatch {
     public void testPeriodic() {
         if (Math.abs(controls.encoderTestHatch()) > 0.1) {
             strafe.setSpeed(controls.encoderTestHatch());
-            //System.out.printlnln("Hatch Motor: " + strafe.getSensorPosition());
+            // System.out.printlnln("Hatch Motor: " + strafe.getSensorPosition());
         } else {
             strafe.setSpeed(0);
             strafe.setEncoderToZero();
@@ -118,14 +118,14 @@ public class Hatch {
     // }
 
     public boolean getOffset(double inToMove) {
-        // return Math.abs((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) - vision.getStrafeFromTarget());
-        if(inToMove < 0){
-            if((inToMove * ENCODER_COUNTS_TO_IN) + strafe.getSensorPosition() < this.ENCODER_COUNT_TOTAL){
+        // return Math.abs((strafe.getSensorPosition() / ENCODER_COUNTS_TO_IN) -
+        // vision.getStrafeFromTarget());
+        if (inToMove < 0) {
+            if ((inToMove * ENCODER_COUNTS_TO_IN) + strafe.getSensorPosition() < this.ENCODER_COUNT_TOTAL) {
                 return true;
             }
-        }
-        else{
-            if(strafe.getSensorPosition() - (inToMove * ENCODER_COUNTS_TO_IN) > 0){
+        } else {
+            if (strafe.getSensorPosition() - (inToMove * ENCODER_COUNTS_TO_IN) > 0) {
                 return true;
             }
         }
@@ -152,6 +152,7 @@ public class Hatch {
      * vision. Welcome to the future.
      */
     public class Home extends Command {
+        private boolean start;
         private boolean homing;
         private boolean zeroed;
         private boolean complete;
@@ -169,6 +170,7 @@ public class Hatch {
             homing = false;
             waiting = false;
             postWait = false;
+            start = true;
             waitTime = 0;
         }
 
@@ -176,17 +178,9 @@ public class Hatch {
         protected void execute() {
 
             if (firstHoming) {
-                //System.out.println("This is first homing");
-                if (!homing) {
-                    homing = true;
-                    strafe.set(STRAFE_SPEED / 1.5);
-                    //System.out.println("Homing" + strafe.getSensorPosition());
-                } else if (homing && !zeroed) {
-                    strafe.set(STRAFE_SPEED / 1.5);
-                    //System.out.println("Homing" + strafe.getSensorPosition());
-                }
                 if (!rightSwitch.get() && !zeroed) {
-                    //System.out.println("At right boundary");
+                    // System.out.println("At right boundary");
+                    start = false;
                     zeroed = true;
                     waiting = true;
                     homing = false;
@@ -194,11 +188,39 @@ public class Hatch {
                     strafe.set(0);
                     waitTime = Timer.getFPGATimestamp();
                 }
-         
+                // System.out.println("This is first homing");
+                else if (!homing && start) {
+                    start = false;
+                    homing = true;
+                    if (!rightSwitch.get()) {
+                        zeroed = true;
+                        waiting = true;
+                        homing = false;
+                        strafe.setEncoderToZero();
+                        strafe.set(0);
+                        waitTime = Timer.getFPGATimestamp();
+                    } else {
+                        strafe.set(STRAFE_SPEED / 1.5);
+                    }
+                    // System.out.println("Homing" + strafe.getSensorPosition());
+                } else if (homing && !zeroed) {
+                    if (!rightSwitch.get()) {
+                        zeroed = true;
+                        waiting = true;
+                        homing = false;
+                        strafe.setEncoderToZero();
+                        strafe.set(0);
+                        waitTime = Timer.getFPGATimestamp();
+                    } else {
+                        strafe.set(STRAFE_SPEED / 1.5);
+                    }
+                    // System.out.println("Homing" + strafe.getSensorPosition());
+                }
+
                 if (waiting) {
                     // //System.out.printlnln("Waiting: " + (Timer.getFPGATimestamp() - waitTime));
                     if (Timer.getFPGATimestamp() - waitTime > .3) {
-                        //System.out.printlnln("Ending wait");
+                        // System.out.printlnln("Ending wait");
                         waiting = false;
                         postWait = true;
                         strafe.set(-STRAFE_SPEED / 1.5);
@@ -211,7 +233,7 @@ public class Hatch {
                         firstHoming = false;
                     } else {
                         strafe.set(-STRAFE_SPEED / 1.5);
-                        //System.out.println("Encoder cts moving left: " + strafe.getSensorPosition());
+                        // System.out.println("Encoder cts moving left: " + strafe.getSensorPosition());
 
                     }
                 }
@@ -224,11 +246,10 @@ public class Hatch {
                 } else if ((strafe.getSensorPosition() - ENCODER_COUNT_CENTER) > 0) {
                     // //System.out.printlnln("Encoder cts: " + strafe.getSensorPosition());
                     strafe.set(STRAFE_SPEED / 1.5);
-                } else if(leftSwitch.get()) {
+                } else if (leftSwitch.get()) {
                     // //System.out.printlnln("Encoder cts: " + strafe.getSensorPosition());
                     strafe.set(-STRAFE_SPEED / 1.5);
-                }
-                else{
+                } else {
                     complete = true;
                     System.out.println("Reached left bound");
                 }
@@ -265,7 +286,7 @@ public class Hatch {
         private boolean movingLeft, movingRight;
 
         public HatchMoveSnapshot() {
-            //System.out.printlnln("Constructing a hatchMove");
+            // System.out.printlnln("Constructing a hatchMove");
             this.visionInches = vision.getStrafeFromTarget();
             this.encoderCtsToMove = (this.visionInches * ENCODER_COUNTS_TO_IN);
             this.previousPosition = strafe.getSensorPosition();
@@ -279,7 +300,7 @@ public class Hatch {
 
         @Override
         protected void initialize() {
-            //System.out.printlnln("Initializing HatchMove");
+            // System.out.printlnln("Initializing HatchMove");
             this.visionInches = vision.getStrafeFromTarget();
             this.encoderCtsToMove = (this.visionInches * ENCODER_COUNTS_TO_IN);
             this.previousPosition = strafe.getSensorPosition();
@@ -295,7 +316,7 @@ public class Hatch {
         protected void execute() {
             // //System.out.printlnln("Executing Hatch");
             if (vision.getDistanceFromTarget() == vision.DEFAULT_VALUE) {
-                //System.out.printlnln("No data");
+                // System.out.printlnln("No data");
                 this.getGroup().cancel();
                 this.finished = true;
             }
@@ -304,19 +325,20 @@ public class Hatch {
                 this.finished = false;
                 // //System.out.printlnln("Starting auto alignment");
                 // //System.out.printlnln("Starting Position: " + this.previousPosition);
-                // //System.out.printlnln("Inches away from center: " + this.encoderCtsToMove / ENCODER_COUNTS_TO_IN);
+                // //System.out.printlnln("Inches away from center: " + this.encoderCtsToMove /
+                // ENCODER_COUNTS_TO_IN);
 
                 // //System.out.printlnln("Encoder Counts to move" + this.encoderCtsToMove);
                 if (this.visionInches < 0 && leftSwitch.get()) {
                     strafe.set(-STRAFE_SPEED);
                     movingLeft = true;
                     movingRight = false;
-                    //System.out.printlnln("moving left");
+                    // System.out.printlnln("moving left");
                 } else if (this.visionInches > 0 && rightSwitch.get()) {
                     strafe.set(STRAFE_SPEED);
                     movingLeft = false;
                     movingRight = true;
-                    //System.out.printlnln("Moving right");
+                    // System.out.printlnln("Moving right");
                 }
                 this.encoderCtsToMove = Math.abs(encoderCtsToMove);
 
@@ -326,11 +348,12 @@ public class Hatch {
                 } else if (movingRight) {
                     this.movedCts = (this.previousPosition - strafe.getSensorPosition());
                 }
-                moveSpeed = (AUTO_STRAFE_SPEED - (Math.abs(this.movedCts / this.encoderCtsToMove) * AUTO_STRAFE_SPEED)) + AUTO_HATCH_FLOOR;
+                moveSpeed = (AUTO_STRAFE_SPEED - (Math.abs(this.movedCts / this.encoderCtsToMove) * AUTO_STRAFE_SPEED))
+                        + AUTO_HATCH_FLOOR;
                 if (this.movedCts > this.encoderCtsToMove) {
                     strafe.set(0);
                     this.finished = true;
-                    //System.out.printlnln("GOT EM");
+                    // System.out.printlnln("GOT EM");
                 } else if (movingRight && rightSwitch.get()) {
                     strafe.set(moveSpeed);
                     // //System.out.printlnln("moving to the right");
@@ -340,10 +363,10 @@ public class Hatch {
                 } else if (strafe.getSensorPosition() < 0) {
                     strafe.set(0);
                     this.finished = true;
-                    //System.out.printlnln("GOT EM");
+                    // System.out.printlnln("GOT EM");
                 }
             } else {
-                //System.out.printlnln("If you see this, something is super borked");
+                // System.out.printlnln("If you see this, something is super borked");
             }
         }
 
@@ -377,12 +400,12 @@ public class Hatch {
 
         public HatchMoveCurrent(boolean cancelParent) {
             this.cancelParent = cancelParent;
-            //System.out.printlnln("Constructing a hatchMove");
+            // System.out.printlnln("Constructing a hatchMove");
         }
 
         @Override
         protected void initialize() {
-            //System.out.printlnln("Initializing HatchMove");
+            // System.out.printlnln("Initializing HatchMove");
             finished = false;
             atBoundary = false;
         }
@@ -392,12 +415,12 @@ public class Hatch {
             double horzDistFromTarget = vision.getStrafeFromTarget();
             if (horzDistFromTarget == vision.DEFAULT_VALUE) {
                 finished = true;
-                //System.out.printlnln("La vision est borkeed");
+                // System.out.printlnln("La vision est borkeed");
             } else {
-                //System.out.printlnln(horzDistFromTarget);
-                //System.out.printlnln("Strafe encoders: " + strafe.getSensorPosition());
+                // System.out.printlnln(horzDistFromTarget);
+                // System.out.printlnln("Strafe encoders: " + strafe.getSensorPosition());
                 if (Math.abs(horzDistFromTarget) < VISION_LEEWAY) {
-                    //System.out.printlnln("On target");
+                    // System.out.printlnln("On target");
                     strafe.set(0);
                     this.finished = true;
                 } else if (horzDistFromTarget < 0 && leftSwitch.get()) {
@@ -408,19 +431,19 @@ public class Hatch {
                 if (horzDistFromTarget < 0 && !leftSwitch.get()) {
                     this.atBoundary = true;
                     this.finished = true;
-                    //System.out.printlnln("At left boundary");
+                    // System.out.printlnln("At left boundary");
                     if (cancelParent) {
                         this.getGroup().cancel();
                     }
-                    //System.out.printlnln("Cancelling due to being at left bound");
+                    // System.out.printlnln("Cancelling due to being at left bound");
                 } else if (horzDistFromTarget > 0 && !rightSwitch.get()) {
                     this.atBoundary = true;
                     this.finished = true;
-                    //System.out.printlnln("At right boundary");
+                    // System.out.printlnln("At right boundary");
                     if (cancelParent) {
                         this.getGroup().cancel();
                     }
-                    //System.out.printlnln("Cancelling due to being at right bound");
+                    // System.out.printlnln("Cancelling due to being at right bound");
                 }
 
             }
@@ -444,12 +467,12 @@ public class Hatch {
     public class HatchDeploy extends Command {
         public HatchDeploy(double time) {
             super(time);
-            //System.out.printlnln("Constructing hatchDeploy");
+            // System.out.printlnln("Constructing hatchDeploy");
         }
 
         @Override
         protected void initialize() {
-            //System.out.printlnln("Initializing HatchDeploy");
+            // System.out.printlnln("Initializing HatchDeploy");
         }
 
         @Override
