@@ -10,6 +10,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.DriveBase.DriveType;
+import frc.robot.LEDUtilities.*;
+import frc.robot.LEDs.Lights;
+
+import com.ctre.phoenix.ILoopable;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -26,22 +30,26 @@ public class Robot extends TimedRobot {
 
   private DriverIF controller = new DriverIF();
   private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
-  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  // private SerialDataHandler serialDataHandler = new SerialDataHandler(9600,
+  // SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
   private Vision vision = new Vision();
   private Hatch hatch = new Hatch(controller, vision);
   private Elevator elevator = new Elevator(base, controller);
 
   private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
-  //private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  // private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  //private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
+  private Lights leds = new Lights();
 
   @Override
   public void robotInit() {
+    Hardware.canifier.configFactoryDefault();
   }
 
   @Override
   public void robotPeriodic() {
     Scheduler.getInstance().run();
+    leds.loop();
   }
 
   @Override
@@ -56,6 +64,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    // for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
+    //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
+    // }
     auto.init();
     base.teleopInit();
     vision.visionInit();

@@ -88,6 +88,9 @@ public class Elevator {
         SmartDashboard.putBoolean("Elevator Deployed", elevatorDeploy.get());
     }
     public void teleopInit() {
+        elevatorDeployMotor.set(0);
+        frontLift.set(0);
+        backLift.set(0);
         liftDrive.set(0);
         Scheduler.getInstance().removeAll();
         for(int i = 0; i < climbSequence.length; i++) {
@@ -107,11 +110,12 @@ public class Elevator {
         int num = TeleClimb.state;
         TeleClimb.toggle(controls.climb2ndLvl() || controls.climb3ndLvl());
 
-        if(TeleClimb.state >= 1 && TeleClimb.state <= 1 && climbLevel == 3) {
-            liftDrive.set(controls.throttle());
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 2 && climbLevel == 3) {
+
+            liftDrive.set(controls.throttle() * 1.3);
         }
-        if(TeleClimb.state >= 1 && TeleClimb.state <= 2 && climbLevel == 2) {
-            liftDrive.set(controls.throttle());
+        if(TeleClimb.state >= 1 && TeleClimb.state <= 3 && climbLevel == 2) {
+            liftDrive.set(controls.throttle() * 1.3);
         }
         if(num != TeleClimb.state) {
             switch(TeleClimb.state) {
@@ -129,7 +133,6 @@ public class Elevator {
                 } break;
                 case 2: {
                     climbSequence[0].cancel();
-                    liftDrive.set(0);
                     if(climbLevel == 3) {
                         climbSequence[1].addSequential(liftElevator(-0.9, -0.5, true), 6.0);
                     }
@@ -144,6 +147,7 @@ public class Elevator {
                         elevatorDeployMotor.set(0);
                         climbSequence[1].cancel();
                         if(climbLevel == 3) {
+                            liftDrive.set(0);
                             climbSequence[2].addSequential(liftElevator(0.5, 0, false));
                             climbSequence[2].start();
                         }
@@ -156,6 +160,7 @@ public class Elevator {
                         }
                         climbSequence[2].cancel();
                         frontLift.set(0);
+                        liftDrive.set(0);
 
                 } break;
             }
@@ -299,4 +304,7 @@ public class Elevator {
         SmartDashboard.putNumber("Back Elevator Encoders", backLift.getSensorPosition());
     }
 
+    public void runLiftDrive(){
+        liftDrive.set(controls.strafe());
+    }
 }

@@ -93,7 +93,7 @@ public class DriverIF {
         return slowRobot.toggle(xbox.X_BUTTON()) == 1;
     }
     public boolean climb3ndLvl() {
-        return xbox.DPAD_UP();
+        return xbox.LEFT_BUMPER();
     }
     public boolean climb2ndLvl() {
         return xbox.DPAD_RIGHT();
