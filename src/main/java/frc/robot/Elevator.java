@@ -123,7 +123,7 @@ public class Elevator {
                     
                     if(climbLevel == 3) {
                         climbSequence[0].addSequential(deployElevator(true), 3.0);
-                        climbSequence[0].addParallel(liftElevator(0, 0.5, false), 4.5);
+                        climbSequence[0].addSequential(liftElevator(0, 1, false), 4.5);
                     }
                     else if (climbLevel == 2) {
                         climbSequence[0].addSequential(deployElevator(true), 3.0);
@@ -148,14 +148,14 @@ public class Elevator {
                         climbSequence[1].cancel();
                         if(climbLevel == 3) {
                             liftDrive.set(0);
-                            climbSequence[2].addSequential(liftElevator(0.5, 0, false));
+                            climbSequence[2].addSequential(liftElevator(1, 0, false));
                             climbSequence[2].start();
                         }
                     base.setMaxSpeed(1);
                 } break;
                     case 4: {
                         if(climbLevel == 2) {
-                            climbSequence[2].addSequential(liftElevator(0.5, 0, false));
+                            climbSequence[2].addSequential(liftElevator(1, 0, false));
                             climbSequence[2].start();
                         }
                         climbSequence[2].cancel();
@@ -201,6 +201,7 @@ public class Elevator {
         double speedFront, speedBack, frontEncoder, backEncoder;
         private boolean frontComplete;
         private boolean backComplete;
+        private double stallCurrent = 0;
         private DigitalInput stopSwitchFront;
         private DigitalInput stopSwitchBack;
         public LiftElevator(double speedFront, double speedBack, double frontEncoderDistance, double backEncoderDistance){
@@ -212,6 +213,9 @@ public class Elevator {
         public LiftElevator(double speedFront, double speedBack, boolean stallCurrent) {
             this.speedBack = speedBack;
             this.speedFront = speedFront;
+            if(stallCurrent) {
+                this.stallCurrent = 0.05;
+            }
         }
         @Override
         public void initialize() {
@@ -233,7 +237,7 @@ public class Elevator {
 
             if(!stopSwitchFront.get() || frontComplete) {
                 frontComplete = true;
-                frontLift.set(0);
+                frontLift.set(-stallCurrent);
             } else {
                 //System.out.printlnln("Running Front");
                 frontLift.set(speedFront);
@@ -241,7 +245,7 @@ public class Elevator {
             
             if(!stopSwitchBack.get() || backComplete) {
                 backComplete = true;
-                backLift.set(0);
+                backLift.set(stallCurrent);
             } else {
                 //System.out.printlnln("Running Back");
                 backLift.set(speedBack);
@@ -275,6 +279,9 @@ public class Elevator {
                 }
                 else if(!complete) {
                     elevatorDeployMotor.set(0.5);
+
+
+                    
                 }
             }
             else {
@@ -287,7 +294,9 @@ public class Elevator {
             return complete;
         }
         @Override
-        public void end() {}
+        public void end() {
+
+        }
     }
 
 
