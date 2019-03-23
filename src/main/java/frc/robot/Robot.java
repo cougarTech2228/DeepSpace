@@ -67,21 +67,22 @@ public class Robot extends TimedRobot {
     // for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
-    auto.init();
-    base.teleopInit();
-    vision.visionInit();
-    hatch.teleopInit();
+    // auto.init();
+    // base.teleopInit();
+    // vision.visionInit();
+    // hatch.teleopInit();
     elevator.teleopInit();
   }
 
   @Override
   public void teleopPeriodic() {
-    auto.teleop();
-    vision.setRelay(controller.toggleLights());
-    base.TeleopMove();
+    // auto.teleop();
+    // vision.setRelay(controller.toggleLights());
+    // base.TeleopMove();
     elevator.teleopPeriodic();
-    vision.teleop();
-    hatch.teleop();
+    // vision.teleop();
+    // hatch.teleop();
+    System.out.println(pigeon.getPitch());
   }
 
   @Override
