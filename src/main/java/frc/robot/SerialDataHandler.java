@@ -14,8 +14,8 @@ public class SerialDataHandler {
     SerialPort port;
 
     public SerialDataHandler(int baudRate, SerialPort.Port serialPort, int numBits, SerialPort.Parity serialParity, SerialPort.StopBits stopBits) {
-        
         port = new SerialPort(baudRate, serialPort, numBits, serialParity, stopBits);
+        port.setTimeout(0.02);
         port.reset();
     }
 

@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import frc.robot.DriveBase.DriveToInch;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SerialPort;
 
 public class Elevator {
     private boolean doAutoClimb = false;
@@ -16,7 +17,7 @@ public class Elevator {
     private DriverIF controls;
     private DriveBase base;
 
-    private SerialDataHandler arduino = new SerialDataHandler();
+    private SerialDataHandler arduino = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
 
     // Lift Drive encoder math
     private double circumference = 4 * Math.PI;

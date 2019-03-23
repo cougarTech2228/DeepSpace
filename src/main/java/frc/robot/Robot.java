@@ -39,7 +39,11 @@ public class Robot extends TimedRobot {
   // private static int pigeonPort = RobotMap.PIGEONIMU;
   // private static Pigeon pigeon = new Pigeon(pigeonPort);
   // private Navx navx = new Navx(Navx.Port.I2C
-  private SerialDataHandler serialDataHandler = new SerialDataHandler(9000, SerialPort.Port.kMXP, 8, SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private SerialDataHandler serialDataHandler = new SerialDataHandler(9600, SerialPort.Port.kMXP, 8,
+      SerialPort.Parity.kNone, SerialPort.StopBits.kOne);
+  private RevTOF frontTOFSensor = new RevTOF();
+  //private RevTOF leftTOFSensor = new RevTOF();
+  //private RevTOF rightTOFSensor = new RevTOF();
   // private DriveBase base = new DriveBase(controller, navx, DriveType.Tank);
   // private Elevator elevator = new Elevator(base, controller);
   // private Hatch hatch = new Hatch(controller, base);
@@ -49,6 +53,18 @@ public class Robot extends TimedRobot {
   // private String m_autoSelected;
   private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
   // private Relay visionRelay = new Relay(0);
+
+  int loopIndex = 0;
+
+  int range_valueFront = 0;
+  int range_valueRight = 0;
+  int range_valueLeft = 0;
+
+  long accumulatorFront = 0;
+  long accumulatorRight = 0;
+  long accumulatorLeft = 0;
+
+  int tofLoopIndex = 0;
 
   @Override
   public void robotInit() {
@@ -60,6 +76,23 @@ public class Robot extends TimedRobot {
     // visionRelay.set(Relay.Value.kForward);
 
     Hardware.canifier.configFactoryDefault();
+
+    frontTOFSensor.init(false);
+    //leftTOFSensor.init(false);
+    //rightTOFSensor.init(false);
+
+    frontTOFSensor.setAddress(0x20);
+    //leftTOFSensor.setAddress(0x21);
+    //rightTOFSensor.setAddress(0x22);
+
+    frontTOFSensor.setTimeout(10);
+    //leftTOFSensor.setTimeout(10);
+    //rightTOFSensor.setTimeout(10);
+
+    frontTOFSensor.startContinuous(0);
+    //leftTOFSensor.startContinuous(0);
+    //rightTOFSensor.startContinuous(0);*/
+
   }
 
   @Override
@@ -136,12 +169,50 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    
-     serialDataHandler.readPort();
-    //if (loopIndex++ == 5) {
-     System.out.println(String.format("sensor1Data: %d ", serialDataHandler.getSensor1Data()));
-     System.out.println(String.format("sensor2Data: %d ", serialDataHandler.getSensor2Data()));
-     //}
+
+    /*
+     * serialDataHandler.readPort(); if (loopIndex++ == 50) {
+     * System.out.println(String.format("sensor1Data: %d ",
+     * serialDataHandler.getSensor1Data()));
+     * System.out.println(String.format("sensor2Data: %d ",
+     * serialDataHandler.getSensor2Data())); }
+     */
+
+    range_valueFront = frontTOFSensor.readRangeContinuousMillimeters();
+    //range_valueRight = rightTOFSensor.readRangeContinuousMillimeters();
+    //range_valueLeft = leftTOFSensor.readRangeContinuousMillimeters();
+
+    accumulatorFront += range_valueFront;
+    //accumulatorRight += range_valueRight;
+    //accumulatorLeft += range_valueLeft;
+    tofLoopIndex++;
+
+    //if (tofLoopIndex >= 16) {
+      range_valueFront = (int) (accumulatorFront >> 4);
+     // range_valueRight = (int) (accumulatorRight >> 4);
+      //range_valueLeft = (int) (accumulatorLeft >> 4);
+
+      tofLoopIndex = 0;
+
+      accumulatorFront = 0;
+      //accumulatorLeft = 0;
+      //accumulatorRight = 0;
+
+      System.out.println(String.format("Front Sensor: %d ", range_valueFront));
+      //System.out.println(String.format("Left Sensor: %d ", range_valueLeft));
+     // System.out.println(String.format("Right Sensor: %d ", range_valueRight));
+
+      //if (rightTOFSensor.timeoutOccurred()) {
+      //  System.out.println(" TIMEOUT RIGHT SENSOR");
+     // }
+      //if (leftTOFSensor.timeoutOccurred()) {
+      //  System.out.println(" TIMEOUT LEFT SENSOR");
+      //}
+      if (frontTOFSensor.timeoutOccurred()) {
+        System.out.println(" TIMEOUT FRONT SENSOR");
+      }
+   // }
+
     // base.TeleopMove();
 
       // elevator.teleopRaise();
@@ -162,7 +233,7 @@ public class Robot extends TimedRobot {
      */
 
     // pixy.read();
-    Schedulers.PeriodicTasks.process();
+    //Schedulers.PeriodicTasks.process();
 
   }
 
