@@ -163,7 +163,10 @@ public class Motor {
 		motor.stopMotor();
 	}
 	public void setBrakeMode(boolean on) {
-		motor.setNeutralMode(on ? NeutralMode.Brake : NeutralMode.Coast);
+		if(on)
+		motor.setNeutralMode(NeutralMode.Brake);
+		else
+		motor.setNeutralMode(NeutralMode.Coast);
 	}
 	public MoveTo moveToEncoder(double targetEncoderCount, double speed, Motor...pairedMotors) {
 		// //System.out.printlnln("Returning new moveTo");
