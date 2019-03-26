@@ -95,7 +95,7 @@ public class DriverIF {
     public boolean slowRuss() {
         return slowRobot.toggle(xbox.X_BUTTON()) == 1;
     }
-    public boolean climb3ndLvl() {
+    public boolean climb3rdLvl() {
         return xbox.LEFT_BUMPER();
     }
 
