@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class DriverIF {
     private XboxIF xbox;
     private Toggler elevatorExtendToggle;
@@ -11,6 +13,7 @@ public class DriverIF {
         lightsToggle = new Toggler(2, true);
         elevatorExtendToggle = new Toggler(2, true);
         slowRobot = new Toggler(2, true);
+        SmartDashboard.putBoolean("Climb Reset", false);
         
         elevatorExtendToggle.state = 1;
     }
@@ -94,13 +97,21 @@ public class DriverIF {
     }
     public boolean climb3rdLvl() {
         return xbox.LEFT_BUMPER();
-        
     }
+
     public boolean climb2ndLvl() {
         return xbox.DPAD_DOWN();
     }
 
-    public boolean climbReset(){
+    public boolean climbReset() {
+        return SmartDashboard.getBoolean("Climb Reset", false); //TODO the button for climb reset in shuffleboard DOES NOT WORK, IT NEEDS TO BE FIXED!!!!
+    }
+    
+    public boolean leftBallDeflector() {
         return xbox.DPAD_LEFT();
+    }
+
+    public boolean rightBallDeflector() {
+        return xbox.DPAD_RIGHT();
     }
 }
