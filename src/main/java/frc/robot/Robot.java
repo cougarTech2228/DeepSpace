@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
   private Vision vision = new Vision();
   private Hatch hatch = new Hatch(controller, vision);
   private Elevator elevator = new Elevator(base, controller);
+  private BallDeflector ballDeflector = new BallDeflector(controller);
 
   private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -82,6 +83,7 @@ public class Robot extends TimedRobot {
     elevator.teleopPeriodic();
     vision.teleop();
     hatch.teleop();
+    ballDeflector.teleOpPeriodic();
   }
 
   @Override
