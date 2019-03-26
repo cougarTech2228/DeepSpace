@@ -97,7 +97,7 @@ public class DriverIF {
         
     }
     public boolean climb2ndLvl() {
-        return xbox.DPAD_RIGHT();
+        return xbox.DPAD_DOWN();
     }
 
     public boolean climbReset(){
