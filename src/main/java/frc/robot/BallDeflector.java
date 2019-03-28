@@ -47,7 +47,7 @@ public class BallDeflector {
 
         if (isLeftArmExtended == false) {
             leftArm.set(true);
-            System.out.println("Extending left arm");
+            // System.out.println("Extending left arm");
         }
 
         isLeftArmExtended = true;
@@ -58,7 +58,7 @@ public class BallDeflector {
         
         if (isRightArmExtended == false) {
             rightArm.set(true);
-            System.out.println("Extending right arm");
+            // System.out.println("Extending right arm");
         }
 
         isRightArmExtended = true;
@@ -69,7 +69,7 @@ public class BallDeflector {
         
         if (isLeftArmExtended == true) {
             leftArm.set(false);
-            System.out.println("Retracting left arm");
+            //System.out.println("Retracting left arm");
         }
 
         isLeftArmExtended = false;
@@ -80,7 +80,7 @@ public class BallDeflector {
         
         if (isRightArmExtended == true) {
             rightArm.set(false);
-            System.out.println("Retracting right arm");
+            //System.out.println("Retracting right arm");
         }
 
         isRightArmExtended = false;

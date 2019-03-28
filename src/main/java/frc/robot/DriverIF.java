@@ -1,12 +1,13 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 
 public class DriverIF {
     private XboxIF xbox;
     private Toggler elevatorExtendToggle;
     private Toggler lightsToggle;
     private Toggler slowRobot;
+    private double hatchPushTimer;
 
     public DriverIF() {
         xbox = new XboxIF(1);
@@ -30,7 +31,10 @@ public class DriverIF {
     }
 
     public boolean hatchExtend() {
-        return xbox.RIGHT_BUMPER();
+        if(xbox.RIGHT_BUMPER()) {
+            hatchPushTimer = Timer.getFPGATimestamp();
+        }
+        return hatchPushTimer + 0.3 > Timer.getFPGATimestamp();
     }
     public boolean elevatorToggle() {
         elevatorExtendToggle.toggle(xbox.START_BUTTON());
@@ -47,7 +51,7 @@ public class DriverIF {
 
     public boolean toggleLights() {
         lightsToggle.toggle(xbox.BACK_BUTTON());
-        return lightsToggle.state == 1;
+        return lightsToggle.state == 0;
     }
 
     public boolean encoderTestLeftFront() {
@@ -94,23 +98,19 @@ public class DriverIF {
     public boolean slowRuss() {
         return slowRobot.toggle(xbox.X_BUTTON()) == 1;
     }
-    public boolean climb3rdLvl() {
+    public boolean climb3ndLvl() {
         return xbox.LEFT_BUMPER();
+        
     }
-
     public boolean climb2ndLvl() {
         return xbox.DPAD_DOWN();
     }
 
-    public boolean climbReset() {
-        return xbox.DPAD_UP(); //TODO the button for climb reset in shuffleboard DOES NOT WORK, IT NEEDS TO BE FIXED!!!!
-    }
-    
-    public boolean leftBallDeflector() {
+    public boolean leftBallDeflector(){
         return xbox.DPAD_LEFT();
     }
 
-    public boolean rightBallDeflector() {
+    public boolean rightBallDeflector(){
         return xbox.DPAD_RIGHT();
     }
 }

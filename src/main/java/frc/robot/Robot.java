@@ -7,7 +7,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import frc.robot.DriveBase.DriveType;
 import frc.robot.LEDUtilities.*;
@@ -35,18 +37,23 @@ public class Robot extends TimedRobot {
   private Vision vision = new Vision();
   private Hatch hatch = new Hatch(controller, vision);
   private Elevator elevator = new Elevator(base, controller);
-  private BallDeflector ballDeflector = new BallDeflector(controller);
 
   private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
   //private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
   private Lights leds = new Lights();
+  private BallDeflector ballBuster = new BallDeflector(controller);
+  Watchdog wdog;
+
+  public Robot() {
+    super(0.03);
+  }
 
   @Override
   public void robotInit() {
+    CameraServer.getInstance().startAutomaticCapture();
     Hardware.canifier.configFactoryDefault();
   }
-
   @Override
   public void robotPeriodic() {
     Scheduler.getInstance().run();
@@ -68,25 +75,22 @@ public class Robot extends TimedRobot {
     // for(ILoopable taskAnimateLEDStrip : Tasks.FullList){
     //   Schedulers.PeriodicTasks.add(taskAnimateLEDStrip);
     // }
-    // auto.init();
-    // base.teleopInit();
-    // vision.visionInit();
-    // hatch.teleopInit();
+    auto.init();
+    base.teleopInit();
+    vision.visionInit();
+    hatch.teleopInit();
     elevator.teleopInit();
   }
 
   @Override
   public void teleopPeriodic() {
-    // auto.teleop();
-    // vision.setRelay(controller.toggleLights());
-    // base.TeleopMove();
+    auto.teleop();
+    vision.setRelay(controller.toggleLights());
+    base.TeleopMove();
     elevator.teleopPeriodic();
     vision.teleop();
     hatch.teleop();
-    ballDeflector.teleOpPeriodic();
-    // vision.teleop();
-    // hatch.teleop();
-    System.out.println(pigeon.getPitch());
+    ballBuster.teleOpPeriodic();
   }
 
   @Override

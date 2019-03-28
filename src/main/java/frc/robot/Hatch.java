@@ -251,7 +251,7 @@ public class Hatch {
                     strafe.set(-STRAFE_SPEED / 1.5);
                 } else {
                     complete = true;
-                    System.out.println("Reached left bound");
+                    //System.out.println("Reached left bound");
                 }
             }
 
