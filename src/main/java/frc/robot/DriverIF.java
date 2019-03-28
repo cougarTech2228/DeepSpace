@@ -13,7 +13,6 @@ public class DriverIF {
         lightsToggle = new Toggler(2, true);
         elevatorExtendToggle = new Toggler(2, true);
         slowRobot = new Toggler(2, true);
-        SmartDashboard.putBoolean("Climb Reset", false);
         
         elevatorExtendToggle.state = 1;
     }
@@ -104,7 +103,7 @@ public class DriverIF {
     }
 
     public boolean climbReset() {
-        return SmartDashboard.getBoolean("Climb Reset", false); //TODO the button for climb reset in shuffleboard DOES NOT WORK, IT NEEDS TO BE FIXED!!!!
+        return xbox.DPAD_UP(); //TODO the button for climb reset in shuffleboard DOES NOT WORK, IT NEEDS TO BE FIXED!!!!
     }
     
     public boolean leftBallDeflector() {

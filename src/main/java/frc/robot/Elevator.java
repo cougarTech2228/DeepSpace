@@ -117,15 +117,15 @@ public class Elevator {
         lvl3Climb[2].addSequential(liftElevator(1, 0, false));
 
         lvl2Climb[0] = new CommandGroup();
-        lvl2Climb[0].addSequential(liftElevator(0, 1, false));
-        lvl2Climb[0].addSequential(deployElevator(true));
+        lvl2Climb[0].addSequential(liftElevator(0, 1, false), 6);
+        lvl2Climb[0].addSequential(deployElevator(true), 3);
 
         lvl2Climb[1] = new CommandGroup();
-        lvl2Climb[1].addSequential(liftElevator(0, -0.5, false));
-        lvl2Climb[1].addSequential(liftElevator(-0.9, 0, true));
+        lvl2Climb[1].addSequential(liftElevator(0, -0.5, false), 6);
+        lvl2Climb[1].addSequential(liftElevator(-0.9, 0, true), 5);
 
         lvl2Climb[2] = new CommandGroup();
-        lvl2Climb[2].addSequential(liftElevator(1, 0, false));
+        lvl2Climb[2].addSequential(liftElevator(1, 0, false), 4.5);
 
         climbReset.addSequential(liftElevator(0.3, 0.6, false));
     }
@@ -137,7 +137,8 @@ public class Elevator {
         // liftDrive.set(controls.throttle() * 1.3);
         // }
 
-        if (controls.climbReset() && TeleClimbLvl2.state != 1) {
+        
+        if (controls.climbReset() && TeleClimbLvl2.state > 1) {
             Scheduler.getInstance().removeAll();
             lvl2Climb[TeleClimbLvl2.state].cancel();
             TeleClimbLvl2.state = 1;
@@ -146,7 +147,7 @@ public class Elevator {
             lastButtonPressed = true;
         }
 
-        if (controls.climbReset() && TeleClimbLvl3.state != 1) {
+        if (controls.climbReset() && TeleClimbLvl3.state > 1) {
             Scheduler.getInstance().removeAll();
             lvl3Climb[TeleClimbLvl3.state].cancel();
             TeleClimbLvl3.state = 1;
@@ -154,6 +155,7 @@ public class Elevator {
             liftDrive.stop();
             lastButtonPressed = true;
         }
+
 
         int lvl2Num = TeleClimbLvl2.state;
         TeleClimbLvl2.toggle(controls.climb2ndLvl());
@@ -193,6 +195,7 @@ public class Elevator {
             }
                 break;
             case 4: {
+                lvl2Climb[1].cancel();
                 lvl2Climb[2].start();
                 frontLift.set(0);
                 liftDrive.set(0);
@@ -204,12 +207,12 @@ public class Elevator {
         if (lvl3Num != TeleClimbLvl3.state) {
             switch (TeleClimbLvl3.state) {
             case 1: {
-                climbReset.cancel();
                 lvl3Climb[0].start();
                 base.setMaxSpeed(0.5);
             }
                 break;
             case 2: {
+                climbReset.cancel();
                 elevatorDeployMotor.set(0);
                 lvl3Climb[0].cancel();
                 lvl3Climb[1].start();
@@ -224,6 +227,7 @@ public class Elevator {
             }
                 break;
             case 4: {
+                lvl3Climb[2].cancel();
                 frontLift.set(0);
                 liftDrive.set(0);
 
