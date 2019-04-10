@@ -41,23 +41,23 @@ public class Robot extends TimedRobot {
   private AutoMaster auto = new AutoMaster(base, hatch, vision, controller);
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
   //private static TaskAnimateLEDStrip taskAnimateLEDStrip = new TaskAnimateLEDStrip();
-  private Lights leds = new Lights();
+  //private Lights leds = new Lights();
   private BallDeflector ballBuster = new BallDeflector(controller);
   Watchdog wdog;
 
   public Robot() {
-    super(0.03);
+    super(0.025);
   }
 
   @Override
   public void robotInit() {
     CameraServer.getInstance().startAutomaticCapture();
-    Hardware.canifier.configFactoryDefault();
+    //Hardware.canifier.configFactoryDefault();
   }
   @Override
   public void robotPeriodic() {
     Scheduler.getInstance().run();
-    leds.loop();
+    //leds.loop();
   }
 
   @Override
