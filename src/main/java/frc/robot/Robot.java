@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Watchdog;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.DriveBase.DriveType;
 import frc.robot.LEDUtilities.*;
 import frc.robot.LEDs.Lights;
@@ -29,6 +30,8 @@ public class Robot extends TimedRobot {
   private static Pigeon pigeon = new Pigeon(RobotMap.PIGEONIMU);
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
+
+  private boolean childMode = false;
 
   private DriverIF controller = new DriverIF();
   private DriveBase base = new DriveBase(controller, pigeon, DriveType.Tank);
@@ -52,10 +55,15 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     CameraServer.getInstance().startAutomaticCapture();
+    SmartDashboard.putBoolean("childMode", childMode);
     //Hardware.canifier.configFactoryDefault();
   }
   @Override
   public void robotPeriodic() {
+    childMode = SmartDashboard.getBoolean("childMode", childMode);
+    
+    controller.childMode(childMode);
+    System.out.println("childMode is " + childMode + "===================================");
     Scheduler.getInstance().run();
     //leds.loop();
   }
