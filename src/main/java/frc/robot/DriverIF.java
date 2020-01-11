@@ -79,8 +79,12 @@ public class DriverIF {
     }
 
     public boolean autoDeploy() {
+        return false;//return xbox.A_BUTTON();
+    }
+    public boolean manualOverride() {
         return xbox.A_BUTTON();
     }
+
     public boolean autoRetrieve(){
         return xbox.B_BUTTON();
     }
